@@ -79,7 +79,7 @@ function createHeaderBox() {
     const APIs = [];
     (_a = document.body.querySelectorAll('#ccOS > div')) === null || _a === void 0 ? void 0 : _a.forEach(ele => APIs.push(ele.id));
     const toggleBox = FormSet.createElement('div', { id: 'headerBox', className: 'm5', innerText: `ccOS Web API v${ccOS.version}\t` });
-    toggleBox.innerText = `[ROYA]ccOS Web API ${(ccOS === null || ccOS === void 0 ? void 0 : ccOS.version) || ''}\t`;
+    toggleBox.innerText = `########ccOS Web API########## ${(ccOS === null || ccOS === void 0 ? void 0 : ccOS.version) || ''}\t`;
     const setAlert = FormSet.cbSetAlert(toggleBox);
     if (!(ccOS === null || ccOS === void 0 ? void 0 : ccOS.version))
         setAlert('ccOS undefined');
