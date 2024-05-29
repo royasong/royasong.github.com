@@ -51,7 +51,7 @@ function postSubscription(subscription) {
             showAlert('postSubscription - subscription cannot be empty');
             return;
         }
-        const response = yield fetch('/subscription', {
+        const response = yield fetch('subscription', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -63,7 +63,7 @@ function postSubscription(subscription) {
 }
 function deleteSubscription() {
     return __awaiter(this, void 0, void 0, function* () {
-        const response = yield fetch('/subscription', {
+        const response = yield fetch('subscription', {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
@@ -80,7 +80,7 @@ function subscribe() {
             return;
         }
         try {
-            const response = yield fetch('/vapid-public-key');
+            const response = yield fetch('vapid-public-key');
             const vapidPublicKey = yield response.text();
             console.log('subscribe', { vapidPublicKey });
             const registration = store.serviceWorkerRegistration;
@@ -134,7 +134,7 @@ function sendPushNotification() {
             showAlert('Target userId cannot be empty');
             return;
         }
-        const response = yield fetch('/send-push-notification', {
+        const response = yield fetch('send-push-notification', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
