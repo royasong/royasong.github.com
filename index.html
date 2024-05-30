@@ -42,7 +42,12 @@
         });
   /** When app is active */
   messaging.onMessage((payload) => {
-    console.log(payload)
+    const title = "Hello World";
+    const options = {
+            body: payload.data.status
+    };
+    console.log(options);
+
   }, e => {
     console.log(e)
   })
