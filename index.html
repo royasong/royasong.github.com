@@ -5,15 +5,16 @@
     <title>Insert title here</title>
 </head>
 <body>
- 
+<script>
+if('serviceWorker' in navigator) {
+		console.log("registor serviceWorker");
+  navigator.serviceWorker.register("service-worker.js");
+};
+</script>
 <h1 id="order"></h1>
  
 <h1> 파이어 메세지</h1>
 <script src="https://www.gstatic.com/firebasejs/5.5.9/firebase.js">
-async function registerServiceWorker(): Promise<ServiceWorkerRegistration> {
-	console.log("Before 1111");
-  return await navigator.serviceWorker.register("service-worker.js");
-}
 </script>
 <script>
     // Initialize Firebase

@@ -14,7 +14,7 @@ var config = {
 firebase.initializeApp(config);
  
 const messaging = firebase.messaging();
-messaging.setBackgroundMessageHandler(function(payload){
+messaging.setBackgroundMessageHandler(function(payload) {
  
     console.log("Before 1");
     const title = "Hello World";
