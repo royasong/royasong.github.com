@@ -3,13 +3,13 @@ importScripts('https://www.gstatic.com/firebasejs/4.8.1/firebase-messaging.js');
  
 // Initialize Firebase
 var config = {
-    apiKey: "AIzaSyDY6AvHo9p8dozoabqkMMrSby6jIv4xM5Q",
-    authDomain: "webpushtest-3562b.firebaseapp.com",
-    projectId: "webpushtest-3562b",
-    storageBucket: "webpushtest-3562b.appspot.com",
-    messagingSenderId: "1060844639560",
-    appId: "1:1060844639560:web:8b7755eda8f6c4f8210f7d",
-    measurementId: "G-2C8X6K6HNT"
+  apiKey: "AIzaSyBe5O9Rin9xcg0xOQafmuvkCdMtzn2gawI",
+  authDomain: "roya-fc113.firebaseapp.com",
+  projectId: "roya-fc113",
+  storageBucket: "roya-fc113.appspot.com",
+  messagingSenderId: "122781594935",
+  appId: "1:122781594935:web:f8c9bd3f2ce74a636896b2",
+  measurementId: "G-YZW72VKQDX"
 };
 firebase.initializeApp(config);
  
