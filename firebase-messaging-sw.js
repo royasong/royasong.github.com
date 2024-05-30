@@ -16,7 +16,15 @@ firebase.initializeApp(config);
 console.log("service worker working");
  
 const messaging = firebase.messaging();
-messaging.onMessage((payload) => {
-  console.log('ROYA..Message received. ', payload);
-  // ...
+
+messaging.setBackgroundMessageHandler(function(payload){
+ 
+    console.log("Before 1");
+    const title = "Hello World";
+    const options = {
+            body: payload.data.status
+    };
+    console.log("Before 2");
+ 
+    return self.registration.showNotification(title,options);
 });
