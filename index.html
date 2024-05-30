@@ -30,7 +30,7 @@
     messaging.requestPermission()
         .then(function(){
             console.log("Have permission");
-            return messaging.getToken();
+            return messaging.getToken(messaging,"P9Y8luVwaQIIyuS47E0NbQ7uHAOPgfi78shKggfAEOHyZmkOny1OKjuTnE3Ftp2Mr-DWJDGHBtqE");
         })
         .then(function(token){
             console.log(token);
