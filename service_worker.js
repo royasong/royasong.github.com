@@ -1,5 +1,7 @@
 self.addEventListener("push", (event) => {
   const payload = JSON.parse(event.data.text());
+  console.log("ROYA//push");
+  console.log(event.data.text());
   event.waitUntil(
     registration.showNotification(payload.title, {
       body: payload.body,
@@ -13,5 +15,6 @@ self.addEventListener("notificationclick", (event) => {
 });
 
 self.addEventListener("install", () => {
+	console.log("ROYA//push");
   self.skipWaiting();
 });
