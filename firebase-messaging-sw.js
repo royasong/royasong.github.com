@@ -25,13 +25,3 @@ messaging.setBackgroundMessageHandler(function(payload) {
  
     return self.registration.showNotification(title,options);
 });
-
-messaging.onMessage(function(payload){
-        console.log('roya onMessage: ', payload);
-        var title = "고라니 서비스";
-        var options = {
-                body: payload.notification.body
-        };
-        
-        var notification = new Notification(title, options);
-});
