@@ -28,3 +28,7 @@ messaging.setBackgroundMessageHandler(function(payload){
  
     return self.registration.showNotification(title,options);
 });
+messaging.onMessage((payload) => {
+  console.log('ROYA Message received. ', payload);
+  // ...
+});

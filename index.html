@@ -37,10 +37,15 @@
 			console.log("token");
             console.log(token);
         })
-        .catch(function(arr){
+        .catch(function(arr) {
             console.log("Error Occured");
         });
- 
+  /** When app is active */
+  messaging.onMessage((payload) => {
+    console.log(payload)
+  }, e => {
+    console.log(e)
+  })
  
 </script>
  
