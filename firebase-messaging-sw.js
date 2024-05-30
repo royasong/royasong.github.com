@@ -12,6 +12,7 @@ var config = {
 		measurementId: "G-YZW72VKQDX"
 };
 firebase.initializeApp(config);
+console.log("service worker working");
  
 const messaging = firebase.messaging();
 messaging.setBackgroundMessageHandler(function(payload){
