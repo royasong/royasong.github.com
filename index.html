@@ -31,6 +31,7 @@
     messaging.requestPermission()
         .then(function(){
             console.log("Have permission");
+            document.getElementById("log").innerText = "Have permission";
             return messaging.getToken();
         })
         .then(function(token){
@@ -39,6 +40,7 @@
             
         })
         .catch(function(arr) {
+			document.getElementById("log").innerText = "Error Occured";
             console.log("Error Occured");
         });
 
@@ -50,6 +52,7 @@
 		body: payload.notification.body,
 		icon: payload.notification.icon
 	  };
+	  document.getElementById("log").innerText = "message received : " + title;
 	  var notification = new Notification(title,options);
 
   }, e => {
@@ -58,5 +61,6 @@
  
 </script>
 <textarea id="token" rows="10" cols="100">empty</textarea> 
+<textarea id="log" rows="10" cols="100">empty</textarea> 
 </body>
 </html>
