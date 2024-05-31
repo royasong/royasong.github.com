@@ -31,7 +31,6 @@
     messaging.requestPermission()
         .then(function(){
             console.log("Have permission");
-            document.getElementById("log").innerText = "Have permission";
             return messaging.getToken();
         })
         .then(function(token){
@@ -46,13 +45,14 @@
   
   messaging.onMessage((payload) => {
 	  console.log('webpush onMessage: ', payload);
+	  
 	  var title = payload.notification.title;
 	  var options = {
 		body: payload.notification.body,
 		icon: payload.notification.icon
 	  };
-	  document.getElementById("log").innerText = "message received : " + title;
-	  var notification = new Notification(title,options);
+	  alert('webpush onMessage: '+title)
+
 
   }, e => {
     console.log(e)
@@ -60,6 +60,5 @@
  
 </script>
 <textarea id="token" rows="10" cols="100">empty</textarea> 
-<textarea id="log" rows="10" cols="100">empty</textarea> 
 </body>
 </html>
