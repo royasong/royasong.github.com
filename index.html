@@ -43,11 +43,13 @@
 
   
   messaging.onMessage((payload) => {
-    const title = "Hello World";
-    const options = {
-            body: payload.data.status
-    };
-    console.log(options);
+	  console.log('webpush onMessage: ', payload);
+	  var title = payload.notification.title;
+	  var options = {
+		body: payload.notification.body,
+		icon: payload.notification.icon
+	  };
+	  var notification = new Notification(title,options);
 
   }, e => {
     console.log(e)
