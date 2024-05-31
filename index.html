@@ -34,8 +34,9 @@
             return messaging.getToken();
         })
         .then(function(token){
-			console.log("token");
+			document.getElementById("token").innerText = token;
             console.log(token);
+            
         })
         .catch(function(arr) {
             console.log("Error Occured");
@@ -56,6 +57,6 @@
   })
  
 </script>
- 
+<textarea id="token" rows="10" cols="100">empty</textarea> 
 </body>
 </html>
