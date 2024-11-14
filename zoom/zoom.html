@@ -1,60 +1,34 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-    <title>
-        adjust CSS for specific zoom level
-    </title>
-    <style>
-        /* Default styles */
-        body {
-            text-align: center;
-        }
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+* {
+  box-sizing: border-box;
+}
 
-        #sampleDiv {
-            width: 100px;
-            background-color: green;
-        }
+.zoom {
+  padding: 50px;
+  background-color: green;
+  transition: transform .2s;
+  width: 200px;
+  height: 200px;
+  margin: 0 auto;
+}
 
-        /* Media query for lower zoom level */
-        @media (resolution: 96dpi) {
-            #sampleDiv {
-                width: 80px;
-            }
-        }
-
-        /* Media query for higher zoom level */
-        @media (resolution: 120dpi) {
-            #sampleDiv {
-                width: 120px;
-            }
-        }
-    </style>
+.zoom:hover {
+  -ms-transform: scale(1.5); /* IE 9 */
+  -webkit-transform: scale(1.5); /* Safari 3-8 */
+  transform: scale(1.5); 
+}
+</style>
 </head>
+<body class="zoom">
 
-<body>
-    <h2 >
-        adjust CSS for specific zoom level
-    </h2>
-    <button onclick="sampleDiv.style.zoom='100%'" >
-        Zoom 100%
-    </button>
-    <button onclick="sampleDiv.style.zoom='50%'">
-        Zoom 50%
-    </button>
-    <button onclick="sampleDiv.style.zoom='200%'">
-        Zoom 200%
-    </button>
-    <div id="sampleDiv">
-        <img src=
-"https://media.geeksforgeeks.org/wp-content/uploads/20190506164011/logo3.png" 
-            alt="Trulli" 
-            width="250"
-            height="250" 
-            align="middle" 
-            class="center">
-    </div>
-    
+<h1>Zoom on Hover</h1>
+<p>Hover over the div element.</p>
+  
+
+
 </body>
-
 </html>
