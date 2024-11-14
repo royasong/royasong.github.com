@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>
+        adjust CSS for specific zoom level
+    </title>
+    <style>
+        /* Default styles */
+        body {
+            text-align: center;
+        }
+
+        #sampleDiv {
+            width: 100px;
+            background-color: green;
+        }
+
+        /* Media query for lower zoom level */
+        @media (resolution: 96dpi) {
+            #sampleDiv {
+                width: 80px;
+            }
+        }
+
+        /* Media query for higher zoom level */
+        @media (resolution: 120dpi) {
+            #sampleDiv {
+                width: 120px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h2 >
+        adjust CSS for specific zoom level
+    </h2>
+    <button onclick="sampleDiv.style.zoom='100%'" >
+        Zoom 100%
+    </button>
+    <button onclick="sampleDiv.style.zoom='50%'">
+        Zoom 50%
+    </button>
+    <button onclick="sampleDiv.style.zoom='200%'">
+        Zoom 200%
+    </button>
+    <div id="sampleDiv">
+        <img src=
+"https://media.geeksforgeeks.org/wp-content/uploads/20190506164011/logo3.png" 
+            alt="Trulli" 
+            width="250"
+            height="250" 
+            align="middle" 
+            class="center">
+    </div>
+    
+</body>
+
+</html>
