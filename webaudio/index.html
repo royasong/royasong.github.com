@@ -1,0 +1,154 @@
+<html>
+<head>
+    <title></title>
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+</head>
+<body>
+    <input id="volume" type="range">
+    <button onclick="ns.start()">start</button>
+
+    <script type="text/javascript">
+        var ns = (function() {
+            var ns = {};
+
+            try {
+                window.AudioContext = window.AudioContext || window.webkitAudioContext;
+                window.URL = window.URL || window.webkitURL;
+
+                window.requestAnimationFrame = (function(){
+                    return window.requestAnimationFrame  ||
+                      window.webkitRequestAnimationFrame ||
+                      window.mozRequestAnimationFrame    ||
+                      window.oRequestAnimationFrame      ||
+                      window.msRequestAnimationFrame     ||
+                      function(callback) {
+                        window.setTimeout(callback, 1000 / 60);
+                    };
+                })();
+
+                ns.audioContext = new AudioContext();
+            } catch (e) {
+                console.error('sucks to suck');
+            }
+
+            ns.audioSource = ns.audioContext.createBufferSource();
+            ns.audioSource.connect(ns.audioContext.destination);
+
+            ns.PinkNoise = function(alpha, poles, rndFunc) {
+                if (alpha < 0 || alpha > 2) {
+                    throw new Error("oh no");
+                }
+
+                this.rndFunc = rndFunc;
+                this.poles = poles;
+                this.multipliers = new Float32Array(poles);
+                this.values = new Float32Array(poles);
+
+                var a = 1;
+                for (var i = 0; i < poles; i++) {
+                    a = (i - alpha / 2) * a / (i + 1);
+                    this.multipliers[i] = a;
+                }
+
+                for (var i = 0; i < poles * 5; i++) {
+                    this.nextValue();
+                }
+            };
+
+            ns.PinkNoise.prototype.nextValue = function() {
+                var x = this.rndFunc();
+
+                for (var i = 0; i < this.poles; i++) {
+                    x -= this.multipliers[i] * this.values[i];
+                }
+
+                var tmp = this.values[0], tmp2;
+                for (var i = 1; i < this.values.length; i++) {
+                    tmp2 = this.values[i];
+                    this.values[i] = tmp;
+                    tmp = tmp2;
+                }
+
+                this.values[0] = x;
+            };
+
+            ns.createScriptProcessor = function(bufferSize, inputChannels, outputChannels) {
+                return (ns.audioContext.createScriptProcessor) ?
+                    ns.audioContext.createScriptProcessor(bufferSize, inputChannels, outputChannels) :
+                    ns.audioContext.createJavaScriptNode(bufferSize, inputChannels, outputChannels);
+            };
+
+            ns.whiteNoise = function(bufferSize, channels) {
+                var size = bufferSize || 4096,
+                    channels = channels || 1,
+                    node = ns.createScriptProcessor(size, channels, channels),
+                    rnd = d3.random.normal(0, 1);
+
+                node.onaudioprocess = function(audioProcessingEvent) {
+                    var outputBuffer = audioProcessingEvent.outputBuffer;
+                    for (var channel = 0; channel < outputBuffer.numberOfChannels; channel++) {
+                        var outData = outputBuffer.getChannelData(channel);
+                        for (var sample = 0; sample < outputBuffer.length; sample++) {
+                            outData[sample] = volume *  (Math.random() * 2 - 1);
+                            // outData[sample] = (rnd());
+                        }
+                    }
+                };
+
+                return node;
+            };
+
+            ns.pinkNoise = function(bufferSize, channels) {
+                var x0 = x1 = x2 = x3 = x4 = x5 = x6 = 0.0;
+                var size = bufferSize || 4096,
+                    channels = channels || 1,
+                    node = ns.createScriptProcessor(bufferSize, channels, channels);
+
+                // http://www.firstpr.com.au/dsp/pink-noise/
+                node.onaudioprocess = function(e) {
+                    var white;
+                    for (var channel = 0; channel < e.outputBuffer.numberOfChannels; channel++) {
+                        var output = e.outputBuffer.getChannelData(channel);
+                        for (var i = 0; i < output.length; i++) {
+                            // var white = Math.random() * 2 - 1;
+                            white = d3.random.normal()();
+                            x0 = 0.99886 * x0 + white * 0.0555179;
+                            x1 = 0.99332 * x1 + white * 0.0750759;
+                            x2 = 0.96900 * x2 + white * 0.1538520;
+                            x3 = 0.86650 * x3 + white * 0.3104856;
+                            x4 = 0.55000 * x4 + white * 0.5329522;
+                            x5 = -0.7616 * x5 - white * 0.0168980;
+                            output[i] = x0 + x1 + x2 + x3 + x4 + x5 + x6 + white * 0.5362;
+                            output[i] *= 0.11; // (roughly) compensate for gain
+                            x6 = white * 0.115926;
+                        }
+                    }
+                };
+
+                return node;
+            };
+
+            var volume = 0.5;
+            var frequency = 440;
+
+            var rangeSlider = document.getElementById('volume');
+
+            rangeSlider.onchange = function(event) {
+                ns.whiteGain.gain.value = this.value / 100.0;
+            };
+
+            ns.whiteLfo = ns.audioContext.createOscillator();
+            ns.whiteGain = ns.audioContext.createGainNode();
+
+            ns.start = function() {
+                // ns.whiteGain.connect(ns.audioContext.destination);
+                // ns.whiteNoise().connect(ns.whiteGain);
+                ns.pinkNoise(2048, 2).connect(ns.audioContext.destination);
+                // ns.whiteNoise(2048, 2).connect(ns.audioContext.destination);
+            };
+
+            return ns;
+        })();
+    </script>
+</body>
+</html>
