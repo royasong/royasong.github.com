@@ -1,4 +1,3 @@
-<script>
 var audio = document.getElementById("audio-source");
 var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 var source = audioCtx.createMediaElementSource(audio);
@@ -35,4 +34,3 @@ function volumeDown() {
         gainNode.gain.value -= 0.2 
     }
 }
-</script>
