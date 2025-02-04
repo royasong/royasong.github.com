@@ -1,0 +1,46 @@
+{
+   "action": {
+      "default_icon": {
+         "16": "data/icons/16.png",
+         "32": "data/icons/32.png",
+         "48": "data/icons/48.png",
+         "64": "data/icons/64.png"
+      },
+      "default_popup": "data/popup/popup.html",
+      "default_title": "Audio Equalizer"
+   },
+   "background": {
+      "service_worker": "background.js"
+   },
+   "commands": {
+      "_execute_action": {
+      }
+   },
+   "content_scripts": [ {
+      "all_frames": true,
+      "js": [ "data/content_script/inject.js" ],
+      "matches": [ "*://*/*" ],
+      "run_at": "document_start"
+   } ],
+   "description": "Stylish audio equalizer in your browser's toolbar popup.",
+   "homepage_url": "https://mybrowseraddon.com/audio-equalizer.html",
+   "host_permissions": [ "*://*/*" ],
+   "icons": {
+      "128": "data/icons/128.png",
+      "16": "data/icons/16.png",
+      "32": "data/icons/32.png",
+      "48": "data/icons/48.png",
+      "64": "data/icons/64.png"
+   },
+   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkgjFcIUUFiMfneR1tNAGQOkfP0LMqgJ04Q4R/tkk39eZJNKsJVX7pH7EJj8nr63iCWouEIkGkHp5JLBhf3UaKi478ITXei6W8rMfqmvw94h4dKD6ISV6BacECrHix5sQN2/4/iTOMDgHWdPYIOFVg1NvhRt3/Yc9V3EdT3vpVitkZ3d5XNxEwyNjsuJCO8LOK1ZfmLRiEedMNihDlybh4AbK21sGWChbwuipk/3lCapvcup7VyBSoONbJD7oEuk9NHoPEKB2aMuJF4BEr5lveLEWLbii+uC3a2HB5Ejr5At9k2yHYYuDfeZ2FhD2DUvbFLIvebtrnZp82+oqJ07C1wIDAQAB",
+   "manifest_version": 3,
+   "name": "Audio Equalizer",
+   "offline_enabled": true,
+   "permissions": [ "storage", "contextMenus" ],
+   "update_url": "https://clients2.google.com/service/update2/crx",
+   "version": "0.1.9",
+   "web_accessible_resources": [ {
+      "matches": [ "*://*/*" ],
+      "resources": [ "data/content_script/page_context/*" ]
+   } ]
+}
