@@ -39,6 +39,7 @@ const volumeControl = document.querySelector('#volume');
 
 volumeControl.addEventListener('input', function(){
     gainNode.gain.value = this.value
+    console.log("(volumeControl) gainNode.gain.value = this.value" + this.value);
 }, false);
 
 const pannerOptions = { pan : 0 };
@@ -48,5 +49,6 @@ const pannerControl = document.querySelector('#panner');
 
 pannerControl.addEventListener('input', function(){
     panner.pan.value = this.value;
+    console.log("(pannerControl) panner.pan.value = this.value = this.value" + this.value);
 }, false);
 track.connect(gainNode).connect(panner).connect(audioContext.destination);
