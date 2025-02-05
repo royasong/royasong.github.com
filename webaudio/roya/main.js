@@ -35,7 +35,6 @@ const volumeControl = document.querySelector('#volume');
 volumeControl.addEventListener('input', function(){
     gainNode.gain.value = this.value
     alert("roya - volumeControl START ");
-    console.log("(volumeControl) gainNode.gain.value = this.value" + this.value);
 	gainNode.gain.setValueAtTime(2.0, audioContext.currentTime);
 	track.connect(gainNode);
 
