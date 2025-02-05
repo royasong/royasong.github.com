@@ -1,19 +1,14 @@
 alert("roya - Hello world! (START) ");
 const AudioContext = window.AudioContext || window.webkitAudioContext;
-
 const audioContext = new AudioContext();
-
 const audioElement = document.querySelector('audio');
-
 const track = audioContext.createMediaElementSource(audioElement);
 const playButton = document.querySelector('button');
 playButton.addEventListener('click', function (){
-    //check if context is in suspended state (auto policy)
     if(audioContext.state === 'suspended'){
         audioContext.resume();
     }
     console.log("this.dataset : ", this.dataset);
-    //play or pause track depending on state
     if(this.dataset.playing === 'false'){
         audioElement.play();
         this.dataset.playing = 'true'
@@ -26,27 +21,21 @@ playButton.addEventListener('click', function (){
 audioElement.addEventListener('ended', () => {
     playButton.dataset.playing = 'false';
 }, false);
-
 const gainNode = audioContext.createGain();
-// track.connect(gainNode).connect(audioContext.destination);
-
 const volumeControl = document.querySelector('#volume');
-
 volumeControl.addEventListener('input', function(){
     gainNode.gain.value = this.value
     alert("roya - volumeControl START ");
 	gainNode.gain.setValueAtTime(2.0, audioContext.currentTime);
 	track.connect(gainNode);
-
 	let analyserNode = audioContext.createAnalyser();
 	analyserNode.fftSize = 2048;
 	gainNode.connect(analyserNode);
-
 	let pannerOptions = {
 		pan: 0
 	};
 	let pannerNode = new StereoPannerNode(audioContext, pannerOptions);
-	pannerNode.pan.value = 0.5; // range: -1 ~ 1
+	pannerNode.pan.value = 0.5;
 	gainNode.connect(pannerNode);
 
 }, false);
