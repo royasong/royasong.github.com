@@ -63,8 +63,8 @@ const panner = new StereoPannerNode(audioContext, pannerOptions);
 const pannerControl = document.querySelector('#panner');
 
 pannerControl.addEventListener('input', function(){
-    gainNode.gain.value = this.value
-    console.log("(volumeControl) gainNode.gain.value = this.value" + this.value);
+    //gainNode.gain.value = this.value
+    //console.log("(volumeControl) gainNode.gain.value = this.value" + this.value);
 	let test_feedForward =   [0.1215955842, 0.2431911684, 0.1215955842];
 	let test_feedBackward =  [1.2912769759, -1.5136176632, 0.7087230241];
 	const iirfilter = new IIRFilterNode(audioContext, {
