@@ -71,9 +71,7 @@ pannerControl.addEventListener('input', function(){
 	  feedforward: test_feedForward,
 	  feedback: test_feedBackward,
 	});
-	connect(iirfilter).audioContext(audioCtx.destination);
-
-
+	track.connect(iirfilter).connect(audioContext.destination);
 
     console.log("(pannerControl) panner.pan.value = this.value = this.value" + this.value);
 }, false);
