@@ -1,20 +1,12 @@
-
-alert("roya - Hello world! (main.js) ");
-
+alert("roya - Hello world! (START) ");
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 
 const audioContext = new AudioContext();
 
-//get the audio element
 const audioElement = document.querySelector('audio');
 
-//pass it into the audio context
 const track = audioContext.createMediaElementSource(audioElement);
-// track.connect(audioContext.destination);
-
-//select our play button
 const playButton = document.querySelector('button');
-
 playButton.addEventListener('click', function (){
     //check if context is in suspended state (auto policy)
     if(audioContext.state === 'suspended'){
@@ -42,9 +34,9 @@ const volumeControl = document.querySelector('#volume');
 
 volumeControl.addEventListener('input', function(){
     gainNode.gain.value = this.value
+    alert("roya - volumeControl START ");
     console.log("(volumeControl) gainNode.gain.value = this.value" + this.value);
 	gainNode.gain.setValueAtTime(2.0, audioContext.currentTime);
-	// gainNode.gain.value = 2.0;
 	track.connect(gainNode);
 
 	let analyserNode = audioContext.createAnalyser();
@@ -66,8 +58,7 @@ const panner = new StereoPannerNode(audioContext, pannerOptions);
 const pannerControl = document.querySelector('#panner');
 
 pannerControl.addEventListener('input', function(){
-    //gainNode.gain.value = this.value
-    //console.log("(volumeControl) gainNode.gain.value = this.value" + this.value);
+	alert("roya - pannerControl START ");
 	let test_feedForward =   [0.1215955842, 0.2431911684, 0.1215955842];
 	let test_feedBackward =  [1.2912769759, -1.5136176632, 0.7087230241];
 	const iirfilter = new IIRFilterNode(audioContext, {
@@ -75,7 +66,5 @@ pannerControl.addEventListener('input', function(){
 	  feedback: test_feedBackward,
 	});
 	track.connect(iirfilter).connect(audioContext.destination);
-
-    console.log("(pannerControl) panner.pan.value = this.value = this.value" + this.value);
 }, false);
 track.connect(gainNode).connect(panner).connect(audioContext.destination);
