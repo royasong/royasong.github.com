@@ -210,10 +210,19 @@
 
     <script>
 		window.addEventListener("play", function (e) {
-        alert("Hello");
+        alert("window play");
         alert(e.target);
 	}, true);
-  
+    if (Audio) {
+        if (Audio.prototype) {
+            if (Audio.prototype.play) {
+              const play = Audio.prototype.play;
+              Audio.prototype.play = function () {
+				  alert("Audio play");
+		    }
+	      }
+        }
+      }
       console.clear();
       const audioCtx = new AudioContext();
       async function getFile(audioContext, filepath) {
