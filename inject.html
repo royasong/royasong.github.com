@@ -207,8 +207,13 @@
         <section class="filter-graph"></section>
       </div>
     </div>
-<!--
+
     <script>
+		window.addEventListener("play", function (e) {
+        alert("Hello");
+        alert(e.target);
+	}, true);
+  
       console.clear();
       const audioCtx = new AudioContext();
       async function getFile(audioContext, filepath) {
@@ -365,6 +370,6 @@
         }
         canvasCtx.stroke();
       });
-    </script> -->
+    </script>
   </body>
 </html>
