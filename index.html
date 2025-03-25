@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dynamic Hyperlink List</title>
+</head>
+<body>
+  <h2>Generated Hyperlink List</h2>
+  <div id="linkList"></div>
+
+  <script>
+    // 이중 문자열 배열: [ [링크 텍스트, 링크 URL], ... ]
+    const links = [
+      ["Speedometer2.0", "https://browserbench.org/Speedometer2.0/"],
+      ["basemark", "https://web.basemark.com/"],
+      ["wirple.com/bmark", "https://www.wirple.com/bmark/"],
+      ["browserbench.org", "https://browserbench.org/MotionMark/"],
+      ["W3Schools", "https://www.w3schools.com"]
+    ];
+
+    // 링크 리스트를 생성하는 함수
+    function createLinkList(data) {
+      const container = document.getElementById("linkList");
+      const ul = document.createElement("ul");
+
+      data.forEach(([text, url]) => {
+        const li = document.createElement("li");
+        const a = document.createElement("a");
+        a.href = url;
+        a.textContent = text;
+        a.target = "_blank"; // 새 창에서 열기
+        li.appendChild(a);
+        ul.appendChild(li);
+      });
+
+      container.appendChild(ul);
+    }
+
+    // 페이지 로드시 링크 생성
+    window.onload = function() {
+      createLinkList(links);
+    };
+  </script>
+</body>
+</html>
