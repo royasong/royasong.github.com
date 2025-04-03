@@ -1,45 +1,160 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>Dynamic Hyperlink List</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>카테고리 선택 링크 테이블</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    .button-container {
+      margin-bottom: 20px;
+    }
+    .button-container button {
+      margin-right: 10px;
+      padding: 8px 16px;
+      border: none;
+      background-color: #007BFF;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .button-container button.active {
+      background-color: #0056b3;
+    }
+    h2 {
+      margin-top: 30px;
+      color: #333;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 10px;
+      margin-bottom: 30px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    a {
+      color: blue;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
 </head>
 <body>
-  <h2>Generated Hyperlink List</h2>
-  <div id="linkList"></div>
+
+  <h1>카테고리별 링크 목록</h1>
+
+  <div class="button-container" id="categoryButtons">
+    <!-- 카테고리 버튼들 -->
+  </div>
+
+  <div id="tablesContainer">
+    <!-- 자바스크립트가 테이블 여러 개 렌더링 -->
+  </div>
 
   <script>
-    // 이중 문자열 배열: [ [링크 텍스트, 링크 URL], ... ]
-    const links = [
-      ["Speedometer2.0", "https://browserbench.org/Speedometer2.0/"],
-      ["basemark", "https://web.basemark.com/"],
-      ["wirple.com/bmark", "https://www.wirple.com/bmark/"],
-      ["browserbench.org", "https://browserbench.org/MotionMark/"],
-      ["W3Schools", "https://www.w3schools.com"]
+    const tableData = [
+      {
+        title: "검색 사이트",
+        data: [
+          ["구글", "https://www.google.com"],
+          ["네이버", "https://www.naver.com"]
+        ]
+      },
+      {
+        title: "영상 플랫폼",
+        data: [
+          ["유튜브", "https://www.youtube.com"],
+          ["비메오", "https://vimeo.com"]
+        ]
+      },
+      {
+        title: "개발자 도구",
+        data: [
+          ["깃허브", "https://github.com"],
+          ["스택오버플로우", "https://stackoverflow.com"]
+        ]
+      }
     ];
 
-    // 링크 리스트를 생성하는 함수
-    function createLinkList(data) {
-      const container = document.getElementById("linkList");
-      const ul = document.createElement("ul");
+    window.onload = () => {
+      const container = document.getElementById("tablesContainer");
+      const buttonContainer = document.getElementById("categoryButtons");
 
-      data.forEach(([text, url]) => {
-        const li = document.createElement("li");
-        const a = document.createElement("a");
-        a.href = url;
-        a.textContent = text;
-        a.target = "_blank"; // 새 창에서 열기
-        li.appendChild(a);
-        ul.appendChild(li);
+      tableData.forEach((table, index) => {
+        // 버튼 생성
+        const button = document.createElement("button");
+        button.textContent = table.title;
+        button.addEventListener("click", () => {
+          // 버튼 active 스타일 토글
+          document.querySelectorAll(".button-container button").forEach(btn => btn.classList.remove("active"));
+          button.classList.add("active");
+
+          // 테이블 보여주기
+          document.querySelectorAll(".table-wrapper").forEach(wrapper => wrapper.classList.add("hidden"));
+          document.getElementById(`table-${index}`).classList.remove("hidden");
+        });
+        if (index === 0) button.classList.add("active"); // 첫 버튼 기본 활성화
+        buttonContainer.appendChild(button);
+
+        // 테이블 wrapper
+        const wrapper = document.createElement("div");
+        wrapper.className = "table-wrapper";
+        wrapper.id = `table-${index}`;
+        if (index !== 0) wrapper.classList.add("hidden");
+
+        const title = document.createElement("h2");
+        title.textContent = table.title;
+        wrapper.appendChild(title);
+
+        const tableElement = document.createElement("table");
+
+        const thead = document.createElement("thead");
+        const headerRow = document.createElement("tr");
+        ["설명", "링크"].forEach(text => {
+          const th = document.createElement("th");
+          th.textContent = text;
+          headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
+        tableElement.appendChild(thead);
+
+        const tbody = document.createElement("tbody");
+        table.data.forEach(([desc, url]) => {
+          const row = document.createElement("tr");
+          const td1 = document.createElement("td");
+          td1.textContent = desc;
+          const td2 = document.createElement("td");
+          const link = document.createElement("a");
+          link.href = url;
+          link.textContent = url;
+          link.target = "_blank";
+          td2.appendChild(link);
+          row.appendChild(td1);
+          row.appendChild(td2);
+          tbody.appendChild(row);
+        });
+
+        tableElement.appendChild(tbody);
+        wrapper.appendChild(tableElement);
+        container.appendChild(wrapper);
       });
-
-      container.appendChild(ul);
-    }
-
-    // 페이지 로드시 링크 생성
-    window.onload = function() {
-      createLinkList(links);
     };
   </script>
+
 </body>
 </html>
