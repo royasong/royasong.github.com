@@ -1,160 +1,37 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>카테고리 선택 링크 테이블</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-    }
-    .button-container {
-      margin-bottom: 20px;
-    }
-    .button-container button {
-      margin-right: 10px;
-      padding: 8px 16px;
-      border: none;
-      background-color: #007BFF;
-      color: white;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .button-container button.active {
-      background-color: #0056b3;
-    }
-    h2 {
-      margin-top: 30px;
-      color: #333;
-    }
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      margin-top: 10px;
-      margin-bottom: 30px;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 10px;
-      text-align: left;
-    }
-    th {
-      background-color: #f2f2f2;
-    }
-    a {
-      color: blue;
-      text-decoration: none;
-    }
-    a:hover {
-      text-decoration: underline;
-    }
-    .hidden {
-      display: none;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <title>Clipboard Access Example</title>
 </head>
 <body>
+  <h2>Chrome Clipboard Access Example</h2>
 
-  <h1>카테고리별 링크 목록</h1>
+  <button id="writeBtn">클립보드에 텍스트 복사</button>
+  <button id="readBtn">클립보드에서 텍스트 읽기</button>
 
-  <div class="button-container" id="categoryButtons">
-    <!-- 카테고리 버튼들 -->
-  </div>
+  <p id="output"></p>
 
-  <div id="tablesContainer">
-    <!-- 자바스크립트가 테이블 여러 개 렌더링 -->
-  </div>
+<script>
+  // 🔹 클립보드 쓰기
+  document.getElementById('writeBtn').addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText("Hello Chrome Clipboard!");
+      alert("클립보드에 텍스트가 복사되었습니다.");
+    } catch (err) {
+      alert("클립보드 쓰기 실패: " + err);
+    }
+  });
 
-  <script>
-    const tableData = [
-      {
-        title: "검색 사이트",
-        data: [
-          ["구글", "https://www.google.com"],
-          ["네이버", "https://www.naver.com"]
-        ]
-      },
-      {
-        title: "영상 플랫폼",
-        data: [
-          ["유튜브", "https://www.youtube.com"],
-          ["비메오", "https://vimeo.com"]
-        ]
-      },
-      {
-        title: "개발자 도구",
-        data: [
-          ["깃허브", "https://github.com"],
-          ["스택오버플로우", "https://stackoverflow.com"]
-        ]
-      }
-    ];
-
-    window.onload = () => {
-      const container = document.getElementById("tablesContainer");
-      const buttonContainer = document.getElementById("categoryButtons");
-
-      tableData.forEach((table, index) => {
-        // 버튼 생성
-        const button = document.createElement("button");
-        button.textContent = table.title;
-        button.addEventListener("click", () => {
-          // 버튼 active 스타일 토글
-          document.querySelectorAll(".button-container button").forEach(btn => btn.classList.remove("active"));
-          button.classList.add("active");
-
-          // 테이블 보여주기
-          document.querySelectorAll(".table-wrapper").forEach(wrapper => wrapper.classList.add("hidden"));
-          document.getElementById(`table-${index}`).classList.remove("hidden");
-        });
-        if (index === 0) button.classList.add("active"); // 첫 버튼 기본 활성화
-        buttonContainer.appendChild(button);
-
-        // 테이블 wrapper
-        const wrapper = document.createElement("div");
-        wrapper.className = "table-wrapper";
-        wrapper.id = `table-${index}`;
-        if (index !== 0) wrapper.classList.add("hidden");
-
-        const title = document.createElement("h2");
-        title.textContent = table.title;
-        wrapper.appendChild(title);
-
-        const tableElement = document.createElement("table");
-
-        const thead = document.createElement("thead");
-        const headerRow = document.createElement("tr");
-        ["설명", "링크"].forEach(text => {
-          const th = document.createElement("th");
-          th.textContent = text;
-          headerRow.appendChild(th);
-        });
-        thead.appendChild(headerRow);
-        tableElement.appendChild(thead);
-
-        const tbody = document.createElement("tbody");
-        table.data.forEach(([desc, url]) => {
-          const row = document.createElement("tr");
-          const td1 = document.createElement("td");
-          td1.textContent = desc;
-          const td2 = document.createElement("td");
-          const link = document.createElement("a");
-          link.href = url;
-          link.textContent = url;
-          link.target = "_blank";
-          td2.appendChild(link);
-          row.appendChild(td1);
-          row.appendChild(td2);
-          tbody.appendChild(row);
-        });
-
-        tableElement.appendChild(tbody);
-        wrapper.appendChild(tableElement);
-        container.appendChild(wrapper);
-      });
-    };
-  </script>
-
+  // 🔹 클립보드 읽기
+  document.getElementById('readBtn').addEventListener('click', async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      document.getElementById('output').innerText = "읽은 내용: " + text;
+    } catch (err) {
+      alert("클립보드 읽기 실패: " + err);
+    }
+  });
+</script>
 </body>
 </html>
