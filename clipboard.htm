@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Clipboard API Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 30px; }
+        button { margin: 5px; padding: 10px 15px; }
+        #log { margin-top: 20px; white-space: pre-line; background: #f4f4f4; padding: 10px; }
+    </style>
+</head>
+<body>
+
+<h2>Clipboard API Test Page</h2>
+
+<input id="textInput" type="text" placeholder="복사할 텍스트 입력" style="width: 300px; padding: 5px;">
+<br /><br />
+
+<button onclick="copyText()">📋 텍스트 복사하기</button>
+<button onclick="pasteText()">📥 클립보드에서 붙여넣기</button>
+<button onclick="checkPermissions()">🔐 권한 확인하기</button>
+
+<div id="log"></div>
+
+<script>
+    function log(msg) {
+        const box = document.getElementById("log");
+        box.textContent += msg + "\n";
+    }
+
+    // 텍스트 복사
+    function copyText() {
+        const text = document.getElementById("textInput").value;
+
+        navigator.clipboard.writeText(text)
+            .then(() => log(`✔ 복사됨: "${text}"`))
+            .catch(err => log(`❌ 복사 실패: ${err}`));
+    }
+
+    // 텍스트 붙여넣기 (사용자 이벤트 필요)
+    function pasteText() {
+        navigator.clipboard.readText()
+            .then(text => log(`📥 붙여넣기 결과: "${text}"`))
+            .catch(err => log(`❌ 붙여넣기 실패: ${err}`));
+    }
+
+    // 권한 확인 API
+    async function checkPermissions() {
+        try {
+            const readPerm = await navigator.permissions.query({ name: "clipboard-read" });
+            const writePerm = await navigator.permissions.query({ name: "clipboard-write" });
+
+            log(`🔐 clipboard-read 권한 상태: ${readPerm.state}`);
+            log(`🔐 clipboard-write 권한 상태: ${writePerm.state}`);
+        } catch (e) {
+            log(`❌ Permissions API 오류: ${e}`);
+        }
+    }
+</script>
+
+</body>
+</html>
+
