@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clipboard Test</title>
+<style>
+  body { font-family: sans-serif; padding: 20px; background:#f7f7f7; }
+  button { margin:5px 0; padding:8px 12px; border-radius:5px; border:1px solid #ccc; cursor:pointer; }
+  #log { margin-top:15px; padding:10px; border:1px solid #ccc; border-radius:5px; background:#fff; white-space:pre-wrap; height:200px; overflow:auto; }
+</style>
+</head>
+<body>
+<h2>WebView Clipboard & Permissions Test</h2>
+
+<button id="btnCheck">Permissions 체크</button><br>
+<button id="btnRead">Clipboard 읽기</button><br>
+<input id="txtWrite" type="text" value="테스트 텍스트">
+<button id="btnWrite">Clipboard 쓰기</button><br>
+<button id="btnAuto">자동 실행 (권한 체크 + 읽기/쓰기)</button>
+<button id="btnClear">로그 초기화</button>
+
+<div id="log"></div>
+
+<script>
+const logEl = document.getElementById('log');
+function log(...args){
+  const time = new Date().toLocaleTimeString();
+  logEl.textContent += `[${time}] ${args.map(a=>typeof a==='object'?JSON.stringify(a):a).join(' ')}\n`;
+  logEl.scrollTop = logEl.scrollHeight;
+  console.log(...args);
+}
+
+async function checkPermissions() {
+  log('navigator.permissions:', !!navigator.permissions);
+  if(navigator.permissions && navigator.permissions.query){
+    try {
+      const rRead = await navigator.permissions.query({name:'clipboard-read'});
+      log('clipboard-read state:', rRead.state);
+    } catch(e){ log('perm query read err:', e); }
+    try {
+      const rWrite = await navigator.permissions.query({name:'clipboard-write'});
+      log('clipboard-write state:', rWrite.state);
+    } catch(e){ log('perm query write err:', e); }
+  } else {
+    log('Permissions API not available in this WebView');
+  }
+}
+
+async function readClipboard() {
+  if(!navigator.clipboard || !navigator.clipboard.readText){ log('clipboard.readText not available'); return; }
+  try {
+    const text = await navigator.clipboard.readText();
+    log('clipboard.readText ok:', text);
+  } catch(e){
+    log('clipboard.readText err:', e.name?`${e.name}: ${e.message}`:e);
+  }
+}
+
+async function writeClipboard(text){
+  if(!navigator.clipboard || !navigator.clipboard.writeText){ log('clipboard.writeText not available'); return; }
+  try {
+    await navigator.clipboard.writeText(text);
+    log('clipboard.writeText ok (wrote):', text);
+  } catch(e){
+    log('clipboard.writeText err:', e.name?`${e.name}: ${e.message}`:e);
+  }
+}
+
+// 버튼 이벤트
+document.getElementById('btnCheck').addEventListener('click', checkPermissions);
+document.getElementById('btnRead').addEventListener('click', readClipboard);
+document.getElementById('btnWrite').addEventListener('click', ()=>writeClipboard(document.getElementById('txtWrite').value));
+document.getElementById('btnClear').addEventListener('click', ()=>logEl.textContent='');
+document.getElementById('btnAuto').addEventListener('click', async ()=>{
+  await checkPermissions();
+  await writeClipboard(document.getElementById('txtWrite').value);
+  await readClipboard();
+});
+</script>
+</body>
+</html>
