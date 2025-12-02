@@ -773,14 +773,14 @@
     };
     
     function fnRtcConnect() {
-        fnRtcConnectCallback("wss://pickjoy-dev.obigo.com/webrtc-v2/ws");
+        fnRtcConnectCallback();
     };
     
-    var fnRtcConnectCallback = function(_webSocketUri){
+    var fnRtcConnectCallback = function(){
         const VIN = document.getElementById('VIN').value.trim();
         const UUID = document.getElementById('UUID').value.trim();
         const AVNID = document.getElementById('AVNID').value.trim();
-        const wss_address = document.getElementById('WSS').value.trim();
+        const WSS = document.getElementById('WSS').value.trim();
 
         mTarget = VIN +"-"+ AVNID;
 
@@ -788,10 +788,10 @@
           alert('모든 항목을 입력해주세요.');
           return;
         }
-        alert(wss_address);
+        
         
         // 🔁 변경된 WebSocket 주소
-        ws = new WebSocket(wss_address);
+        ws = new WebSocket(WSS);
 
         ws.onopen = async () => {
           log('✅ WebSocket connected');
