@@ -32,7 +32,7 @@ function log(...args){
 }
 
 async function checkPermissions() {
-  log('navigator.permissions:', !!navigator.permissions);
+  log('>>>>navigator.permissions:', !!navigator.permissions);
   if(navigator.permissions && navigator.permissions.query){
     try {
       const rRead = await navigator.permissions.query({name:'clipboard-read'});
