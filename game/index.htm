@@ -78,6 +78,9 @@
 </head>
 <body>
   <h1>📱 DeviceA Gamepad</h1>
+
+  <label>wss address</label>
+  <input id="WSS" placeholder="" value="wss://stg-pickjoy.obigo.ai/webrtc-v2/ws">
   
   <label>VIN</label>
   <input id="VIN" placeholder="예: 77바1234" value="roya-game">
@@ -777,6 +780,7 @@
         const VIN = document.getElementById('VIN').value.trim();
         const UUID = document.getElementById('UUID').value.trim();
         const AVNID = document.getElementById('AVNID').value.trim();
+        const wss_address = document.getElementById('WSS').value.trim();
 
         mTarget = VIN +"-"+ AVNID;
 
@@ -784,9 +788,9 @@
           alert('모든 항목을 입력해주세요.');
           return;
         }
-
+        
         // 🔁 변경된 WebSocket 주소
-        ws = new WebSocket(_webSocketUri);
+        ws = new WebSocket(wss_address);
 
         ws.onopen = async () => {
           log('✅ WebSocket connected');
