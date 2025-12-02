@@ -79,9 +79,31 @@
 <body>
   <h1>📱 DeviceA Gamepad</h1>
 
-  <label>wss address</label>
-  <input id="WSS" placeholder="" value="wss://stg-pickjoy.obigo.ai/webrtc-v2/ws">
-  
+  <label for="WSS">WSS URL:</label>
+  <input id="WSS" type="text" style="width: 380px;"
+         placeholder="WSS 주소를 입력 또는 선택하세요"
+         value="wss://stg-pickjoy.obigo.ai/webrtc-v2/ws">
+
+  <select id="wssSelect">
+    <option value="">선택</option>
+    <option value="wss://pickjoy-dev.obigo.com/webrtc-v2/ws">DEV</option>
+    <option value="wss://stg-pickjoy.obigo.ai/webrtc-v2/ws">STG</option>
+    <option value="wss://pickjoy.obigo.ai/webrtc-v2/ws">PROD</option>
+    <option value="wss://brk-demo-us-west.obigo.com/webrtc-v2/ws">US</option>
+  </select>
+
+  <script>
+    const select = document.getElementById('wssSelect');
+    const input = document.getElementById('WSS');
+
+    select.addEventListener('change', () => {
+      if (select.value) {
+        input.value = select.value;
+      }
+    });
+  </script>
+  <br></br>
+
   <label>VIN</label>
   <input id="VIN" placeholder="예: 77바1234" value="roya-game">
 
