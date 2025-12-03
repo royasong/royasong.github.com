@@ -105,7 +105,7 @@
   <br></br>
 
   <label>VIN</label>
-  <input id="VIN" placeholder="예: 77바1234" value="roya-game">
+  <input id="VIN" placeholder="예: 77바1234" value="">
 
 
   <label>연결 AVN ID</label>
@@ -123,6 +123,7 @@
     margin-right: 8px;"></div>
   <span>WebSocket 상태</span>
   <br><br>
+
   <button id="btnConnectRTC">WS 서버 연결</button>
   <button onclick="closeConn()">WS 서버 연결 종료</button>
 
@@ -745,11 +746,6 @@
     let dataChannel;
     let mTarget = '';
     let log;
-   
-    function updateWsStatus(connected) {
-      const wsStatus = document.getElementById('wsStatus');
-      wsStatus.style.backgroundColor = connected ? "blue" : "red";
-    }
     
     $(document).ready(function() {
         fnInit();
@@ -830,13 +826,15 @@
 
         ws.onopen = async () => {
           log('✅ WebSocket connected');
-           updateWsStatus(true);   // 파란색으로 변경
           ws.send(JSON.stringify({
              type: 'join-device'
             ,vin: VIN
             ,avnid: AVNID
             ,uuid: UUID
           }));
+          
+          const wsStatus = document.getElementById('wsStatus');
+          updateWsStatus(true); 
         };
 
         ws.onmessage = async (msg) => {
@@ -921,7 +919,6 @@
     function closeConn() {
       if (ws && ws.readyState === WebSocket.OPEN) {
         ws.close();
-        updateWsStatus(false);  // 빨간색 유지
         log("Close websocket connection manual");
       }
     }
