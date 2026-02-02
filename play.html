@@ -1,59 +1,70 @@
-<html lang="ko">
+<!DOCTYPE html>
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SDV Media Test</title>
-    <style>
-        body { font-family: sans-serif; text-align: center; padding-top: 50px; background: #f4f4f4; }
-        button { padding: 15px 30px; font-size: 18px; cursor: pointer; border-radius: 8px; border: none; background: #007bff; color: white; }
-        .info { margin-top: 20px; color: #666; }
-    </style>
+<meta charset="utf-8">
+<title>MediaSession Test</title>
 </head>
+
 <body>
 
-    <h2>SDV 브라우저 미디어 테스트</h2>
-    
-    <audio id="myAudio" loop>
-        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
-    </audio>
+<h2>Media Session Test Page</h2>
 
-    <button onclick="playMusic()">음악 재생 및 정보 전송</button>
+<audio id="player" controls>
+  <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+</audio>
 
-    <div class="info">
-        <p id="status">재생 버튼을 누르면 안드로이드 로그에 정보가 전송됩니다.</p>
-    </div>
+<br><br>
 
-    <script>
-        function playMusic() {
-            const audio = document.getElementById('myAudio');
-            
-            // 1. 음악 재생 (재생이 시작되어야 MediaSession이 활성화됨)
-            audio.play().then(() => {
-                document.getElementById('status').innerText = "재생 중: 정보가 전송되었습니다!";
-                
-                // 2. Media Session API 설정
-                if ('mediaSession' in navigator) {
-                    navigator.mediaSession.metadata = new MediaMetadata({
-                        title: 'Beautiful SDV World',
-                        artist: 'Obigo Developer',
-                        album: 'Chromium 133 Release',
-                        artwork: [
-                            { src: 'https://via.placeholder.com/512', sizes: '512x512', type: 'image/png' }
-                        ]
-                    });
+<button onclick="setMetadata()">Set Media Metadata</button>
+<button onclick="changeMetadata()">Change Metadata</button>
 
-                    // 3. 재생 상태 업데이트
-                    navigator.mediaSession.playbackState = 'playing';
+<script>
 
-                    // 4. (옵션) 차량용 핸들 리모컨 조작 대응
-                    navigator.mediaSession.setActionHandler('play', () => { audio.play(); });
-                    navigator.mediaSession.setActionHandler('pause', () => { audio.pause(); });
-                }
-            }).catch(error => {
-                alert("브라우저 정책상 사용자 상호작용(클릭) 후에만 재생이 가능합니다.");
-                console.error(error);
-            });
-        }
-    </script>
+const audio = document.getElementById("player");
+
+function setMetadata() {
+    if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: "Test Song Title",
+            artist: "Test Artist",
+            album: "Test Album",
+            artwork: [
+                { src: 'https://via.placeholder.com/96', sizes: '96x96', type: 'image/png' },
+                { src: 'https://via.placeholder.com/192', sizes: '192x192', type: 'image/png' }
+            ]
+        });
+
+        console.log("MediaMetadata set");
+
+        navigator.mediaSession.setActionHandler('play', () => audio.play());
+        navigator.mediaSession.setActionHandler('pause', () => audio.pause());
+        navigator.mediaSession.setActionHandler('seekforward', () => audio.currentTime += 10);
+        navigator.mediaSession.setActionHandler('seekbackward', () => audio.currentTime -= 10);
+    }
+}
+
+function changeMetadata() {
+    if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: "Changed Title",
+            artist: "New Artist",
+            album: "New Album"
+        });
+
+        console.log("MediaMetadata changed");
+    }
+}
+
+audio.addEventListener("play", () => {
+    console.log("audio play");
+    setMetadata();
+});
+
+audio.addEventListener("pause", () => {
+    console.log("audio pause");
+});
+
+</script>
+
 </body>
 </html>
