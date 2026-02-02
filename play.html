@@ -1,73 +1,38 @@
 <!DOCTYPE html>
 <html>
-<head>
-<meta charset="utf-8">
-<title>Chromium MediaSession Trigger</title>
-</head>
-
 <body>
 
-<h2>MediaSession Observer Trigger Test</h2>
-
-<button onclick="startPlayback()">START PLAYBACK</button>
-<button onclick="updateMetadata()">UPDATE METADATA</button>
+<button onclick="go()">GO</button>
 
 <script>
 
-let audio;
+function go() {
 
-function startPlayback() {
+const audio = new Audio(
+"data:audio/wav;base64,UklGRlIAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YUwAAAAA/////wAAAP///wAAAP///wAAAP///wAAAP///wAAAP///wAA"
+);
 
-    audio = document.createElement("audio");
-    audio.src = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3";
-    audio.loop = true;
-    audio.muted = false;
-    audio.volume = 1.0;
+audio.loop = true;
+audio.muted = false;
+audio.volume = 1.0;
 
-    document.body.appendChild(audio);
+audio.play().then(() => {
 
-    audio.play().then(() => {
+    console.log("PLAY OK");
 
-        console.log("AUDIO PLAYING — session should become ACTIVE");
-
-        if ("mediaSession" in navigator) {
-
-            navigator.mediaSession.metadata = new MediaMetadata({
-                title: "Initial Title",
-                artist: "Initial Artist",
-                album: "Initial Album",
-                artwork: [
-                    { src: "https://via.placeholder.com/128", sizes: "128x128", type: "image/png" }
-                ]
-            });
-
-            navigator.mediaSession.playbackState = "playing";
-
-            navigator.mediaSession.setActionHandler("play", () => audio.play());
-            navigator.mediaSession.setActionHandler("pause", () => audio.pause());
-            navigator.mediaSession.setActionHandler("stop", () => audio.pause());
-            navigator.mediaSession.setActionHandler("seekforward", () => audio.currentTime += 10);
-            navigator.mediaSession.setActionHandler("seekbackward", () => audio.currentTime -= 10);
-
-            console.log("MediaSession metadata + handlers set");
-        }
-
-    }).catch(e => {
-        console.log("PLAY FAILED:", e);
-        alert("play failed — user gesture required?");
+    navigator.mediaSession.metadata = new MediaMetadata({
+        title: "DATA URL TITLE",
+        artist: "DATA ARTIST",
+        album: "DATA ALBUM"
     });
-}
 
-function updateMetadata() {
-    if ("mediaSession" in navigator) {
-        navigator.mediaSession.metadata = new MediaMetadata({
-            title: "Updated Title",
-            artist: "Updated Artist",
-            album: "Updated Album"
-        });
+    navigator.mediaSession.playbackState = "playing";
 
-        console.log("Metadata updated — should trigger observer");
-    }
+    navigator.mediaSession.setActionHandler("play", () => audio.play());
+    navigator.mediaSession.setActionHandler("pause", () => audio.pause());
+
+});
+
 }
 
 </script>
