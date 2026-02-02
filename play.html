@@ -1,40 +1,73 @@
 <!DOCTYPE html>
 <html>
+<head>
+<meta charset="utf-8">
+<title>Chromium MediaSession Trigger</title>
+</head>
+
 <body>
 
-<button onclick="start()">START MEDIA SESSION</button>
+<h2>MediaSession Observer Trigger Test</h2>
+
+<button onclick="startPlayback()">START PLAYBACK</button>
+<button onclick="updateMetadata()">UPDATE METADATA</button>
 
 <script>
 
 let audio;
 
-function start() {
-    audio = new Audio("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3");
+function startPlayback() {
+
+    audio = document.createElement("audio");
+    audio.src = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3";
     audio.loop = true;
+    audio.muted = false;
+    audio.volume = 1.0;
+
+    document.body.appendChild(audio);
 
     audio.play().then(() => {
-        console.log("playing");
 
-        if ('mediaSession' in navigator) {
+        console.log("AUDIO PLAYING — session should become ACTIVE");
+
+        if ("mediaSession" in navigator) {
 
             navigator.mediaSession.metadata = new MediaMetadata({
-                title: "Observer Test Title",
-                artist: "Observer Artist",
-                album: "Observer Album"
+                title: "Initial Title",
+                artist: "Initial Artist",
+                album: "Initial Album",
+                artwork: [
+                    { src: "https://via.placeholder.com/128", sizes: "128x128", type: "image/png" }
+                ]
             });
 
             navigator.mediaSession.playbackState = "playing";
 
-            navigator.mediaSession.setActionHandler('play', () => audio.play());
-            navigator.mediaSession.setActionHandler('pause', () => audio.pause());
-            navigator.mediaSession.setActionHandler('stop', () => audio.pause());
+            navigator.mediaSession.setActionHandler("play", () => audio.play());
+            navigator.mediaSession.setActionHandler("pause", () => audio.pause());
+            navigator.mediaSession.setActionHandler("stop", () => audio.pause());
+            navigator.mediaSession.setActionHandler("seekforward", () => audio.currentTime += 10);
+            navigator.mediaSession.setActionHandler("seekbackward", () => audio.currentTime -= 10);
 
-            console.log("metadata + handlers set");
+            console.log("MediaSession metadata + handlers set");
         }
 
     }).catch(e => {
-        console.log("play failed:", e);
+        console.log("PLAY FAILED:", e);
+        alert("play failed — user gesture required?");
     });
+}
+
+function updateMetadata() {
+    if ("mediaSession" in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: "Updated Title",
+            artist: "Updated Artist",
+            album: "Updated Album"
+        });
+
+        console.log("Metadata updated — should trigger observer");
+    }
 }
 
 </script>
