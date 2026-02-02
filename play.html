@@ -1,41 +1,56 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Chromium 133 Media Test</title>
+    <style>
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #222; color: white; }
+        button { padding: 20px 40px; font-size: 20px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        button:active { transform: scale(0.98); }
+        #status { margin-top: 20px; color: #aaa; }
+    </style>
+</head>
 <body>
 
-<button onclick="go()">GO</button>
+    <h1>SDV Media Session Test</h1>
+    <button onclick="startTest()">음악 재생 & 정보 전송</button>
+    <p id="status">로그캣에서 "ROYA" 태그를 확인하세요.</p>
 
-<script>
+    <script>
+        function startTest() {
+            // 1. 404를 방지하기 위해 아주 짧은 무음(Silent) 데이터를 사용합니다.
+            // 외부 mp3 파일 없이 브라우저 메모리에서 직접 생성한 소리입니다.
+            const silentAudio = "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==";
+            const audio = new Audio(silentAudio);
+            audio.loop = true;
 
-function go() {
+            audio.play().then(() => {
+                document.getElementById('status').innerText = "재생 중: Metadata 전송 완료!";
+                
+                // 2. Media Session API 설정 (Chromium 133 호환)
+                if ('mediaSession' in navigator) {
+                    navigator.mediaSession.metadata = new MediaMetadata({
+                        title: 'Chromium 133 Native Test',
+                        artist: 'Obigo Developer',
+                        album: 'Automotive Browser Project',
+                        // 404 에러 방지를 위해 artwork는 제외하거나 실제 존재하는 경로만 사용
+                        artwork: [
+                            { src: 'https://via.placeholder.com/512', sizes: '512x512', type: 'image/png' }
+                        ]
+                    });
 
-const audio = new Audio(
-"data:audio/wav;base64,UklGRlIAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YUwAAAAA/////wAAAP///wAAAP///wAAAP///wAAAP///wAAAP///wAA"
-);
-
-audio.loop = true;
-audio.muted = false;
-audio.volume = 1.0;
-
-audio.play().then(() => {
-
-    console.log("PLAY OK");
-
-    navigator.mediaSession.metadata = new MediaMetadata({
-        title: "DATA URL TITLE",
-        artist: "DATA ARTIST",
-        album: "DATA ALBUM"
-    });
-
-    navigator.mediaSession.playbackState = "playing";
-
-    navigator.mediaSession.setActionHandler("play", () => audio.play());
-    navigator.mediaSession.setActionHandler("pause", () => audio.pause());
-
-});
-
-}
-
-</script>
-
+                    // 3. 상태 업데이트 (이게 호출되어야 Observer가 확실히 반응합니다)
+                    navigator.mediaSession.playbackState = 'playing';
+                    
+                    // 4. 리모컨 핸들러 등록 (네이티브 브릿지 활성화 자극)
+                    navigator.mediaSession.setActionHandler('play', () => { audio.play(); });
+                    navigator.mediaSession.setActionHandler('pause', () => { audio.pause(); });
+                }
+            }).catch(e => {
+                console.error("재생 실패:", e);
+                document.getElementById('status').innerText = "에러: " + e.message;
+            });
+        }
+    </script>
 </body>
 </html>
