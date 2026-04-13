@@ -183,13 +183,34 @@
              $("#log").empty();
         });
 
+        const gamepadPackets = {
+          btnY: { press: [91,0,1,1,0,5,1,0,93], release: [91,0,1,1,0,5,0,0,93] },
+          btnA: { press: [91,0,1,1,0,2,1,0,93], release: [91,0,1,1,0,2,0,0,93] },
+          btnB: { press: [91,0,1,1,0,3,1,0,93], release: [91,0,1,1,0,3,0,0,93] },
+          btnX: { press: [91,0,1,1,0,4,1,0,93], release: [91,0,1,1,0,4,0,0,93] },
+        };
+
+        function sendGamepadPacket(key, type) {
+          const packet = gamepadPackets[key];
+          if (!packet) return;
+          if (!ws || ws.readyState !== WebSocket.OPEN) {
+            log('⚠️ WebSocket이 연결되지 않았습니다.');
+            return;
+          }
+          const buf = new Uint8Array(packet[type]);
+          ws.send(buf);
+          log(`📤 ${key} ${type}: [${buf.join(', ')}]`);
+        }
+
         document.querySelectorAll('.gpad-btn').forEach(btn => {
           const key = btn.dataset.key;
           btn.addEventListener('pointerdown', () => {
             log(`[gamepad] press: ${key}`);
+            sendGamepadPacket(key, 'press');
           });
           btn.addEventListener('pointerup', () => {
             log(`[gamepad] release: ${key}`);
+            sendGamepadPacket(key, 'release');
           });
         });
     });
