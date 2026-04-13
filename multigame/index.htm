@@ -65,12 +65,12 @@
   </select>
 <br></br>
          
-  device select : <select id="deviceSelect">
+  device select : <select id="PlayerSelect">
     <option value="">선택</option>
-    <option value="device1">device1</option>
-    <option value="device2">device2</option>
-    <option value="device3">device3</option>
-    <option value="device4">device4</option>
+    <option value="Player1">Player1</option>
+    <option value="Player2">Player2</option>
+    <option value="Player3">Player3</option>
+    <option value="Player4">Player4</option>
   </select>
 
   <script>
@@ -199,9 +199,12 @@
             log('⚠️ WebSocket이 연결되지 않았습니다.');
             return;
           }
+          const playerVal = document.getElementById('PlayerSelect').value;
+          const deviceId = playerVal ? parseInt(playerVal.replace('Player', '')) : 1;
           const buf = new Uint8Array(packet[type]);
+          buf[2] = deviceId;
           ws.send(buf);
-          log(`📤 ${key} ${type}: [${buf.join(', ')}]`);
+          log(`📤 ${key} ${type} player=${deviceId}: [${buf.join(', ')}]`);
         }
 
         document.querySelectorAll('.gpad-btn').forEach(btn => {
