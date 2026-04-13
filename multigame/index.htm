@@ -184,10 +184,12 @@
         });
 
         const gamepadPackets = {
-          btnY: { press: [91,0,1,1,0,5,1,0,93], release: [91,0,1,1,0,5,0,0,93] },
-          btnA: { press: [91,0,1,1,0,2,1,0,93], release: [91,0,1,1,0,2,0,0,93] },
-          btnB: { press: [91,0,1,1,0,3,1,0,93], release: [91,0,1,1,0,3,0,0,93] },
-          btnX: { press: [91,0,1,1,0,4,1,0,93], release: [91,0,1,1,0,4,0,0,93] },
+          // keycode = Linux BTN code (2bytes): BTN_A=0x0130, BTN_B=0x0131, BTN_X=0x0133, BTN_Y=0x0134
+          // packet: [STX, OPCODE, deviceId, EVT_TYPE_BTN, kc1, kc2, evtData, axisDir, ETX]
+          btnA: { press: [91,0,1,1,1,48,1,0,93], release: [91,0,1,1,1,48,0,0,93] },  // BTN_A=0x0130
+          btnB: { press: [91,0,1,1,1,49,1,0,93], release: [91,0,1,1,1,49,0,0,93] },  // BTN_B=0x0131
+          btnX: { press: [91,0,1,1,1,51,1,0,93], release: [91,0,1,1,1,51,0,0,93] },  // BTN_X=0x0133
+          btnY: { press: [91,0,1,1,1,52,1,0,93], release: [91,0,1,1,1,52,0,0,93] },  // BTN_Y=0x0134
         };
 
         function sendGamepadPacket(key, type) {
