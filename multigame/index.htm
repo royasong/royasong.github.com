@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<!-- saved from url=(0049)https://gamepad-webrtc-dev.obigo.com/phoneA2.html -->
+<html lang="ko">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport"
+        content="width=device-width,
+                 initial-scale=1.0,
+                 maximum-scale=1.0,
+                 minimum-scale=1.0,
+                 user-scalable=no">  
+  <title>PhoneA Gamepad - WebRTC</title>
+  <style>
+    body { font-family: sans-serif; padding: 1em; }
+    input, textarea { margin: 0.5em 0; width: 100%; }
+    button { margin: 0.25em; padding: 0.5em 1em; }
+    #log { white-space: pre-wrap; background: #f0f0f0; padding: 1em; height: 250px; overflow-y: auto; margin-top: 1em; }
+    .gpad-btn {
+      position: absolute;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255,255,255,0.15);
+      cursor: pointer;
+      padding: 0;
+    }
+    .gpad-btn:active {
+      background: rgba(255,255,0,0.45);
+    }
+    .container {
+      display: flex;
+      /* 양쪽 div 사이에 공간을 균등 분배하려면 아래 주석 해제 */
+      /* justify-content: space-between; */
+      /* 기본적으로 왼쪽 정렬하려면 아래 주석 해제 */
+      /* justify-content: flex-start; */
+      gap: 10px; /* div들 사이에 10px 간격 */
+    }
+
+    /* 각 박스 스타일 */
+    .box {
+      flex: 1;               /* 동일한 너비로 늘어남 */
+      height: 100px;
+      background-color: lightblue;
+      border: 1px solid #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Roya/Multi game tester Gamepad</h1>
+
+  <label for="WSS">WSS URL:</label>
+  <input id="WSS" type="text" style="width: 380px;"
+         placeholder="WSS 주소를 입력 또는 선택하세요"
+         value="wss://stg-pickjoy.obigo.ai/webrtc-v2/ws">
+  <select id="wssSelect">
+    <option value="">선택</option>
+    <option value="wss://pickjoy-dev.obigo.com/webrtc-v2/ws">DEV</option>
+    <option value="wss://stg-pickjoy.obigo.ai/webrtc-v2/ws">STG</option>
+    <option value="wss://pickjoy.obigo.ai/webrtc-v2/ws">PROD</option>
+    <option value="wss://brk-demo-us-west.obigo.com/webrtc-v2/ws">US</option>
+  </select>
+<br></br>
+         
+  device select : <select id="deviceSelect">
+    <option value="">선택</option>
+    <option value="device1">device1</option>
+    <option value="device2">device2</option>
+    <option value="device3">device3</option>
+    <option value="device4">device4</option>
+  </select>
+
+  <script>
+    const select = document.getElementById('wssSelect');
+    const input = document.getElementById('WSS');
+
+    select.addEventListener('change', () => {
+      if (select.value) {
+        input.value = select.value;
+      }
+    });
+
+    const deviceSelect = document.getElementById('deviceSelect');
+    deviceSelect.addEventListener('change', () => {
+      const selected = deviceSelect.value;
+      if (selected) {
+        console.log('device selected:', selected);
+      }
+    });
+
+  </script>
+  <br></br>
+
+  <label>VIN</label>
+  <input id="VIN" placeholder="예: 77바1234" value="roya-game">
+
+
+  <label>연결 AVN ID</label>
+  <input id="AVNID" placeholder="예: avn1" value="AVN1">
+
+  <label>UUID</label>
+  <input id="UUID" placeholder="" value="#0001">
+
+  <div id="wsStatus" style="
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background-color: red;   /* 초기: 끊김 */
+    display: inline-block;
+    margin-right: 8px;"></div>
+  <span>WebSocket 상태</span>
+  <br><br>
+  <button id="btnConnectRTC">WS 서버 연결</button>
+  <button onclick="closeConn()">WS 서버 연결 종료</button>
+
+  <div id="gamepadWrap" style="position:relative; display:block; max-width:400px; width:100%; margin:0 auto 1em;">
+    <img src="hsnfirdaus-game-7154684_1920.png" alt="Gamepad" style="width:100%; display:block;">
+    <!-- 방향키 -->
+    <button class="gpad-btn" data-key="up"    style="left:19%; top:35%; width:8%; padding-top:8%;"></button>
+    <button class="gpad-btn" data-key="down"  style="left:19%; top:59%; width:8%; padding-top:8%;"></button>
+    <button class="gpad-btn" data-key="left"  style="left:8%;  top:47%; width:8%; padding-top:8%;"></button>
+    <button class="gpad-btn" data-key="right" style="left:30%; top:47%; width:8%; padding-top:8%;"></button>
+    <!-- 게임키 -->
+    <button class="gpad-btn" data-key="btnY"  style="left:65%; top:33%; width:8%; padding-top:8%;"></button>
+    <button class="gpad-btn" data-key="btnA"  style="left:65%; top:57%; width:8%; padding-top:8%;"></button>
+    <button class="gpad-btn" data-key="btnX"  style="left:56%; top:45%; width:8%; padding-top:8%;"></button>
+    <button class="gpad-btn" data-key="btnB"  style="left:74%; top:45%; width:8%; padding-top:8%;"></button>
+  </div>
+  
+  <div>
+    <button onclick="clearLog()">LOG CLEAR</button>
+  </div>
+  <h3>수신 로그</h3>
+  <div id="log"></div>
+  <script src="https://af.obigo.com/launcher/pierre/rtc/jquery-3.7.1.min.js"></script>
+  <script>
+    let ws;
+    let pc;
+    let dataChannel;
+    let mTarget = '';
+    let log;
+   
+    function updateWsStatus(connected) {
+      const wsStatus = document.getElementById('wsStatus');
+      wsStatus.style.backgroundColor = connected ? "blue" : "red";
+    }
+    
+    $(document).ready(function() {
+        fnInit();
+        
+        $("#btnConnectRTC").click(function(){
+            fnRtcConnect();
+        });
+
+        $("#btnA").click(function(){
+            fnSendCtrlInfo("A");
+        });
+        
+        $("#btnB").click(function(){
+            fnSendCtrlInfo("B");
+        });
+        
+        $("#btnLeft").click(function(){
+            fnSendCtrlInfo("LEFT");
+        });
+        
+        $("#btnRight").click(function(){
+            fnSendCtrlInfo("RIGHT");
+        });
+
+        $("#btnUp").click(function(){
+            fnSendCtrlInfo("UP");
+        });
+
+        $("#btnDown").click(function(){
+            fnSendCtrlInfo("DONWN");
+        }); 
+        
+        $("#btnLogClear").click(function(){
+             $("#log").empty();
+        });
+
+        document.querySelectorAll('.gpad-btn').forEach(btn => {
+          const key = btn.dataset.key;
+          btn.addEventListener('pointerdown', () => {
+            log(`[gamepad] press: ${key}`);
+          });
+          btn.addEventListener('pointerup', () => {
+            log(`[gamepad] release: ${key}`);
+          });
+        });
+    });
+    
+    
+    var fnInit = function(){
+        log = (msg) => {
+          const logEl = document.getElementById('log');
+          
+          const now = new Date();
+          const pad = (n, z = 2) => String(n).padStart(z, '0');
+          const timestamp = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ` +
+                            `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}.` +
+                            `${pad(now.getMilliseconds(), 3)}`;
+
+          logEl.textContent += `\n[${timestamp}]${msg}`;
+          logEl.scrollTop = logEl.scrollHeight;
+        };
+        
+        $("#VIN").val("7c77c4e9e76c4ba7");
+        $("#AVNID").val("avn1");
+        $("#UUID").val("#0001");
+    };
+    
+    function fnRtcConnect() {
+        fnRtcConnectCallback();
+    };
+    
+    var fnRtcConnectCallback = function(){
+        const VIN = document.getElementById('VIN').value.trim();
+        const UUID = document.getElementById('UUID').value.trim();
+        const AVNID = document.getElementById('AVNID').value.trim();
+        const WSS = document.getElementById('WSS').value.trim();
+
+        mTarget = VIN +"-"+ AVNID;
+
+        if (!VIN || !UUID || !AVNID) {
+          alert('모든 항목을 입력해주세요.');
+          return;
+        }
+        
+        
+        // 🔁 변경된 WebSocket 주소
+        ws = new WebSocket(WSS);
+
+        ws.onopen = async () => {
+          log('✅ WebSocket connected');
+           updateWsStatus(true);   // 파란색으로 변경
+          ws.send(JSON.stringify({
+             type: 'join-device'
+            ,vin: VIN
+            ,avnid: AVNID
+            ,uuid: UUID
+          }));
+        };
+
+        ws.onmessage = async (msg) => {
+          let text;
+          if (msg.data instanceof Blob) {
+              const arrayBuffer = await msg.data.arrayBuffer();
+              const bytes = new Uint8Array(arrayBuffer);
+              
+              try {
+                  const _text = new TextDecoder().decode(bytes);
+                  const _data = JSON.parse(_text);
+                  
+                  text = await msg.data.text();
+                  log(`📨 ${text}`);
+              } 
+              catch (e) {
+                  // ✅ JSON 아니고 pure binary임
+                  if (bytes.length > 0) {
+                      const hex = [...bytes]
+                        .map(b => b.toString(16).padStart(2, '0'))
+                        .join(' ');
+                      log(`📨 ${hex}`);
+                  } 
+                  else {
+                      log("HEX: (empty)");
+                  }
+              }
+          }
+          else {
+              text = msg.data;              
+              try {
+                  const data = JSON.parse(text);
+                  if (data.type === 'status') {
+                      log(`🔔 ${data.from} is ${data.status}`);
+                  }
+                  //추가--------------------------S
+                  else if (data.type === 'pong' && data.echo) {
+                      const latency = Date.now() - data.echo;
+                      log(`📥 WS pong 수신 (latency: ${latency}ms)`);
+
+                      if (window.notifyWsMessageReceived) {
+                          window.notifyWsMessageReceived(latency);
+                      }
+                  }
+                  //추가--------------------------E                
+                  else {
+                      log(`📨 ${text}`);
+                  }
+                  
+              }
+              catch (e) {
+                  log(`📨 ${text}`);
+              }
+          }
+        };
+    };
+    
+    var fnSendCtrlInfo = function(ctrlButtnName){
+        if (!ws && ws.readyState !== WebSocket.OPEN) {
+          alert('Websocket이 아직 열리지 않았습니다.');
+          return;
+        }
+
+        const payload = { type: 'button', button: ctrlButtnName };
+        ws.send(JSON.stringify(payload));
+        log(`📤 버튼 전송: ${JSON.stringify(payload)}`);
+    };  
+    
+    var fnSetupDataChannelReceive = function(){
+        if (!ws && ws.readyState !== WebSocket.OPEN) {
+          alert('Websocket이 아직 열리지 않았습니다.');
+          return;
+        }
+    };  
+
+    function clearLog() {
+      logCount = 0;
+      const logEl = document.getElementById('log');
+      logEl.textContent = '';
+    }
+
+    function closeConn() {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.close();
+        updateWsStatus(false);  // 빨간색 유지
+        log("Close websocket connection manual");
+      }
+    }
+
+    function setupDataChannelReceive() {
+      dataChannel.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.type === 'status') {
+            log(`📥 게임 상태 수신: ${JSON.stringify(data)}`);
+          } else {
+            log(`📥 일반 수신 데이터: ${JSON.stringify(data)}`);
+          }
+        } catch (err) {
+          log(`📥 원시 수신 데이터: ${event.data}`);
+        }
+      };
+    }
+
+
+
+
+
+    
+    
+  </script>
+
+
+
+</body></html>

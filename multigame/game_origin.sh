@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<!-- saved from url=(0049)https://gamepad-webrtc-dev.obigo.com/phoneA2.html -->
+<html lang="ko">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport"
+        content="width=device-width,
+                 initial-scale=1.0,
+                 maximum-scale=1.0,
+                 minimum-scale=1.0,
+                 user-scalable=no">  
+  <title>PhoneA Gamepad - WebRTC</title>
+  <style>
+    body { font-family: sans-serif; padding: 1em; }
+    input, textarea { margin: 0.5em 0; width: 100%; }
+    button { margin: 0.25em; padding: 0.5em 1em; }
+    #log { white-space: pre-wrap; background: #f0f0f0; padding: 1em; height: 250px; overflow-y: auto; margin-top: 1em; }
+    #eventPanel {
+      width: 400px;
+      height: 200px;
+      background-color: red;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+      cursor: text;
+    }
+    #eventPanel:focus {
+      background-color: green;
+      outline: none;
+    }
+    #touchPanel2 {
+      width: 400px;
+      height: 200px;
+      background-color: red;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+      cursor: text;
+    }
+    #touchPanel2:focus {
+      background-color: green;
+      outline: none;
+    }
+    #touchPanel {
+      width: 400px;
+      height: 200px;
+      background-color: #008351;
+      border: 1px solid #333;
+      position: relative;
+      user-select: none;
+      align-items: center;
+      justify-content: center;
+      display: flex;
+    }
+    .container {
+      display: flex;
+      /* 양쪽 div 사이에 공간을 균등 분배하려면 아래 주석 해제 */
+      /* justify-content: space-between; */
+      /* 기본적으로 왼쪽 정렬하려면 아래 주석 해제 */
+      /* justify-content: flex-start; */
+      gap: 10px; /* div들 사이에 10px 간격 */
+    }
+
+    /* 각 박스 스타일 */
+    .box {
+      flex: 1;               /* 동일한 너비로 늘어남 */
+      height: 100px;
+      background-color: lightblue;
+      border: 1px solid #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>📱 DeviceA Gamepad</h1>
+  
+  <label>VIN</label>
+  <input id="VIN" placeholder="예: 77바1234" value="roya-game">
+
+
+  <label>연결 AVN ID</label>
+  <input id="AVNID" placeholder="예: avn1" value="AVN1">
+
+  <label>UUID</label>
+  <input id="UUID" placeholder="" value="#0001">
+
+
+  <button id="btnConnectRTC">WS 서버 연결</button>
+  <button onclick="closeConn()">WS 서버 연결 종료</button>
+
+
+  <h3>터치 Swipe 입력</h3>
+  <div>
+    <button onclick="sendSlide('U')">상</button>
+    <button onclick="sendSlide('D')">하</button>
+    <button onclick="sendSlide('L')">좌</button>
+    <button onclick="sendSlide('R')">우</button>        
+  </div>
+  <h3>터치 입력</h3>
+  <div>
+    <button id="btnTouchL">좌</button>
+    <button id="btnTouchR">우</button>
+    <button id="btnTouchEndlessL">트럭 좌</button>
+    <button id="btnTouchEndlessR">트럭 우</button>
+    <button id="btnTouchEndlessJump">트럭 점프</button>
+  </div>
+  <div id="touchPanel">
+      Click to touch
+  </div>
+  <div id="touchPanel2" tabindex="1">
+      키보드 상, 하, 좌, 우 Multi touch<br>
+  </div>
+  <h3>키보드 입력</h3>
+  <div>    
+    <button onclick="sendSpace()">SPACE</button>
+  </div>
+  <div>
+    <button onclick="clearLog()">LOG CLEAR</button>
+  </div>
+  <div class="container">
+    <div id="eventPanel" tabindex="0">
+      Click to focus and typing keyboard
+    </div>
+    
+  </div>
+  <h3>수신 로그</h3>
+  <div id="log"></div>
+  <script src="https://af.obigo.com/launcher/pierre/rtc/jquery-3.7.1.min.js"></script>
+  <script>
+    const rawConstants = `
+      public static final int KEY_RESERVED = 0;
+      public static final int KEY_ESC = 1;
+      public static final int KEY_1 = 2;
+      public static final int KEY_2 = 3;
+      public static final int KEY_3 = 4;
+      public static final int KEY_4 = 5;
+      public static final int KEY_5 = 6;
+      public static final int KEY_6 = 7;
+      public static final int KEY_7 = 8;
+      public static final int KEY_8 = 9;
+      public static final int KEY_9 = 10;
+      public static final int KEY_0 = 11;
+      public static final int KEY_MINUS = 12;
+      public static final int KEY_EQUAL = 13;
+      public static final int KEY_BACKSPACE = 14;
+      public static final int KEY_TAB = 15;
+      public static final int KEY_Q = 16;
+      public static final int KEY_W = 17;
+      public static final int KEY_E = 18;
+      public static final int KEY_R = 19;
+      public static final int KEY_T = 20;
+      public static final int KEY_Y = 21;
+      public static final int KEY_U = 22;
+      public static final int KEY_I = 23;
+      public static final int KEY_O = 24;
+      public static final int KEY_P = 25;
+      public static final int KEY_LEFTBRACE = 26;
+      public static final int KEY_RIGHTBRACE = 27;
+      public static final int KEY_ENTER = 28;
+      public static final int KEY_LEFTCTRL = 29;
+      public static final int KEY_A = 30;
+      public static final int KEY_S = 31;
+      public static final int KEY_D = 32;
+      public static final int KEY_F = 33;
+      public static final int KEY_G = 34;
+      public static final int KEY_H = 35;
+      public static final int KEY_J = 36;
+      public static final int KEY_K = 37;
+      public static final int KEY_L = 38;
+      public static final int KEY_SEMICOLON = 39;
+      public static final int KEY_APOSTROPHE = 40;
+      public static final int KEY_GRAVE = 41;
+      public static final int KEY_LEFTSHIFT = 42;
+      public static final int KEY_BACKSLASH = 43;
+      public static final int KEY_Z = 44;
+      public static final int KEY_X = 45;
+      public static final int KEY_C = 46;
+      public static final int KEY_V = 47;
+      public static final int KEY_B = 48;
+      public static final int KEY_N = 49;
+      public static final int KEY_M = 50;
+      public static final int KEY_COMMA = 51;
+      public static final int KEY_DOT = 52;
+      public static final int KEY_SLASH = 53;
+      public static final int KEY_RIGHTSHIFT = 54;
+      public static final int KEY_KPASTERISK = 55;
+      public static final int KEY_LEFTALT = 56;
+      public static final int KEY_SPACE = 57;
+      public static final int KEY_CAPSLOCK = 58;
+      public static final int KEY_F1 = 59;
+      public static final int KEY_F2 = 60;
+      public static final int KEY_F3 = 61;
+      public static final int KEY_F4 = 62;
+      public static final int KEY_F5 = 63;
+      public static final int KEY_F6 = 64;
+      public static final int KEY_F7 = 65;
+      public static final int KEY_F8 = 66;
+      public static final int KEY_F9 = 67;
+      public static final int KEY_F10 = 68;
+      public static final int KEY_NUMLOCK = 69;
+      public static final int KEY_SCROLLLOCK = 70;
+      public static final int KEY_KP7 = 71;
+      public static final int KEY_KP8 = 72;
+      public static final int KEY_KP9 = 73;
+      public static final int KEY_KPMINUS = 74;
+      public static final int KEY_KP4 = 75;
+      public static final int KEY_KP5 = 76;
+      public static final int KEY_KP6 = 77;
+      public static final int KEY_KPPLUS = 78;
+      public static final int KEY_KP1 = 79;
+      public static final int KEY_KP2 = 80;
+      public static final int KEY_KP3 = 81;
+      public static final int KEY_KP0 = 82;
+      public static final int KEY_KPDOT = 83;
+      public static final int KEY_ZENKAKUHANKAKU = 85;
+      public static final int KEY_102ND = 86;
+      public static final int KEY_F11 = 87;
+      public static final int KEY_F12 = 88;
+      public static final int KEY_RO = 89;
+      public static final int KEY_KATAKANA = 90;
+      public static final int KEY_HIRAGANA = 91;
+      public static final int KEY_HENKAN = 92;
+      public static final int KEY_KATAKANAHIRAGANA = 93;
+      public static final int KEY_MUHENKAN = 94;
+      public static final int KEY_KPJPCOMMA = 95;
+      public static final int KEY_KPENTER = 96;
+      public static final int KEY_RIGHTCTRL = 97;
+      public static final int KEY_KPSLASH = 98;
+      public static final int KEY_SYSRQ = 99;
+      public static final int KEY_RIGHTALT = 100;
+      public static final int KEY_LINEFEED = 101;
+      public static final int KEY_HOME = 102;
+      public static final int KEY_UP = 103;
+      public static final int KEY_PAGEUP = 104;
+      public static final int KEY_LEFT = 105;
+      public static final int KEY_RIGHT = 106;
+      public static final int KEY_END = 107;
+      public static final int KEY_DOWN = 108;
+      public static final int KEY_PAGEDOWN = 109;
+      public static final int KEY_INSERT = 110;
+      public static final int KEY_DELETE = 111;
+      public static final int KEY_MACRO = 112;
+      public static final int KEY_MUTE = 113;
+      public static final int KEY_VOLUMEDOWN = 114;
+      public static final int KEY_VOLUMEUP = 115;
+      public static final int KEY_POWER = 116;
+      public static final int KEY_KPEQUAL = 117;
+      public static final int KEY_KPPLUSMINUS = 118;
+      public static final int KEY_PAUSE = 119;
+      public static final int KEY_SCALE = 120;
+      public static final int KEY_KPCOMMA = 121;
+      public static final int KEY_HANGEUL = 122;
+      public static final int KEY_HANGUEL = 122;
+      public static final int KEY_HANJA = 123;
+      public static final int KEY_YEN = 124;
+      public static final int KEY_LEFTMETA = 125;
+      public static final int KEY_RIGHTMETA = 126;
+      public static final int KEY_COMPOSE = 127;
+      public static final int KEY_STOP = 128;
+      public static final int KEY_AGAIN = 129;
+      public static final int KEY_PROPS = 130;
+      public static final int KEY_UNDO = 131;
+      public static final int KEY_FRONT = 132;
+      public static final int KEY_COPY = 133;
+      public static final int KEY_OPEN = 134;
+      public static final int KEY_PASTE = 135;
+      public static final int KEY_FIND = 136;
+      public static final int KEY_CUT = 137;
+      public static final int KEY_HELP = 138;
+      public static final int KEY_MENU = 139;
+      public static final int KEY_CALC = 140;
+      public static final int KEY_SETUP = 141;
+      public static final int KEY_SLEEP = 142;
+      public static final int KEY_WAKEUP = 143;
+      public static final int KEY_FILE = 144;
+      public static final int KEY_SENDFILE = 145;
+      public static final int KEY_DELETEFILE = 146;
+      public static final int KEY_XFER = 147;
+      public static final int KEY_PROG1 = 148;
+      public static final int KEY_PROG2 = 149;
+      public static final int KEY_WWW = 150;
+      public static final int KEY_MSDOS = 151;
+      public static final int KEY_COFFEE = 152;
+      public static final int KEY_SCREENLOCK = 152;
+      public static final int KEY_ROTATE_DISPLAY = 153;
+      public static final int KEY_DIRECTION = 153;
+      public static final int KEY_CYCLEWINDOWS = 154;
+      public static final int KEY_MAIL = 155;
+      public static final int KEY_BOOKMARKS = 156;
+      public static final int KEY_COMPUTER = 157;
+      public static final int KEY_BACK = 158;
+      public static final int KEY_FORWARD = 159;
+      public static final int KEY_CLOSECD = 160;
+      public static final int KEY_EJECTCD = 161;
+      public static final int KEY_EJECTCLOSECD = 162;
+      public static final int KEY_NEXTSONG = 163;
+      public static final int KEY_PLAYPAUSE = 164;
+      public static final int KEY_PREVIOUSSONG = 165;
+      public static final int KEY_STOPCD = 166;
+      public static final int KEY_RECORD = 167;
+      public static final int KEY_REWIND = 168;
+      public static final int KEY_PHONE = 169;
+      public static final int KEY_ISO = 170;
+      public static final int KEY_CONFIG = 171;
+      public static final int KEY_HOMEPAGE = 172;
+      public static final int KEY_REFRESH = 173;
+      public static final int KEY_EXIT = 174;
+      public static final int KEY_MOVE = 175;
+      public static final int KEY_EDIT = 176;
+      public static final int KEY_SCROLLUP = 177;
+      public static final int KEY_SCROLLDOWN = 178;
+      public static final int KEY_KPLEFTPAREN = 179;
+      public static final int KEY_KPRIGHTPAREN = 180;
+      public static final int KEY_NEW = 181;
+      public static final int KEY_REDO = 182;
+      public static final int KEY_F13 = 183;
+      public static final int KEY_F14 = 184;
+      public static final int KEY_F15 = 185;
+      public static final int KEY_F16 = 186;
+      public static final int KEY_F17 = 187;
+      public static final int KEY_F18 = 188;
+      public static final int KEY_F19 = 189;
+      public static final int KEY_F20 = 190;
+      public static final int KEY_F21 = 191;
+      public static final int KEY_F22 = 192;
+      public static final int KEY_F23 = 193;
+      public static final int KEY_F24 = 194;
+      public static final int KEY_PLAYCD = 200;
+      public static final int KEY_PAUSECD = 201;
+      public static final int KEY_PROG3 = 202;
+      public static final int KEY_PROG4 = 203;
+      public static final int KEY_ALL_APPLICATIONS = 204;
+      public static final int KEY_DASHBOARD = 204;
+      public static final int KEY_SUSPEND = 205;
+      public static final int KEY_CLOSE = 206;
+      public static final int KEY_PLAY = 207;
+      public static final int KEY_FASTFORWARD = 208;
+      public static final int KEY_BASSBOOST = 209;
+      public static final int KEY_PRINT = 210;
+      public static final int KEY_HP = 211;
+      public static final int KEY_CAMERA = 212;
+      public static final int KEY_SOUND = 213;
+      public static final int KEY_QUESTION = 214;
+      public static final int KEY_EMAIL = 215;
+      public static final int KEY_CHAT = 216;
+      public static final int KEY_SEARCH = 217;
+      public static final int KEY_CONNECT = 218;
+      public static final int KEY_FINANCE = 219;
+      public static final int KEY_SPORT = 220;
+      public static final int KEY_SHOP = 221;
+      public static final int KEY_ALTERASE = 222;
+      public static final int KEY_CANCEL = 223;
+      public static final int KEY_BRIGHTNESSDOWN = 224;
+      public static final int KEY_BRIGHTNESSUP = 225;
+      public static final int KEY_MEDIA = 226;
+      public static final int KEY_SWITCHVIDEOMODE = 227;
+      public static final int KEY_KBDILLUMTOGGLE = 228;
+      public static final int KEY_KBDILLUMDOWN = 229;
+      public static final int KEY_KBDILLUMUP = 230;
+      public static final int KEY_SEND = 231;
+      public static final int KEY_REPLY = 232;
+      public static final int KEY_FORWARDMAIL = 233;
+      public static final int KEY_SAVE = 234;
+      public static final int KEY_DOCUMENTS = 235;
+      public static final int KEY_BATTERY = 236;
+      public static final int KEY_BLUETOOTH = 237;
+      public static final int KEY_WLAN = 238;
+      public static final int KEY_UWB = 239;
+      public static final int KEY_UNKNOWN = 240;
+      public static final int KEY_VIDEO_NEXT = 241;
+      public static final int KEY_VIDEO_PREV = 242;
+      public static final int KEY_BRIGHTNESS_CYCLE = 243;
+      public static final int KEY_BRIGHTNESS_AUTO = 244;
+      public static final int KEY_BRIGHTNESS_ZERO = 244;
+      public static final int KEY_DISPLAY_OFF = 245;
+      public static final int KEY_WWAN = 246;
+      public static final int KEY_WIMAX = 246;
+      public static final int KEY_RFKILL = 247;
+      public static final int KEY_MICMUTE = 248;
+      public static final int BTN_MISC = 0x100;
+      public static final int BTN_0 = 0x100;
+      public static final int BTN_1 = 0x101;
+      public static final int BTN_2 = 0x102;
+      public static final int BTN_3 = 0x103;
+      public static final int BTN_4 = 0x104;
+      public static final int BTN_5 = 0x105;
+      public static final int BTN_6 = 0x106;
+      public static final int BTN_7 = 0x107;
+      public static final int BTN_8 = 0x108;
+      public static final int BTN_9 = 0x109;
+      public static final int BTN_MOUSE = 0x110;
+      public static final int BTN_LEFT = 0x110;
+      public static final int BTN_RIGHT = 0x111;
+      public static final int BTN_MIDDLE = 0x112;
+      public static final int BTN_SIDE = 0x113;
+      public static final int BTN_EXTRA = 0x114;
+      public static final int BTN_FORWARD = 0x115;
+      public static final int BTN_BACK = 0x116;
+      public static final int BTN_TASK = 0x117;
+      public static final int BTN_JOYSTICK = 0x120;
+      public static final int BTN_TRIGGER = 0x120;
+      public static final int BTN_THUMB = 0x121;
+      public static final int BTN_THUMB2 = 0x122;
+      public static final int BTN_TOP = 0x123;
+      public static final int BTN_TOP2 = 0x124;
+      public static final int BTN_PINKIE = 0x125;
+      public static final int BTN_BASE = 0x126;
+      public static final int BTN_BASE2 = 0x127;
+      public static final int BTN_BASE3 = 0x128;
+      public static final int BTN_BASE4 = 0x129;
+      public static final int BTN_BASE5 = 0x12a;
+      public static final int BTN_BASE6 = 0x12b;
+      public static final int BTN_DEAD = 0x12f;
+      public static final int BTN_GAMEPAD = 0x130;
+      public static final int BTN_SOUTH = 0x130;
+      public static final int BTN_A = 0x130;
+      public static final int BTN_EAST = 0x131;
+      public static final int BTN_B = 0x131;
+      public static final int BTN_C = 0x132;
+      public static final int BTN_NORTH = 0x133;
+      public static final int BTN_X = 0x133;
+      public static final int BTN_WEST = 0x134;
+      public static final int BTN_Y = 0x134;
+      public static final int BTN_Z = 0x135;
+      public static final int BTN_TL = 0x136;
+      public static final int BTN_TR = 0x137;
+      public static final int BTN_TL2 = 0x138;
+      public static final int BTN_TR2 = 0x139;
+      public static final int BTN_SELECT = 0x13a;
+      public static final int BTN_START = 0x13b;
+      public static final int BTN_MODE = 0x13c;
+      public static final int BTN_THUMBL = 0x13d;
+      public static final int BTN_THUMBR = 0x13e;
+      public static final int BTN_DIGI = 0x140;
+      public static final int BTN_TOOL_PEN = 0x140;
+      public static final int BTN_TOOL_RUBBER = 0x141;
+      public static final int BTN_TOOL_BRUSH = 0x142;
+      public static final int BTN_TOOL_PENCIL = 0x143;
+      public static final int BTN_TOOL_AIRBRUSH = 0x144;
+      public static final int BTN_TOOL_FINGER = 0x145;
+      public static final int BTN_TOOL_MOUSE = 0x146;
+      public static final int BTN_TOOL_LENS = 0x147;
+      public static final int BTN_TOOL_QUINTTAP = 0x148;
+      public static final int BTN_STYLUS3 = 0x149;
+      public static final int BTN_TOUCH = 0x14a;
+      public static final int BTN_STYLUS = 0x14b;
+      public static final int BTN_STYLUS2 = 0x14c;
+      public static final int BTN_TOOL_DOUBLETAP = 0x14d;
+      public static final int BTN_TOOL_TRIPLETAP = 0x14e;
+      public static final int BTN_TOOL_QUADTAP = 0x14f;
+      public static final int BTN_WHEEL = 0x150;
+      public static final int BTN_GEAR_DOWN = 0x150;
+      public static final int BTN_GEAR_UP = 0x151;
+      public static final int KEY_OK = 0x160;
+      public static final int KEY_SELECT = 0x161;
+      public static final int KEY_GOTO = 0x162;
+      public static final int KEY_CLEAR = 0x163;
+      public static final int KEY_POWER2 = 0x164;
+      public static final int KEY_OPTION = 0x165;
+      public static final int KEY_INFO = 0x166;
+      public static final int KEY_TIME = 0x167;
+      public static final int KEY_VENDOR = 0x168;
+      public static final int KEY_ARCHIVE = 0x169;
+      public static final int KEY_PROGRAM = 0x16a;
+      public static final int KEY_CHANNEL = 0x16b;
+      public static final int KEY_FAVORITES = 0x16c;
+      public static final int KEY_EPG = 0x16d;
+      public static final int KEY_PVR = 0x16e;
+      public static final int KEY_MHP = 0x16f;
+      public static final int KEY_LANGUAGE = 0x170;
+      public static final int KEY_TITLE = 0x171;
+      public static final int KEY_SUBTITLE = 0x172;
+      public static final int KEY_ANGLE = 0x173;
+      public static final int KEY_FULL_SCREEN = 0x174;
+      public static final int KEY_ZOOM = 0x174;
+      public static final int KEY_MODE = 0x175;
+      public static final int KEY_KEYBOARD = 0x176;
+      public static final int KEY_ASPECT_RATIO = 0x177;
+      public static final int KEY_SCREEN = 0x177;
+      public static final int KEY_PC = 0x178;
+      public static final int KEY_TV = 0x179;
+      public static final int KEY_TV2 = 0x17a;
+      public static final int KEY_VCR = 0x17b;
+      public static final int KEY_VCR2 = 0x17c;
+      public static final int KEY_SAT = 0x17d;
+      public static final int KEY_SAT2 = 0x17e;
+      public static final int KEY_CD = 0x17f;
+      public static final int KEY_TAPE = 0x180;
+      public static final int KEY_RADIO = 0x181;
+      public static final int KEY_TUNER = 0x182;
+      public static final int KEY_PLAYER = 0x183;
+      public static final int KEY_TEXT = 0x184;
+      public static final int KEY_DVD = 0x185;
+      public static final int KEY_AUX = 0x186;
+      public static final int KEY_MP3 = 0x187;
+      public static final int KEY_AUDIO = 0x188;
+      public static final int KEY_VIDEO = 0x189;
+      public static final int KEY_DIRECTORY = 0x18a;
+      public static final int KEY_LIST = 0x18b;
+      public static final int KEY_MEMO = 0x18c;
+      public static final int KEY_CALENDAR = 0x18d;
+      public static final int KEY_RED = 0x18e;
+      public static final int KEY_GREEN = 0x18f;
+      public static final int KEY_YELLOW = 0x190;
+      public static final int KEY_BLUE = 0x191;
+      public static final int KEY_CHANNELUP = 0x192;
+      public static final int KEY_CHANNELDOWN = 0x193;
+      public static final int KEY_FIRST = 0x194;
+      public static final int KEY_LAST = 0x195;
+      public static final int KEY_AB = 0x196;
+      public static final int KEY_NEXT = 0x197;
+      public static final int KEY_RESTART = 0x198;
+      public static final int KEY_SLOW = 0x199;
+      public static final int KEY_SHUFFLE = 0x19a;
+      public static final int KEY_BREAK = 0x19b;
+      public static final int KEY_PREVIOUS = 0x19c;
+      public static final int KEY_DIGITS = 0x19d;
+      public static final int KEY_TEEN = 0x19e;
+      public static final int KEY_TWEN = 0x19f;
+      public static final int KEY_VIDEOPHONE = 0x1a0;
+      public static final int KEY_GAMES = 0x1a1;
+      public static final int KEY_ZOOMIN = 0x1a2;
+      public static final int KEY_ZOOMOUT = 0x1a3;
+      public static final int KEY_ZOOMRESET = 0x1a4;
+      public static final int KEY_WORDPROCESSOR = 0x1a5;
+      public static final int KEY_EDITOR = 0x1a6;
+      public static final int KEY_SPREADSHEET = 0x1a7;
+      public static final int KEY_GRAPHICSEDITOR = 0x1a8;
+      public static final int KEY_PRESENTATION = 0x1a9;
+      public static final int KEY_DATABASE = 0x1aa;
+      public static final int KEY_NEWS = 0x1ab;
+      public static final int KEY_VOICEMAIL = 0x1ac;
+      public static final int KEY_ADDRESSBOOK = 0x1ad;
+      public static final int KEY_MESSENGER = 0x1ae;
+      public static final int KEY_DISPLAYTOGGLE = 0x1af;
+      public static final int KEY_BRIGHTNESS_TOGGLE = 0x1af;
+      public static final int KEY_SPELLCHECK = 0x1b0;
+      public static final int KEY_LOGOFF = 0x1b1;
+      public static final int KEY_DOLLAR = 0x1b2;
+      public static final int KEY_EURO = 0x1b3;
+      public static final int KEY_FRAMEBACK = 0x1b4;
+      public static final int KEY_FRAMEFORWARD = 0x1b5;
+      public static final int KEY_CONTEXT_MENU = 0x1b6;
+      public static final int KEY_MEDIA_REPEAT = 0x1b7;
+      public static final int KEY_10CHANNELSUP = 0x1b8;
+      public static final int KEY_10CHANNELSDOWN = 0x1b9;
+      public static final int KEY_IMAGES = 0x1ba;
+      public static final int KEY_DEL_EOL = 0x1c0;
+      public static final int KEY_DEL_EOS = 0x1c1;
+      public static final int KEY_INS_LINE = 0x1c2;
+      public static final int KEY_DEL_LINE = 0x1c3;
+      public static final int KEY_FN = 0x1d0;
+      public static final int KEY_FN_ESC = 0x1d1;
+      public static final int KEY_FN_F1 = 0x1d2;
+      public static final int KEY_FN_F2 = 0x1d3;
+      public static final int KEY_FN_F3 = 0x1d4;
+      public static final int KEY_FN_F4 = 0x1d5;
+      public static final int KEY_FN_F5 = 0x1d6;
+      public static final int KEY_FN_F6 = 0x1d7;
+      public static final int KEY_FN_F7 = 0x1d8;
+      public static final int KEY_FN_F8 = 0x1d9;
+      public static final int KEY_FN_F9 = 0x1da;
+      public static final int KEY_FN_F10 = 0x1db;
+      public static final int KEY_FN_F11 = 0x1dc;
+      public static final int KEY_FN_F12 = 0x1dd;
+      public static final int KEY_FN_1 = 0x1de;
+      public static final int KEY_FN_2 = 0x1df;
+      public static final int KEY_FN_D = 0x1e0;
+      public static final int KEY_FN_E = 0x1e1;
+      public static final int KEY_FN_F = 0x1e2;
+      public static final int KEY_FN_S = 0x1e3;
+      public static final int KEY_FN_B = 0x1e4;
+      public static final int KEY_BRL_DOT1 = 0x1f1;
+      public static final int KEY_BRL_DOT2 = 0x1f2;
+      public static final int KEY_BRL_DOT3 = 0x1f3;
+      public static final int KEY_BRL_DOT4 = 0x1f4;
+      public static final int KEY_BRL_DOT5 = 0x1f5;
+      public static final int KEY_BRL_DOT6 = 0x1f6;
+      public static final int KEY_BRL_DOT7 = 0x1f7;
+      public static final int KEY_BRL_DOT8 = 0x1f8;
+      public static final int KEY_BRL_DOT9 = 0x1f9;
+      public static final int KEY_BRL_DOT10 = 0x1fa;
+      public static final int KEY_NUMERIC_0 = 0x200;
+      public static final int KEY_NUMERIC_1 = 0x201;
+      public static final int KEY_NUMERIC_2 = 0x202;
+      public static final int KEY_NUMERIC_3 = 0x203;
+      public static final int KEY_NUMERIC_4 = 0x204;
+      public static final int KEY_NUMERIC_5 = 0x205;
+      public static final int KEY_NUMERIC_6 = 0x206;
+      public static final int KEY_NUMERIC_7 = 0x207;
+      public static final int KEY_NUMERIC_8 = 0x208;
+      public static final int KEY_NUMERIC_9 = 0x209;
+      public static final int KEY_NUMERIC_STAR = 0x20a;
+      public static final int KEY_NUMERIC_POUND = 0x20b;
+      public static final int KEY_NUMERIC_A = 0x20c;
+      public static final int KEY_NUMERIC_B = 0x20d;
+      public static final int KEY_NUMERIC_C = 0x20e;
+      public static final int KEY_NUMERIC_D = 0x20f;
+      public static final int KEY_CAMERA_FOCUS = 0x210;
+      public static final int KEY_WPS_BUTTON = 0x211;
+      public static final int KEY_TOUCHPAD_TOGGLE = 0x212;
+      public static final int KEY_TOUCHPAD_ON = 0x213;
+      public static final int KEY_TOUCHPAD_OFF = 0x214;
+      public static final int KEY_CAMERA_ZOOMIN = 0x215;
+      public static final int KEY_CAMERA_ZOOMOUT = 0x216;
+      public static final int KEY_CAMERA_UP = 0x217;
+      public static final int KEY_CAMERA_DOWN = 0x218;
+      public static final int KEY_CAMERA_LEFT = 0x219;
+      public static final int KEY_CAMERA_RIGHT = 0x21a;
+      public static final int KEY_ATTENDANT_ON = 0x21b;
+      public static final int KEY_ATTENDANT_OFF = 0x21c;
+      public static final int KEY_ATTENDANT_TOGGLE = 0x21d;
+      public static final int KEY_LIGHTS_TOGGLE = 0x21e;
+      public static final int BTN_DPAD_UP = 0x220;
+      public static final int BTN_DPAD_DOWN = 0x221;
+      public static final int BTN_DPAD_LEFT = 0x222;
+      public static final int BTN_DPAD_RIGHT = 0x223;
+      public static final int KEY_ALS_TOGGLE = 0x230;
+      public static final int KEY_ROTATE_LOCK_TOGGLE = 0x231;
+      public static final int KEY_REFRESH_RATE_TOGGLE = 0x232;
+      public static final int KEY_BUTTONCONFIG = 0x240;
+      public static final int KEY_TASKMANAGER = 0x241;
+      public static final int KEY_JOURNAL = 0x242;
+      public static final int KEY_CONTROLPANEL = 0x243;
+      public static final int KEY_APPSELECT = 0x244;
+      public static final int KEY_SCREENSAVER = 0x245;
+      public static final int KEY_VOICECOMMAND = 0x246;
+      public static final int KEY_ASSISTANT = 0x247;
+      public static final int KEY_KBD_LAYOUT_NEXT = 0x248;
+      public static final int KEY_EMOJI_PICKER = 0x249;
+      public static final int KEY_DICTATE = 0x24a;
+      public static final int KEY_BRIGHTNESS_MIN = 0x250;
+      public static final int KEY_BRIGHTNESS_MAX = 0x251;
+      public static final int KEY_KBDINPUTASSIST_PREV = 0x260;
+      public static final int KEY_KBDINPUTASSIST_NEXT = 0x261;
+      public static final int KEY_KBDINPUTASSIST_PREVGROUP = 0x262;
+      public static final int KEY_KBDINPUTASSIST_NEXTGROUP = 0x263;
+      public static final int KEY_KBDINPUTASSIST_ACCEPT = 0x264;
+      public static final int KEY_KBDINPUTASSIST_CANCEL = 0x265;
+      public static final int KEY_RIGHT_UP = 0x266;
+      public static final int KEY_RIGHT_DOWN = 0x267;
+      public static final int KEY_LEFT_UP = 0x268;
+      public static final int KEY_LEFT_DOWN = 0x269;
+      public static final int KEY_ROOT_MENU = 0x26a;
+      public static final int KEY_MEDIA_TOP_MENU = 0x26b;
+      public static final int KEY_NUMERIC_11 = 0x26c;
+      public static final int KEY_NUMERIC_12 = 0x26d;
+      public static final int KEY_AUDIO_DESC = 0x26e;
+      public static final int KEY_3D_MODE = 0x26f;
+      public static final int KEY_NEXT_FAVORITE = 0x270;
+      public static final int KEY_STOP_RECORD = 0x271;
+      public static final int KEY_PAUSE_RECORD = 0x272;
+      public static final int KEY_VOD = 0x273;
+      public static final int KEY_UNMUTE = 0x274;
+      public static final int KEY_FASTREVERSE = 0x275;
+      public static final int KEY_SLOWREVERSE = 0x276;
+      public static final int KEY_DATA = 0x277;
+      public static final int KEY_ONSCREEN_KEYBOARD = 0x278;
+      public static final int BTN_TRIGGER_HAPPY = 0x2c0;
+      public static final int BTN_TRIGGER_HAPPY1 = 0x2c0;
+      public static final int BTN_TRIGGER_HAPPY2 = 0x2c1;
+      public static final int BTN_TRIGGER_HAPPY3 = 0x2c2;
+      public static final int BTN_TRIGGER_HAPPY4 = 0x2c3;
+      public static final int BTN_TRIGGER_HAPPY5 = 0x2c4;
+      public static final int BTN_TRIGGER_HAPPY6 = 0x2c5;
+      public static final int BTN_TRIGGER_HAPPY7 = 0x2c6;
+      public static final int BTN_TRIGGER_HAPPY8 = 0x2c7;
+      public static final int BTN_TRIGGER_HAPPY9 = 0x2c8;
+      public static final int BTN_TRIGGER_HAPPY10 = 0x2c9;
+      public static final int BTN_TRIGGER_HAPPY11 = 0x2ca;
+      public static final int BTN_TRIGGER_HAPPY12 = 0x2cb;
+      public static final int BTN_TRIGGER_HAPPY13 = 0x2cc;
+      public static final int BTN_TRIGGER_HAPPY14 = 0x2cd;
+      public static final int BTN_TRIGGER_HAPPY15 = 0x2ce;
+      public static final int BTN_TRIGGER_HAPPY16 = 0x2cf;
+      public static final int BTN_TRIGGER_HAPPY17 = 0x2d0;
+      public static final int BTN_TRIGGER_HAPPY18 = 0x2d1;
+      public static final int BTN_TRIGGER_HAPPY19 = 0x2d2;
+      public static final int BTN_TRIGGER_HAPPY20 = 0x2d3;
+      public static final int BTN_TRIGGER_HAPPY21 = 0x2d4;
+      public static final int BTN_TRIGGER_HAPPY22 = 0x2d5;
+      public static final int BTN_TRIGGER_HAPPY23 = 0x2d6;
+      public static final int BTN_TRIGGER_HAPPY24 = 0x2d7;
+      public static final int BTN_TRIGGER_HAPPY25 = 0x2d8;
+      public static final int BTN_TRIGGER_HAPPY26 = 0x2d9;
+      public static final int BTN_TRIGGER_HAPPY27 = 0x2da;
+      public static final int BTN_TRIGGER_HAPPY28 = 0x2db;
+      public static final int BTN_TRIGGER_HAPPY29 = 0x2dc;
+      public static final int BTN_TRIGGER_HAPPY30 = 0x2dd;
+      public static final int BTN_TRIGGER_HAPPY31 = 0x2de;
+      public static final int BTN_TRIGGER_HAPPY32 = 0x2df;
+      public static final int BTN_TRIGGER_HAPPY33 = 0x2e0;
+      public static final int BTN_TRIGGER_HAPPY34 = 0x2e1;
+      public static final int BTN_TRIGGER_HAPPY35 = 0x2e2;
+      public static final int BTN_TRIGGER_HAPPY36 = 0x2e3;
+      public static final int BTN_TRIGGER_HAPPY37 = 0x2e4;
+      public static final int BTN_TRIGGER_HAPPY38 = 0x2e5;
+      public static final int BTN_TRIGGER_HAPPY39 = 0x2e6;
+      public static final int BTN_TRIGGER_HAPPY40 = 0x2e7;
+      public static final int KEY_MIN_INTERESTING = 113;
+      public static final int KEY_MAX = 0x2ff;
+    `;
+  </script>
+  <script>
+    let ws;
+    let pc;
+    let dataChannel;
+    let mTarget = '';
+    let log;
+    
+    $(document).ready(function() {
+        fnInit();
+        
+        $("#btnConnectRTC").click(function(){
+            fnRtcConnect();
+        });
+
+        $("#btnA").click(function(){
+            fnSendCtrlInfo("A");
+        });
+        
+        $("#btnB").click(function(){
+            fnSendCtrlInfo("B");
+        });
+        
+        $("#btnLeft").click(function(){
+            fnSendCtrlInfo("LEFT");
+        });
+        
+        $("#btnRight").click(function(){
+            fnSendCtrlInfo("RIGHT");
+        });
+
+        $("#btnUp").click(function(){
+            fnSendCtrlInfo("UP");
+        });
+
+        $("#btnDown").click(function(){
+            fnSendCtrlInfo("DONWN");
+        }); 
+        
+        $("#btnLogClear").click(function(){
+             $("#log").empty();
+        });    
+    });
+    
+    
+    var fnInit = function(){
+        log = (msg) => {
+          const logEl = document.getElementById('log');
+          
+          const now = new Date();
+          const pad = (n, z = 2) => String(n).padStart(z, '0');
+          const timestamp = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ` +
+                            `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}.` +
+                            `${pad(now.getMilliseconds(), 3)}`;
+
+          logEl.textContent += `\n[${timestamp}]${msg}`;
+          logEl.scrollTop = logEl.scrollHeight;
+        };
+        
+        $("#VIN").val("A12345678");
+        $("#AVNID").val("avn1");
+        $("#UUID").val("#0001");
+    };
+    
+    function fnRtcConnect() {
+        fnRtcConnectCallback("wss://pickjoy-dev.obigo.com/webrtc-v2/ws");
+    };
+    
+    var fnRtcConnectCallback = function(_webSocketUri){
+        const VIN = document.getElementById('VIN').value.trim();
+        const UUID = document.getElementById('UUID').value.trim();
+        const AVNID = document.getElementById('AVNID').value.trim();
+
+        mTarget = VIN +"-"+ AVNID;
+
+        if (!VIN || !UUID || !AVNID) {
+          alert('모든 항목을 입력해주세요.');
+          return;
+        }
+
+        // 🔁 변경된 WebSocket 주소
+        ws = new WebSocket(_webSocketUri);
+
+        ws.onopen = async () => {
+          log('✅ WebSocket connected');
+          ws.send(JSON.stringify({
+             type: 'join-device'
+            ,vin: VIN
+            ,avnid: AVNID
+            ,uuid: UUID
+          }));
+        };
+
+        ws.onmessage = async (msg) => {
+          let text;
+          if (msg.data instanceof Blob) {
+              const arrayBuffer = await msg.data.arrayBuffer();
+              const bytes = new Uint8Array(arrayBuffer);
+              
+              try {
+                  const _text = new TextDecoder().decode(bytes);
+                  const _data = JSON.parse(_text);
+                  
+                  text = await msg.data.text();
+                  log(`📨 ${text}`);
+              } 
+              catch (e) {
+                  // ✅ JSON 아니고 pure binary임
+                  if (bytes.length > 0) {
+                      const hex = [...bytes]
+                        .map(b => b.toString(16).padStart(2, '0'))
+                        .join(' ');
+                      log(`📨 ${hex}`);
+                  } 
+                  else {
+                      log("HEX: (empty)");
+                  }
+              }
+          }
+          else {
+              text = msg.data;              
+              try {
+                  const data = JSON.parse(text);
+                  if (data.type === 'status') {
+                      log(`🔔 ${data.from} is ${data.status}`);
+                  }
+                  //추가--------------------------S
+                  else if (data.type === 'pong' && data.echo) {
+                      const latency = Date.now() - data.echo;
+                      log(`📥 WS pong 수신 (latency: ${latency}ms)`);
+
+                      if (window.notifyWsMessageReceived) {
+                          window.notifyWsMessageReceived(latency);
+                      }
+                  }
+                  //추가--------------------------E                
+                  else {
+                      log(`📨 ${text}`);
+                  }
+                  
+              }
+              catch (e) {
+                  log(`📨 ${text}`);
+              }
+          }
+        };
+    };
+    
+    var fnSendCtrlInfo = function(ctrlButtnName){
+        if (!ws && ws.readyState !== WebSocket.OPEN) {
+          alert('Websocket이 아직 열리지 않았습니다.');
+          return;
+        }
+
+        const payload = { type: 'button', button: ctrlButtnName };
+        ws.send(JSON.stringify(payload));
+        log(`📤 버튼 전송: ${JSON.stringify(payload)}`);
+    };  
+    
+    var fnSetupDataChannelReceive = function(){
+        if (!ws && ws.readyState !== WebSocket.OPEN) {
+          alert('Websocket이 아직 열리지 않았습니다.');
+          return;
+        }
+    };  
+
+    function clearLog() {
+      logCount = 0;
+      const logEl = document.getElementById('log');
+      logEl.textContent = '';
+    }
+
+    function closeConn() {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.close();
+        log("Close websocket connection manual");
+      }
+    }
+
+    const panelTouch = document.getElementById('touchPanel');
+    let isDown = false;
+    
+    function touchPercent(x, y, v) {
+      const rect = panelTouch.getBoundingClientRect();
+      const relX = x - rect.left;
+      const relY = y - rect.top;
+      const px = (relX / rect.width * 100).toFixed(2);
+      const py = (relY / rect.height * 100).toFixed(2);
+      log(`x: ${px}% , y: ${py}% , v: ${v}`);
+      sendTouch(px, py, v)
+    }
+
+    panelTouch.addEventListener('mousedown', e => {
+      isDown = true;
+      touchPercent(e.clientX, e.clientY, 0);      
+    });
+
+    window.addEventListener('mouseup', e => {
+      if (!isDown) return;
+      isDown = false;
+      touchPercent(e.clientX, e.clientY, 1);
+    });
+
+    panelTouch.addEventListener('mousemove', e => {
+      if (!isDown) return;
+      touchPercent(e.clientX, e.clientY, 2);
+    });
+
+    // 패널 밖에서 드래그가 시작될 수도 있으므로,
+    // 패널 밖에서 눌린 상태로 들어왔을 때에도 반응시키고 싶으면 아래 추가
+    panelTouch.addEventListener('mouseleave', e => {
+      if (isDown) touchPercent(e.clientX, e.clientY);
+    });
+
+
+    document.querySelectorAll('.btn').forEach(btn => {
+      btn.addEventListener('pointerdown', () => {
+        sendTouch(btn.dataset.x, btn.dataset.y, 0);
+      });
+      btn.addEventListener('pointerup', () => {
+        sendTouch(btn.dataset.x, btn.dataset.y, 1);
+      });
+    });
+
+    function sendMultiTouch(x, y, value, index) {
+      if (!ws && ws.readyState !== WebSocket.OPEN) {
+        alert('Websocket이 아직 열리지 않았습니다.');
+        return;
+      }
+
+      const buf = new Uint8Array(14);
+      buf[0] = '['.charCodeAt(0);         // 0x5B
+      buf[1] = 0x09;                      // OP code Touch
+      buf[2] = index;                     // Touch index
+      buf[3] = 0x00;                      // reserv
+      buf[4] = 0x00;                      // reserv
+      buf[5] = 0x02;                      // Coordinate mode: PCT
+      buf[6] = value;                     // Up or Down
+      buf[7] = 0x00;                      // Sign X
+      const hiX = (x >> 8) & 0xFF;
+      const loX =  x       & 0xFF;
+      var integerPart = Math.floor(x);
+      var fractionalPart = Math.round((x - integerPart) * 100);
+      buf[8] = integerPart;                       // X position high byte
+      buf[9] = fractionalPart;                       // X position low byte      
+      buf[10] = 0x00;                      // Sign Y
+      const hiY = (y >> 8) & 0xFF;
+      const loY =  y       & 0xFF;
+      integerPart = Math.floor(y);
+      fractionalPart = Math.round((y - integerPart) * 100);
+      buf[11] = integerPart;                       // Y position high byte
+      buf[12] = fractionalPart;                       // Y position low byte
+      buf[13] = ']'.charCodeAt(0);        // 0x5D
+      log(`sendTouch: (${x}, ${y}) 값: ${value} 인덱스: ${index}`);
+      ws.send(buf);
+      console.log(`sendInput → [${buf.join(', ')}]`);
+    }
+
+    function sendTouch(x, y, value) {
+      if (!ws && ws.readyState !== WebSocket.OPEN) {
+        alert('Websocket이 아직 열리지 않았습니다.');
+        return;
+      }
+
+      const buf = new Uint8Array(11);
+      buf[0] = '['.charCodeAt(0);         // 0x5B
+      buf[1] = 0x05;                      // OP code Touch
+      buf[2] = 0x02;                      // Coordinate mode: PCT
+      buf[3] = value;                     // Up or Down
+      buf[4] = 0x00;                      // Sign X
+      const hiX = (x >> 8) & 0xFF;
+      const loX =  x       & 0xFF;
+      var integerPart = Math.floor(x);
+      var fractionalPart = Math.round((x - integerPart) * 100);
+      buf[5] = integerPart;                       // X position high byte
+      buf[6] = fractionalPart;                       // X position low byte      
+      buf[7] = 0x00;                      // Sign Y
+      const hiY = (y >> 8) & 0xFF;
+      const loY =  y       & 0xFF;
+      integerPart = Math.floor(y);
+      fractionalPart = Math.round((y - integerPart) * 100);
+      buf[8] = integerPart;                       // Y position high byte
+      buf[9] = fractionalPart;                       // Y position low byte
+      buf[10] = ']'.charCodeAt(0);        // 0x5D
+      log(`sendTouch: (${x}, ${y}) 값: ${value}`);
+      ws.send(buf);
+      console.log(`sendInput → [${buf.join(', ')}]`);
+    }
+
+    function sendInput(code, value) {
+      if (!ws && ws.readyState !== WebSocket.OPEN) {
+        alert('Websocket이 아직 열리지 않았습니다.');
+        return;
+      }
+
+      const buf = new Uint8Array(9);
+      buf[0] = '['.charCodeAt(0);       // 0x5B
+      buf[1] = 0x02;
+      buf[2] = 0x01;
+      buf[3] = 0x01;
+      const hi = (code >> 8) & 0xFF;
+      const lo =  code       & 0xFF;
+      buf[4] = hi;
+      buf[5] = lo;
+      buf[6] = value;                   // 0 or 1
+      buf[7] = 0x00;
+      buf[8] = ']'.charCodeAt(0);       // 0x5D
+      ws.send(buf);
+      log(`sendInput 호출 → 코드: ${code}, 값: ${value}`);
+      console.log(`sendInput → [${buf.join(', ')}]`);
+    }
+
+    function setupDataChannelReceive() {
+      dataChannel.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.type === 'status') {
+            log(`📥 게임 상태 수신: ${JSON.stringify(data)}`);
+          } else {
+            log(`📥 일반 수신 데이터: ${JSON.stringify(data)}`);
+          }
+        } catch (err) {
+          log(`📥 원시 수신 데이터: ${event.data}`);
+        }
+      };
+    }
+
+    const pressed = new Set();
+    function handleMultiTouch(e, isDown) {
+        const arrows = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+        if (!arrows.includes(e.key)) return;
+
+        e.preventDefault();
+
+        // keydown 때 이미 눌린 상태면(자동 반복) 무시
+        if (isDown) {
+          if (pressed.has(e.key)) return;
+          pressed.add(e.key);
+        } else {
+          pressed.delete(e.key);
+        }
+
+        switch (e.key) {
+          case 'ArrowLeft':
+            if (isDown) {
+              // 눌렀을 때
+              sendMultiTouch(25, 50, 0, 0);
+            } else {
+              // 뗐을 때
+              sendMultiTouch(25, 50, 1, 0);
+            }
+            break;
+
+          case 'ArrowRight':
+            if (isDown) {
+              // 눌렀을 때
+              sendMultiTouch(75, 50, 0, 1);
+            } else {
+              // 뗐을 때
+              sendMultiTouch(75, 50, 1, 1);
+            }
+            break;
+
+          case 'ArrowUp':
+            if (isDown) {
+              // 눌렀을 때
+              sendMultiTouch(50, 25, 0, 2);
+            } else {
+              // 뗐을 때
+              sendMultiTouch(50, 25, 1, 2);
+            }
+            break;
+
+          case 'ArrowDown':
+            if (isDown) {
+              // 눌렀을 때
+              sendMultiTouch(50, 75, 0, 3);
+            } else {
+              // 뗐을 때
+              sendMultiTouch(50, 75, 1, 3);
+            }
+            break;
+
+          // ArrowUp / ArrowDown은 지금 요구사항이 없으니 아무 것도 하지 않음
+        }
+    }
+
+
+    function handleKeyEvent(e, isDown) {
+      if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) {
+        e.preventDefault();
+      }
+
+      let keyName;
+      if (e.key.startsWith('Arrow')) {
+        keyName = `KEY_${e.key.slice(5).toUpperCase()}`;       // ArrowUp → UP
+      }
+      else if (/^[a-zA-Z]$/.test(e.key)) {
+        keyName = `KEY_${e.key.toUpperCase()}`;               // a → A
+      }
+      else if (/^[0-9]$/.test(e.key)) {
+        keyName = `KEY_${e.key}`;                             // 1 → KEY_1
+      }
+      else {
+        const norm = e.key.replace(/ /g, '').toUpperCase();   // Enter → ENTER
+        keyName = `KEY_${norm}`;
+      }
+
+      const code = InputEventCodes[keyName];
+      if (code !== undefined) {
+        sendInput(code, isDown ? 1 : 0);
+        e.preventDefault();
+      }
+    }
+
+    const touchPanel2 = document.getElementById('touchPanel2');
+    touchPanel2.addEventListener('click', () => touchPanel2.focus());
+    touchPanel2.addEventListener('keydown', e => handleMultiTouch(e, true));
+    touchPanel2.addEventListener('keyup',   e => handleMultiTouch(e, false));
+
+
+    const panel = document.getElementById('eventPanel');
+    panel.addEventListener('click', () => panel.focus());
+    panel.addEventListener('keydown', e => handleKeyEvent(e, true));
+    panel.addEventListener('keyup',   e => handleKeyEvent(e, false));
+
+    const InputEventCodes = {};
+    rawConstants.split('\n').forEach(line => {
+      let m = line.match(/public static final int (KEY_[A-Z0-9_]+) = (0x[0-9A-Fa-f]+|\d+);/);
+      if (!m) return;
+      const name = m[1];
+      const value = m[2].startsWith('0x')
+        ? parseInt(m[2], 16)
+        : parseInt(m[2], 10);
+      InputEventCodes[name] = value;
+    });
+
+    function sendSpace() {
+      sendInput(57, 1);
+      // 20ms 뒤에 키 뗌
+      setTimeout(function() {
+        sendInput(57, 0);
+      }, 20);
+    }
+
+    function sendSlide(direction) {
+      const sendInterval = 10;
+      let packets;
+      switch (direction) {
+        case 'U':  // Up
+          packets = [            
+            [0x5B, 0x09, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x14, 0x3D, 0x00, 0x40, 0x31, 0x5D],
+            [0x5B, 0x09, 0x00, 0x00, 0x00, 0x02, 0x02, 0x00, 0x14, 0x3D, 0x00, 0x40, 0x31, 0x5D],
+            [0x5B, 0x09, 0x00, 0x00, 0x00, 0x02, 0x02, 0x00, 0x14, 0x3D, 0x00, 0x13, 0x0A, 0x5D],
+            [0x5B, 0x09, 0x00, 0x00, 0x00, 0x02, 0x01, 0x00, 0x14, 0x3D, 0x00, 0x0F, 0x41, 0x5D]
+          ];
+          break;
+        case 'D':  // Down
+          packets = [            
+            [0x5B, 0x09, 0x01, 0x00, 0x00, 0x02, 0x00, 0x00, 0x14, 0x3D, 0x00, 0x0F, 0x41, 0x5D],
+            [0x5B, 0x09, 0x01, 0x00, 0x00, 0x02, 0x02, 0x00, 0x14, 0x3D, 0x00, 0x13, 0x0A, 0x5D],            
+            [0x5B, 0x09, 0x01, 0x00, 0x00, 0x02, 0x02, 0x00, 0x14, 0x3D, 0x00, 0x40, 0x31, 0x5D],
+            [0x5B, 0x09, 0x01, 0x00, 0x00, 0x02, 0x01, 0x00, 0x14, 0x3D, 0x00, 0x40, 0x31, 0x5D]
+          ];
+          break;
+        case 'L':  // Left
+          packets = [
+            [0x5B, 0x09, 0x02, 0x00, 0x00, 0x02, 0x00, 0x00, 0x49, 0x01, 0x00, 0x36, 0x0D, 0x5D],
+            [0x5B, 0x09, 0x02, 0x00, 0x00, 0x02, 0x02, 0x00, 0x2A, 0x48, 0x00, 0x36, 0x0D, 0x5D],
+            [0x5B, 0x09, 0x02, 0x00, 0x00, 0x02, 0x02, 0x00, 0x14, 0x56, 0x00, 0x36, 0x0D, 0x5D],
+            [0x5B, 0x09, 0x02, 0x00, 0x00, 0x02, 0x01, 0x00, 0x14, 0x56, 0x00, 0x36, 0x0D, 0x5D]
+          ];
+          break;
+        case 'R':  // Right
+          packets = [
+            [0x5B, 0x09, 0x03, 0x00, 0x00, 0x02, 0x00, 0x00, 0x14, 0x56, 0x00, 0x36, 0x0D, 0x5D],
+            [0x5B, 0x09, 0x03, 0x00, 0x00, 0x02, 0x02, 0x00, 0x14, 0x56, 0x00, 0x36, 0x0D, 0x5D],
+            [0x5B, 0x09, 0x03, 0x00, 0x00, 0x02, 0x02, 0x00, 0x2A, 0x48, 0x00, 0x36, 0x0D, 0x5D],
+            [0x5B, 0x09, 0x03, 0x00, 0x00, 0x02, 0x01, 0x00, 0x49, 0x01, 0x00, 0x36, 0x0D, 0x5D]
+          ];
+          break;
+        default:
+          console.error('알 수 없는 방향:', direction);
+          return;
+      }
+
+      const u8Packets = packets.map(arr => new Uint8Array(arr));
+
+      u8Packets.forEach((packet, idx) => {
+        setTimeout(() => {
+          if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(packet);
+            console.log(`패킷 전송 #${idx + 1}: [${packet.join(', ')}]`);
+          }
+        }, idx * sendInterval);
+      });
+    }
+
+    // <button id="btnTouchL">좌</button>
+    // <button id="btnTouchR">우</button>
+    // <button id="btnTouchEndlessL">트럭 좌</button>
+    // <button id="btnTouchEndlessR">트럭 우</button>
+    // <button id="btnTouchEndlessJump">트럭 점프</button>
+    const btnTouchL = document.getElementById('btnTouchL');
+    const btnTouchR = document.getElementById('btnTouchR');
+    const btnTouchEndlessL = document.getElementById('btnTouchEndlessL');
+    const btnTouchEndlessR = document.getElementById('btnTouchEndlessR');
+    const btnTouchEndlessJump = document.getElementById('btnTouchEndlessJump');
+
+    btnTouchL.addEventListener('mousedown', () => {        
+      sendTouch(25, 50, 0);
+    });
+
+    btnTouchL.addEventListener('mouseup', () => {
+      sendTouch(25, 50, 1);        
+    });
+
+    btnTouchR.addEventListener('mousedown', () => {        
+      sendTouch(75, 50, 0);
+    });
+
+    btnTouchR.addEventListener('mouseup', () => {
+      sendTouch(75, 50, 1);        
+    });
+
+    btnTouchEndlessL.addEventListener('mousedown', () => {        
+      sendTouch(3.88, 65.50, 0);
+    });
+
+    btnTouchEndlessL.addEventListener('mouseup', () => {
+      sendTouch(3.88, 65.50, 1);
+    });
+
+    btnTouchEndlessR.addEventListener('mousedown', () => {        
+      sendTouch(14.44, 68.60, 0);
+    });
+
+    btnTouchEndlessR.addEventListener('mouseup', () => {
+      sendTouch(14.44, 68.60, 1);
+    });
+
+    btnTouchEndlessJump.addEventListener('mousedown', () => {        
+      sendTouch(91.94, 66.31, 0);
+    });
+
+    btnTouchEndlessJump.addEventListener('mouseup', () => {
+      sendTouch(91.94, 66.31, 1);
+    });
+
+
+
+    
+    
+  </script>
+
+
+
+</body></html>
