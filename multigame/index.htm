@@ -66,12 +66,12 @@
 <br></br>
          
   device select : <select id="PlayerSelect">
-    <option value="">선택</option>
-    <option value="Player1">Player1</option>
+    <option value="Player1" selected>Player1</option>
     <option value="Player2">Player2</option>
     <option value="Player3">Player3</option>
     <option value="Player4">Player4</option>
   </select>
+  <button id="DisconnectBtn">Disconnect</button>
 
   <script>
     const select = document.getElementById('wssSelect');
@@ -192,6 +192,19 @@
           btnY: { press: [91,0,1,1,1,52,1,0,93], release: [91,0,1,1,1,52,0,0,93] },  // BTN_Y=0x0134
         };
 
+        // OPCODE_EXITAPP=0x04, packet: [STX, OPCODE, deviceId, ETX]
+        function disconnectGamepad() {
+          if (!ws || ws.readyState !== WebSocket.OPEN) {
+            log('⚠️ WebSocket이 연결되지 않았습니다.');
+            return;
+          }
+          const playerVal = document.getElementById('PlayerSelect').value;
+          const deviceId = playerVal ? parseInt(playerVal.replace('Player', '')) : 1;
+          const buf = new Uint8Array([91, 0x04, deviceId, 93]);
+          ws.send(buf);
+          log(`📤 disconnect player=${deviceId}: [${buf.join(', ')}]`);
+        }
+
         function sendGamepadPacket(key, type) {
           const packet = gamepadPackets[key];
           if (!packet) return;
@@ -206,6 +219,10 @@
           ws.send(buf);
           log(`📤 ${key} ${type} player=${deviceId}: [${buf.join(', ')}]`);
         }
+
+        document.getElementById('DisconnectBtn').addEventListener('click', () => {
+          disconnectGamepad();
+        });
 
         document.querySelectorAll('.gpad-btn').forEach(btn => {
           const key = btn.dataset.key;
