@@ -75,6 +75,50 @@
       justify-content: center;
       font-weight: bold;
     }
+    #virtualKeyboard {
+      margin-top: 8px;
+      background: #1e1e1e;
+      padding: 10px;
+      border-radius: 8px;
+      display: inline-block;
+      user-select: none;
+    }
+    .vk-row {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 4px;
+    }
+    .vk-key {
+      min-width: 36px;
+      height: 36px;
+      background: #3c3c3c;
+      color: #e0e0e0;
+      border: 1px solid #555;
+      border-bottom: 3px solid #222;
+      border-radius: 4px;
+      font-size: 11px;
+      font-family: sans-serif;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 6px;
+      box-sizing: border-box;
+      touch-action: none;
+      white-space: nowrap;
+    }
+    .vk-key:active, .vk-key.vk-pressed {
+      background: #0078d7;
+      border-color: #005fa3;
+      border-bottom-width: 1px;
+      transform: translateY(2px);
+    }
+    .vk-w2  { min-width: 58px; }
+    .vk-w3  { min-width: 72px; }
+    .vk-w4  { min-width: 90px; }
+    .vk-w5  { min-width: 110px; }
+    .vk-space { min-width: 240px; }
+    .vk-sep  { width: 14px; }
   </style>
 </head>
 <body>
@@ -150,8 +194,106 @@
       키보드 상, 하, 좌, 우 Multi touch<br>
   </div>
   <h3>키보드 입력</h3>
-  <div>    
-    <button onclick="sendSpace()">SPACE</button>
+  <div id="virtualKeyboard">
+    <!-- Function row -->
+    <div class="vk-row">
+      <button class="vk-key vk-w2" data-key="KEY_ESC">ESC</button>
+      <div class="vk-sep"></div>
+      <button class="vk-key" data-key="KEY_F1">F1</button>
+      <button class="vk-key" data-key="KEY_F2">F2</button>
+      <button class="vk-key" data-key="KEY_F3">F3</button>
+      <button class="vk-key" data-key="KEY_F4">F4</button>
+      <div class="vk-sep"></div>
+      <button class="vk-key" data-key="KEY_F5">F5</button>
+      <button class="vk-key" data-key="KEY_F6">F6</button>
+      <button class="vk-key" data-key="KEY_F7">F7</button>
+      <button class="vk-key" data-key="KEY_F8">F8</button>
+      <div class="vk-sep"></div>
+      <button class="vk-key" data-key="KEY_F9">F9</button>
+      <button class="vk-key" data-key="KEY_F10">F10</button>
+      <button class="vk-key" data-key="KEY_F11">F11</button>
+      <button class="vk-key" data-key="KEY_F12">F12</button>
+    </div>
+    <!-- Number row -->
+    <div class="vk-row">
+      <button class="vk-key" data-key="KEY_GRAVE">`</button>
+      <button class="vk-key" data-key="KEY_1">1</button>
+      <button class="vk-key" data-key="KEY_2">2</button>
+      <button class="vk-key" data-key="KEY_3">3</button>
+      <button class="vk-key" data-key="KEY_4">4</button>
+      <button class="vk-key" data-key="KEY_5">5</button>
+      <button class="vk-key" data-key="KEY_6">6</button>
+      <button class="vk-key" data-key="KEY_7">7</button>
+      <button class="vk-key" data-key="KEY_8">8</button>
+      <button class="vk-key" data-key="KEY_9">9</button>
+      <button class="vk-key" data-key="KEY_0">0</button>
+      <button class="vk-key" data-key="KEY_MINUS">-</button>
+      <button class="vk-key" data-key="KEY_EQUAL">=</button>
+      <button class="vk-key vk-w3" data-key="KEY_BACKSPACE">BKSP</button>
+    </div>
+    <!-- QWERTY row -->
+    <div class="vk-row">
+      <button class="vk-key vk-w3" data-key="KEY_TAB">TAB</button>
+      <button class="vk-key" data-key="KEY_Q">Q</button>
+      <button class="vk-key" data-key="KEY_W">W</button>
+      <button class="vk-key" data-key="KEY_E">E</button>
+      <button class="vk-key" data-key="KEY_R">R</button>
+      <button class="vk-key" data-key="KEY_T">T</button>
+      <button class="vk-key" data-key="KEY_Y">Y</button>
+      <button class="vk-key" data-key="KEY_U">U</button>
+      <button class="vk-key" data-key="KEY_I">I</button>
+      <button class="vk-key" data-key="KEY_O">O</button>
+      <button class="vk-key" data-key="KEY_P">P</button>
+      <button class="vk-key" data-key="KEY_LEFTBRACE">[</button>
+      <button class="vk-key" data-key="KEY_RIGHTBRACE">]</button>
+      <button class="vk-key vk-w2" data-key="KEY_BACKSLASH">\</button>
+    </div>
+    <!-- ASDF row -->
+    <div class="vk-row">
+      <button class="vk-key vk-w3" data-key="KEY_CAPSLOCK">CAPS</button>
+      <button class="vk-key" data-key="KEY_A">A</button>
+      <button class="vk-key" data-key="KEY_S">S</button>
+      <button class="vk-key" data-key="KEY_D">D</button>
+      <button class="vk-key" data-key="KEY_F">F</button>
+      <button class="vk-key" data-key="KEY_G">G</button>
+      <button class="vk-key" data-key="KEY_H">H</button>
+      <button class="vk-key" data-key="KEY_J">J</button>
+      <button class="vk-key" data-key="KEY_K">K</button>
+      <button class="vk-key" data-key="KEY_L">L</button>
+      <button class="vk-key" data-key="KEY_SEMICOLON">;</button>
+      <button class="vk-key" data-key="KEY_APOSTROPHE">'</button>
+      <button class="vk-key vk-w4" data-key="KEY_ENTER">ENTER</button>
+    </div>
+    <!-- ZXCV row -->
+    <div class="vk-row">
+      <button class="vk-key vk-w5" data-key="KEY_LEFTSHIFT">SHIFT</button>
+      <button class="vk-key" data-key="KEY_Z">Z</button>
+      <button class="vk-key" data-key="KEY_X">X</button>
+      <button class="vk-key" data-key="KEY_C">C</button>
+      <button class="vk-key" data-key="KEY_V">V</button>
+      <button class="vk-key" data-key="KEY_B">B</button>
+      <button class="vk-key" data-key="KEY_N">N</button>
+      <button class="vk-key" data-key="KEY_M">M</button>
+      <button class="vk-key" data-key="KEY_COMMA">,</button>
+      <button class="vk-key" data-key="KEY_DOT">.</button>
+      <button class="vk-key" data-key="KEY_SLASH">/</button>
+      <button class="vk-key vk-w5" data-key="KEY_RIGHTSHIFT">SHIFT</button>
+    </div>
+    <!-- Bottom row -->
+    <div class="vk-row">
+      <button class="vk-key vk-w3" data-key="KEY_LEFTCTRL">CTRL</button>
+      <button class="vk-key vk-w3" data-key="KEY_LEFTALT">ALT</button>
+      <button class="vk-key vk-space" data-key="KEY_SPACE">SPACE</button>
+      <button class="vk-key vk-w3" data-key="KEY_RIGHTALT">ALT</button>
+      <button class="vk-key vk-w3" data-key="KEY_RIGHTCTRL">CTRL</button>
+      <div class="vk-sep"></div>
+      <button class="vk-key" data-key="KEY_LEFT">←</button>
+      <div style="display:flex;flex-direction:column;gap:4px;">
+        <button class="vk-key" data-key="KEY_UP">↑</button>
+        <button class="vk-key" data-key="KEY_DOWN">↓</button>
+      </div>
+      <button class="vk-key" data-key="KEY_RIGHT">→</button>
+    </div>
   </div>
   <div>
     <button onclick="clearLog()">LOG CLEAR</button>
@@ -1151,6 +1293,9 @@
       else if (/^[0-9]$/.test(e.key)) {
         keyName = `KEY_${e.key}`;                             // 1 → KEY_1
       }
+      else if (e.key === ' ') {
+        keyName = 'KEY_SPACE';
+      }
       else {
         const norm = e.key.replace(/ /g, '').toUpperCase();   // Enter → ENTER
         keyName = `KEY_${norm}`;
@@ -1174,6 +1319,18 @@
     panel.addEventListener('keydown', e => handleKeyEvent(e, true));
     panel.addEventListener('keyup',   e => handleKeyEvent(e, false));
 
+    // 포커스 없이도 전역 키보드 입력 처리 (input/textarea/select 입력 중엔 제외)
+    document.addEventListener('keydown', e => {
+      const tag = document.activeElement?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+      handleKeyEvent(e, true);
+    });
+    document.addEventListener('keyup', e => {
+      const tag = document.activeElement?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+      handleKeyEvent(e, false);
+    });
+
     const InputEventCodes = {};
     rawConstants.split('\n').forEach(line => {
       let m = line.match(/public static final int (KEY_[A-Z0-9_]+) = (0x[0-9A-Fa-f]+|\d+);/);
@@ -1187,11 +1344,54 @@
 
     function sendSpace() {
       sendInput(57, 1);
-      // 20ms 뒤에 키 뗌
-      setTimeout(function() {
-        sendInput(57, 0);
-      }, 20);
+      setTimeout(function() { sendInput(57, 0); }, 20);
     }
+
+    // 가상 키보드 이벤트 핸들러
+    (function() {
+      const vkEl = document.getElementById('virtualKeyboard');
+      let vkActiveKey = null;
+
+      function vkDown(keyName) {
+        const code = InputEventCodes[keyName];
+        if (code === undefined) return;
+        if (vkActiveKey) vkUp();
+        sendInput(code, 1);
+        vkActiveKey = keyName;
+        const btn = vkEl.querySelector(`[data-key="${keyName}"]`);
+        if (btn) btn.classList.add('vk-pressed');
+      }
+
+      function vkUp() {
+        if (!vkActiveKey) return;
+        const code = InputEventCodes[vkActiveKey];
+        if (code !== undefined) sendInput(code, 0);
+        const btn = vkEl.querySelector(`[data-key="${vkActiveKey}"]`);
+        if (btn) btn.classList.remove('vk-pressed');
+        vkActiveKey = null;
+      }
+
+      vkEl.addEventListener('mousedown', e => {
+        const key = e.target.closest('[data-key]');
+        if (!key) return;
+        e.preventDefault();
+        vkDown(key.dataset.key);
+      });
+
+      document.addEventListener('mouseup', () => vkUp());
+
+      vkEl.addEventListener('touchstart', e => {
+        const key = e.target.closest('[data-key]');
+        if (!key) return;
+        e.preventDefault();
+        vkDown(key.dataset.key);
+      }, { passive: false });
+
+      vkEl.addEventListener('touchend', e => {
+        e.preventDefault();
+        vkUp();
+      }, { passive: false });
+    })();
 
     function sendSlide(direction) {
       const sendInterval = 10;
