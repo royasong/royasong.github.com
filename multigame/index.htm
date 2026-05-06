@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!DOCTYPE html>
+`<!DOCTYPE html>
 <!-- saved from url=(0049)https://gamepad-webrtc-dev.obigo.com/phoneA2.html -->
 <html lang="ko">
 <head>
@@ -290,8 +290,8 @@
     
     var fnRtcConnectCallback = function(){
         const VIN = document.getElementById('VIN').value.trim();
-        const UUID = document.getElementById('UUID').value.trim();
-        const AVNID = document.getElementById('AVNID').value.trim();
+        const UUID = document.getElementById('UUID').value.trim();//default : #0001
+        const AVNID = document.getElementById('AVNID').value.trim(); // default : AVN1
         const WSS = document.getElementById('WSS').value.trim();
 
         mTarget = VIN +"-"+ AVNID;
