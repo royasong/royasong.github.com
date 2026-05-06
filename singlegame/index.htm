@@ -171,28 +171,6 @@
   <button id="btnConnectRTC">WS 서버 연결</button>
   <button onclick="closeConn()">WS 서버 연결 종료</button>
 
-
-  <h3>터치 Swipe 입력</h3>
-  <div>
-    <button onclick="sendSlide('U')">상</button>
-    <button onclick="sendSlide('D')">하</button>
-    <button onclick="sendSlide('L')">좌</button>
-    <button onclick="sendSlide('R')">우</button>        
-  </div>
-  <h3>터치 입력</h3>
-  <div>
-    <button id="btnTouchL">좌</button>
-    <button id="btnTouchR">우</button>
-    <button id="btnTouchEndlessL">트럭 좌</button>
-    <button id="btnTouchEndlessR">트럭 우</button>
-    <button id="btnTouchEndlessJump">트럭 점프</button>
-  </div>
-  <div id="touchPanel">
-      Click to touch
-  </div>
-  <div id="touchPanel2" tabindex="1">
-      키보드 상, 하, 좌, 우 Multi touch<br>
-  </div>
   <h3>키보드 입력/물리키보드 지원</h3>
   <div id="virtualKeyboard">
     <!-- Function row -->
@@ -304,7 +282,30 @@
     </div>
     
   </div>
-  <h3>수신 로그</h3>
+
+
+  <h3>터치 Swipe 입력</h3>
+  <div>
+    <button onclick="sendSlide('U')">상</button>
+    <button onclick="sendSlide('D')">하</button>
+    <button onclick="sendSlide('L')">좌</button>
+    <button onclick="sendSlide('R')">우</button>        
+  </div>
+  <h3>터치 입력</h3>
+  <div>
+    <button id="btnTouchL">좌</button>
+    <button id="btnTouchR">우</button>
+    <button id="btnTouchEndlessL">트럭 좌</button>
+    <button id="btnTouchEndlessR">트럭 우</button>
+    <button id="btnTouchEndlessJump">트럭 점프</button>
+  </div>
+  <div id="touchPanel">
+      Click to touch
+  </div>
+  <div id="touchPanel2" tabindex="1">
+      키보드 상, 하, 좌, 우 Multi touch<br>
+  </div>
+  
   <div id="log"></div>
   <script src="https://af.obigo.com/launcher/pierre/rtc/jquery-3.7.1.min.js"></script>
   <script>
