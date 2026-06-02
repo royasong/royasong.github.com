@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Edu — Roya Song</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f3f4f6;
+      color: #222;
+      overflow-x: hidden;
+      font-size: 15px;
+    }
+
+    header {
+      background: #111827;
+      color: white;
+      padding: 10px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    header a {
+      color: #9ca3af;
+      text-decoration: none;
+      font-size: 13px;
+    }
+    header a:hover { color: #fff; }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 18px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    /* ── 날짜 그룹 카드 ── */
+    .entry {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    .entry-header {
+      background: #1e3a5f;
+      color: white;
+      padding: 10px 18px;
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+    }
+
+    .entry-date {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: #93c5fd;
+    }
+
+    .entry-title {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .entry-body {
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* ── 소제목 ── */
+    .topic-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1e40af;
+      border-left: 3px solid #3b82f6;
+      padding-left: 8px;
+      margin: 0 0 10px 0;
+    }
+
+    /* ── 플로우 다이어그램 / 코드 블록 ── */
+    pre {
+      margin: 0;
+      font-family: Consolas, Monaco, 'Courier New', monospace;
+      font-size: 12.5px;
+      line-height: 1.75;
+      color: #1e293b;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 12px 14px;
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    /* ── 설명 텍스트 ── */
+    .desc {
+      font-size: 13.5px;
+      line-height: 1.7;
+      color: #374151;
+    }
+
+    /* ── 인라인 코드 ── */
+    code {
+      font-family: Consolas, Monaco, monospace;
+      font-size: 12.5px;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      padding: 1px 6px;
+      color: #0f172a;
+    }
+
+    /* ── 테이블 ── */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+
+    .data-table th {
+      background: #1e3a5f;
+      color: white;
+      padding: 7px 10px;
+      text-align: left;
+      font-weight: 600;
+    }
+
+    .data-table td {
+      padding: 7px 10px;
+      border-bottom: 1px solid #e5e7eb;
+      vertical-align: top;
+      line-height: 1.6;
+    }
+
+    .data-table tr:nth-child(even) td { background: #f8fafc; }
+    .data-table tr:last-child td { border-bottom: none; }
+
+    /* ── 커밋 상태 2컬럼 ── */
+    .commit-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .commit-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 10px 14px;
+    }
+
+    .commit-box-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #64748b;
+      margin-bottom: 8px;
+    }
+
+    .commit-box ul {
+      margin: 0;
+      padding-left: 16px;
+      font-size: 12.5px;
+      line-height: 1.8;
+      color: #1e293b;
+    }
+
+    .tag-done {
+      display: inline-block;
+      background: #16a34a;
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 3px;
+      padding: 1px 5px;
+      margin-left: 4px;
+      vertical-align: middle;
+    }
+
+    .tag-pending {
+      display: inline-block;
+      background: #d97706;
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 3px;
+      padding: 1px 5px;
+      margin-left: 4px;
+      vertical-align: middle;
+    }
+
+    /* ── 구분선 ── */
+    .divider {
+      border: none;
+      border-top: 1px solid #e5e7eb;
+      margin: 4px 0;
+    }
+
+    /* ── Q&A ── */
+    .qa-q {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #1e40af;
+      margin-bottom: 8px;
+    }
+    .qa-q::before { content: "Q. "; }
+
+    @media (max-width: 700px) {
+      .commit-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <span style="font-weight:700;font-size:15px;">Edu</span>
+  <a href="../index.htm">← Index</a>
+</header>
+
+<main class="container">
+
+  <!-- ══════════════════════════════════════════════
+       2026-06-18  media_session
+  ══════════════════════════════════════════════ -->
+  <article class="entry">
+    <div class="entry-header">
+      <span class="entry-date">2026-06-18</span>
+      <span class="entry-title">media_session — MediaSession API 썸네일 / 재생 종료 처리</span>
+    </div>
+
+    <div class="entry-body">
+
+      <!-- ① 변경 흐름 -->
+      <div>
+        <div class="topic-title">변경 흐름 (현재까지)</div>
+<pre>[ YouTube 재생 ]
+      │
+      ▼
+MediaSession API (Chromium)
+      │
+      ├─ 이미지 다운로드 완료
+      │       │
+      │  ① media_session_impl.cc
+      │    NotifyImageDownloadComplete() 추가  ← NEW
+      │    NotifyMediaSessionControllable() 추가  ← NEW
+      │       │
+      │  ② obigo_media_session_handler.cc
+      │    파라미터 순서 버그 수정  ← FIX
+      │    (media_id, "", -1 → 0, "", media_id)
+      │       │
+      │  ③ AudioClient_ccnc.cc
+      │    notifyMetadataChanged(-1 → a_media_id)  ← FIX
+      │       │
+      │  ④ media_session_manager_ccnc.cc
+      │    updateImage() file:// 이중 접두사 방지  ← FIX
+      │    "file://file:///..." → "file:///..."
+      │       │
+      │  ⑤ bookmark_policy_ccnc.cc
+      │    onMediaSessionMetaDataChanged()
+      │    cur_media_id_ = a_media_id  ← FIX
+      │    (기존엔 항상 -1이라 isControllable 체크 실패)
+      │       │
+      │       ▼
+      │  NowPlayingController::updateNowPlayingImage()
+      │       │
+      │       ▼
+      │  port::Audio::setImageUrl()
+      │       │
+      │       ▼
+      │  ✅ 썸네일 표시
+      │
+      └─ 재생 종료 (availability=false)
+              │
+         ⑥ bookmark_policy_ccnc.cc  ← NEW (미커밋)
+           onMediaSessionPlaybackStatusChanged()
+                │
+                ▼
+           updateMediaState(LOADING)
+                │
+                ▼
+           sendDefaultNowPlayingInfo()
+                │
+                ▼
+           port::Audio::setImageUrl(앱 로고, LOADING)
+                │
+                ▼
+           ✅ 썸네일 → 앱 기본 이미지로 교체</pre>
+      </div>
+
+      <!-- ② 커밋 상태 -->
+      <div>
+        <div class="topic-title">커밋 상태 요약</div>
+        <div class="commit-grid">
+          <div class="commit-box">
+            <div class="commit-box-title">커밋됨 (ee0461be) <span class="tag-done">DONE</span></div>
+            <ul>
+              <li>① NotifyImageDownloadComplete 추가</li>
+              <li>② 파라미터 순서 수정</li>
+              <li>③ media_id -1 → 실제값</li>
+              <li>④ file:// 이중 방지</li>
+              <li>⑤ cur_media_id_ 설정</li>
+            </ul>
+          </div>
+          <div class="commit-box">
+            <div class="commit-box-title">미커밋 (현재 작업) <span class="tag-pending">WIP</span></div>
+            <ul>
+              <li>⑥ 재생 종료 시 LOADING 전환<br>→ 앱 기본 이미지로 교체</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <!-- ③ Q. media stop 시 이미지 외부 전달 경로 (brs_92 ccnc) -->
+      <div>
+        <div class="qa-q">brs_92 media stop 시 이미지를 외부로 어떻게 내려보내? (ccnc)</div>
+
+        <div class="desc" style="margin-bottom:10px;">
+          실질적 이미지 교체는 <code>STOPPED</code>가 아닌 <code>LOADING</code> 전환 시 발생한다.
+        </div>
+
+        <div class="topic-title">전체 호출 체인</div>
+<pre>updateAudioState(kClosed)
+  → onPlayingStateChanged(kClosed)
+      → removeMediaSessionInfo()
+      → changePlayingState(kClosed)
+          → resetLastMediaInfo()
+          → updateMediaState(MediaWidgetStatus::LOADING, app_id, -1)
+              → nowplaying_controller_.sendDefaultNowPlayingInfo()
+                  → sendImageUrl(app_id, getDefaultImagePath(app_id))
+                      → port::Audio::setImageUrl(app_id, source, defaultImage, LOADING)
+                          → setNowPlayingImage(screen, app_id, bgImg=logoImg, albumImg=logoImg)</pre>
+      </div>
+
+      <!-- ④ 상태별 동작 비교 테이블 -->
+      <div>
+        <div class="topic-title">상태별 동작 비교</div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>상태</th>
+              <th>port::Audio::setImageUrl</th>
+              <th>실제 이미지 변화</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>LOADING</code> (kClosed 경유)</td>
+              <td>호출됨 — 앱 로고(기본 이미지) 전달</td>
+              <td>썸네일 → 앱 로고로 교체</td>
+            </tr>
+            <tr>
+              <td><code>STOPPED</code></td>
+              <td>미호출 — <code>display_control_.updateMediaStatus(STOPPED, "")</code> 만</td>
+              <td>이미지 유지, 위젯 상태만 변경</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ⑤ 핵심 코드 -->
+      <div>
+        <div class="topic-title">핵심 코드 (brs_92 app_policy.cc)</div>
+<pre>case MediaWidgetStatus::STOPPED: {
+    // setImageUrl 호출 없음, 위젯 상태만 변경
+    display_control_.updateMediaStatus(source, STOPPED, app_id, "");
+} break;
+
+case MediaWidgetStatus::LOADING: {
+    // 기본 이미지(앱 로고)로 교체
+    nowplaying_controller_.sendDefaultNowPlayingInfo(app_id, force, status);
+    // → port::Audio::setImageUrl(app_id, source, logoImage, LOADING)
+    display_control_.updateMediaStatus(source, LOADING, app_id, defaultImagePath);
+} break;</pre>
+      </div>
+
+      <!-- ⑥ brs_143 시사점 -->
+      <div>
+        <div class="topic-title">brs_143 에 대한 시사점</div>
+        <div class="desc">
+          현재 brs_143에 적용한 수정 (<code>onMediaSessionPlaybackStatusChanged</code>에서 <code>availability=false</code> 시
+          <code>updateMediaState(STOPPED)</code>)은 brs_92 방식 기준으로 이미지를 건드리지 않는 방향이다.<br><br>
+          실제 이미지 제거/교체는 <code>LOADING</code> 상태를 통해 기본 이미지를 보내는 방식이므로,
+          썸네일을 실제로 지우려면 아래처럼 변경하는 것이 brs_92와 동일한 동작이다.
+        </div>
+<pre>if (!availability) {
+    updateMediaState(MediaWidgetStatus::LOADING, app_id_, -1);  // STOPPED → LOADING
+}</pre>
+      </div>
+
+      <hr class="divider">
+
+      <!-- ⑦ Obigo 추가 구현 요약 -->
+      <div>
+        <div class="topic-title">Obigo 추가 구현 요약 — MediaSessionController → 외부 image/playing info 연결</div>
+        <div class="desc" style="margin-bottom:10px;">
+          원본(<code>~/server/143origin</code>) 대비 2가지 계층으로 구현되어 있다.
+        </div>
+
+        <div class="topic-title" style="font-size:13px;">1. 신규 파일 — content/browser/media/obigo/ (원본에 없음)</div>
+        <div class="desc" style="margin-bottom:8px;">
+          <code>obigo_media_session_handler.h/.cc</code> — 핵심 외부 연결 컴포넌트. 원본 Chromium에는 존재하지 않는 obigo 전용 클래스.
+        </div>
+        <table class="data-table" style="margin-bottom:12px;">
+          <thead>
+            <tr><th>구현 인터페이스</th><th>역할</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>MediaControllerObserver</code></td>
+              <td>play state / metadata / actions 변화 수신</td>
+            </tr>
+            <tr>
+              <td><code>MediaControllerImageObserver</code></td>
+              <td>artwork 이미지 변화 수신</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="desc" style="margin-bottom:8px;">
+          생성자에서 <code>MediaControllerManager</code>로부터 active controller를 생성하고 두 observer를 등록:
+        </div>
+<pre style="margin-bottom:12px;">// ObserveImages: kArtwork, minSize=71, desiredSize=300
+media_controller_->ObserveImages(kArtwork, 71, 300, image_observer_receiver_);</pre>
+
+        <div class="desc" style="margin-bottom:8px;">각 이벤트를 <code>ShellBrowserWSClient</code>를 통해 외부로 전달:</div>
+        <table class="data-table" style="margin-bottom:12px;">
+          <thead>
+            <tr><th>콜백</th><th>외부 전달 함수</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>MediaSessionInfoChanged()</code></td>
+              <td><code>wsClient-&gt;NotifyPlayStateChanged(media_id, playState, availability)</code></td>
+            </tr>
+            <tr>
+              <td><code>MediaSessionMetadataChanged()</code></td>
+              <td><code>wsClient-&gt;NotifyMetaDataChanged(media_id, title, artist)</code></td>
+            </tr>
+            <tr>
+              <td><code>MediaSessionActionsChanged()</code></td>
+              <td><code>wsClient-&gt;NotifyActionsChanged(actionList)</code></td>
+            </tr>
+            <tr>
+              <td><code>MediaControllerImageChanged()</code></td>
+              <td><code>wsClient-&gt;NotifyImageChanged(hasThumbnail)</code></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="topic-title" style="font-size:13px;">2. 기존 파일 수정 — #if defined(OBIGO_AUDIO_MANAGER)</div>
+        <div class="desc" style="margin-bottom:8px;">데이터 흐름: media_id 전달 체인</div>
+<pre style="margin-bottom:12px;">MediaWebContentsObserver::MediaPlayerObserverHostImpl::OnSetMediaId(media_id)
+  └─→ MediaSessionControllersManager::OnSetMediaId(player_id, media_id)
+        └─→ MediaSessionController::OnSetMediaId(media_id)
+              ├─→ media_session_->OnSetMediaId(media_id)          // last_media_id_ 저장
+              └─→ media_session_->OnSetMediaSessionControllable(media_id, needs_session)
+                    └─→ RebuildAndNotifyMediaSessionInfoChanged()  // info->media_id 포함해서 전파</pre>
+
+        <div class="desc" style="margin-bottom:8px;"><code>media_session_impl.cc</code> 주요 추가 내용</div>
+<pre style="margin-bottom:12px;">// ① play position 외부 전달
+wsClient->NotifyMediaPositionChanged(screen, app_id, media_id_,
+    position_->duration(), position_->GetPosition());
+
+// ② artwork 이미지 → 파일 저장
+std::string imagePath = wsClient->GetImageDownloadPath(screen, app_id);
+auto encoded = gfx::PNGCodec::EncodeBGRASkBitmap(bitmap, false);
+base::WriteFile(downloadPath, *encoded);
+download_path_ = "file://" + downloadPath.MaybeAsASCII();
+downloaded_path_map_[image_url.spec()] = download_path_;
+
+// ③ image URL 외부 전달 (#if defined(MOTREX_CCNC))
+wsClient->NotifyImageUrl(screen, app_id, media_id_, image.src.spec());
+
+// ④ MediaSessionInfo에 media_id 포함
+info->availability = media_session_availability_;
+info->media_id = media_id_;   // ObigoMediaSessionHandler에서 읽어서 외부 전달</pre>
+      </div>
+
+      <!-- ⑧ 전체 아키텍처 -->
+      <div>
+        <div class="topic-title">전체 아키텍처 요약</div>
+<pre>[Blink/Renderer]
+     │ media_id (via Mojo)
+     ▼
+MediaWebContentsObserver
+     │
+MediaSessionControllersManager
+     │
+MediaSessionController
+     │  OnSetMediaSessionControllable()
+     ▼
+MediaSessionImpl ──────────────────────────────────────────┐
+  │ RebuildAndNotifyMediaSessionInfoChanged()              │
+  │ (info->media_id, availability 포함)                     │ artwork bitmap
+  ▼                                                        │ → PNG 저장
+MediaController (mojo)                                     │ download_path_
+  │                                                        │
+  ▼                                                        │
+ObigoMediaSessionHandler ◄─────────────────────────────────┘
+  │ (MediaControllerObserver + ImageObserver)
+  ▼
+ShellBrowserWSClient
+  ├─ NotifyPlayStateChanged()     ← playing info
+  ├─ NotifyMediaPositionChanged() ← position/duration
+  ├─ NotifyMetaDataChanged()      ← title/artist
+  ├─ NotifyImageChanged()         ← thumbnail 유무
+  └─ NotifyImageUrl()             ← image URL (MOTREX_CCNC)
+       │
+       ▼
+   외부 시스템 (AudioClient interface via WebSocket)</pre>
+        <div class="desc" style="margin-top:10px;">
+          핵심은 <code>ObigoMediaSessionHandler</code>가 Chromium 내부의 active media controller에 observer를 붙이고,
+          <code>MediaSessionImpl</code>에서 <code>media_id</code>를 <code>MediaSessionInfo</code>에 실어 보내면
+          이를 받아 <code>ShellBrowserWSClient</code>를 통해 외부(오디오 매니저/플랫폼)로 전달하는 구조다.
+        </div>
+      </div>
+
+    </div><!-- /entry-body -->
+  </article>
+
+  <!-- ══════════════════════════════════════════════
+       2026-06-23  NotifyObigoMetadataChanged 콜스택
+  ══════════════════════════════════════════════ -->
+  <article class="entry">
+    <div class="entry-header">
+      <span class="entry-date">2026-06-23</span>
+      <span class="entry-title">NotifyObigoMetadataChanged — 메타데이터 전파 전체 콜스택</span>
+    </div>
+
+    <div class="entry-body">
+
+      <!-- ① 전체 콜스택 -->
+      <div>
+        <div class="topic-title">전체 콜스택</div>
+<pre>MediaSessionImpl::NotifyObigoMetadataChanged()
+  [media_session_impl.cc:409]
+  │
+  └→ AudioClient::NotifyMetadataChanged()
+       [AudioClient_ccnc.cc:195]
+       │  (app_id "uplustvweb" 하드코딩)
+       │
+       └→ MediaSessionManager::notifyMetadataChanged()
+            [media_session_manager_ccnc.cc:49]
+            │
+            └→ MediaSessionManager::updateMetaData()
+                 [media_session_manager_ccnc.cc:112]
+                 │  m_lstMediaSessionEntry[app_id].updateMediaSessionInfo(...)
+                 │
+                 └→ onMediaSessionMetaDataChanged()
+                      │
+                      └→ BookmarkPolicy::onMediaSessionMetaDataChanged()
+                           [bookmark_policy_ccnc.cc:308]
+                           │
+                           ├→ meta_data_.setTitle() / setArtist()
+                           │
+                           ├→ port::PickNow::notifyMetaDataChanged()
+                           │    └→ PickNowImpl::notifyMetaDataChanged()
+                           │         [PickNow.cc:247]
+                           │         └→ WebCommonHmi::setPopupPlayerData()
+                           │              (PickNow 팝업 플레이어 UI)
+                           │
+                           └→ sendMediaInfo()
+                                (오디오 서비스 NowPlaying)</pre>
+      </div>
+
+      <!-- ② 출력 경로 요약 -->
+      <div>
+        <div class="topic-title">두 개의 출력 경로</div>
+        <div class="commit-grid">
+          <div class="commit-box">
+            <div class="commit-box-title">경로 ①</div>
+            <ul>
+              <li><code>PickNowImpl::notifyMetaDataChanged</code></li>
+              <li>→ <code>WebCommonHmi::setPopupPlayerData()</code></li>
+              <li>PickNow 팝업 플레이어 (미니 UI)</li>
+            </ul>
+          </div>
+          <div class="commit-box">
+            <div class="commit-box-title">경로 ②</div>
+            <ul>
+              <li><code>sendMediaInfo()</code></li>
+              <li>오디오 서비스 NowPlaying</li>
+              <li>차량 HMI 에 title / artist 표시</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- ③ 주요 파일 위치 -->
+      <div>
+        <div class="topic-title">주요 파일 위치</div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>파일</th>
+              <th>함수</th>
+              <th>비고</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>media_session_impl.cc:409</code></td>
+              <td><code>NotifyObigoMetadataChanged()</code></td>
+              <td>진입점</td>
+            </tr>
+            <tr>
+              <td><code>AudioClient_ccnc.cc:195</code></td>
+              <td><code>NotifyMetadataChanged()</code></td>
+              <td>app_id "uplustvweb" 하드코딩</td>
+            </tr>
+            <tr>
+              <td><code>media_session_manager_ccnc.cc:49</code></td>
+              <td><code>notifyMetadataChanged()</code></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td><code>media_session_manager_ccnc.cc:112</code></td>
+              <td><code>updateMetaData()</code></td>
+              <td><code>m_lstMediaSessionEntry[app_id]</code> 갱신</td>
+            </tr>
+            <tr>
+              <td><code>bookmark_policy_ccnc.cc:308</code></td>
+              <td><code>onMediaSessionMetaDataChanged()</code></td>
+              <td>title / artist 저장 + 두 경로 분기</td>
+            </tr>
+            <tr>
+              <td><code>PickNow.cc:247</code></td>
+              <td><code>notifyMetaDataChanged()</code></td>
+              <td>팝업 플레이어 UI 갱신</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div><!-- /entry-body -->
+  </article>
+
+</main>
+
+<footer style="text-align:center;padding:16px;color:#666;font-size:13px;">
+  Edu · Roya Song
+</footer>
+
+</body>
+</html>

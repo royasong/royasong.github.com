@@ -6,17 +6,23 @@
     <style>
         body { color: white; background: #111; }
         a { color: #7eb8f7; }
+        video {
+            position: sticky;
+            top: 0px;
+            display: block;
+            margin-top: 50px;
+        }
     </style>
 </head>
 <body>
-    <div style="margin-top: 50px; margin-bottom: 20px;">
-        <video width="400" controls>
-            <source src="Big_Buck_Bunny_1080_10s_1MB.mp4" type="video/mp4">
-            Your browser does not support HTML video.
-        </video>
+    <video width="400" controls loop autoplay muted>
+        <source src="Big_Buck_Bunny_1080_10s_1MB.mp4" type="video/mp4">
+        Your browser does not support HTML video.
+    </video>
 
+    <div style="margin-bottom: 20px;">
         <p>
-            Video courtesy of 
+            Video courtesy of
             <a href="https://www.bigbuckbunny.org/" target="_blank">Big Buck Bunny</a>.
         </p>
     </div>
