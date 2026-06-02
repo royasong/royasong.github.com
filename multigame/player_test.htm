@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Player Connect/Disconnect Test</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: sans-serif; padding: 1em; background: #1a1a2e; color: #eee; margin: 0; }
+    h1 { color: #e94560; margin-bottom: 0.3em; }
+    h2 { margin: 0.5em 0 0.3em; font-size: 1em; color: #aaa; }
+
+    .row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .panel {
+      flex: 1; min-width: 300px;
+      background: #16213e;
+      border: 1px solid #0f3460;
+      border-radius: 8px;
+      padding: 1em;
+    }
+    .panel h2 { color: #e94560; font-size: 1.1em; border-bottom: 1px solid #0f3460; padding-bottom: 0.3em; }
+
+    input, select {
+      background: #0f3460;
+      color: #eee;
+      border: 1px solid #e94560;
+      border-radius: 4px;
+      padding: 0.3em 0.5em;
+      margin: 0.2em 0;
+    }
+    input { width: 100%; }
+
+    button {
+      background: #e94560;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 0.4em 0.9em;
+      cursor: pointer;
+      margin: 0.2em;
+    }
+    button:hover { background: #c73652; }
+    button:disabled { background: #555; cursor: default; }
+    button.secondary { background: #0f3460; border: 1px solid #e94560; }
+    button.secondary:hover { background: #1a4a80; }
+
+    .status-dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: #e94560;
+      display: inline-block;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+    .status-dot.on { background: #4caf50; }
+
+    .log {
+      white-space: pre-wrap;
+      background: #0a0a1a;
+      border: 1px solid #0f3460;
+      border-radius: 4px;
+      padding: 0.7em;
+      height: 220px;
+      overflow-y: auto;
+      font-size: 0.78em;
+      font-family: monospace;
+      margin-top: 0.5em;
+    }
+
+    /* 플레이어 상태 박스 */
+    .players-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin: 0.5em 0;
+    }
+    .player-box {
+      background: #0f3460;
+      border: 2px solid #333;
+      border-radius: 6px;
+      padding: 0.5em;
+      text-align: center;
+      font-size: 0.85em;
+      transition: all 0.3s;
+    }
+    .player-box.connected {
+      border-color: #4caf50;
+      background: #1a3a1a;
+    }
+    .player-box.disconnected {
+      border-color: #e94560;
+      background: #3a1a1a;
+    }
+    .player-box .pid { font-size: 1.3em; font-weight: bold; }
+    .player-box .pstate { font-size: 0.75em; color: #aaa; }
+    .player-box.connected .pstate { color: #4caf50; }
+    .player-box.disconnected .pstate { color: #e94560; }
+
+    /* Phone 송신용 패킷 버튼 */
+    .phone-btns { margin: 0.5em 0; }
+    .phone-btns button { font-size: 0.8em; }
+
+    label { font-size: 0.85em; color: #aaa; display: block; margin-top: 0.4em; }
+
+    .tag {
+      display: inline-block;
+      background: #0f3460;
+      border-radius: 3px;
+      padding: 1px 6px;
+      font-size: 0.75em;
+      margin: 1px;
+    }
+    .tag.green { background: #1a4a1a; color: #4caf50; border: 1px solid #4caf50; }
+    .tag.red   { background: #4a1a1a; color: #e94560; border: 1px solid #e94560; }
+    .tag.blue  { background: #1a2a4a; color: #64b5f6; border: 1px solid #64b5f6; }
+  </style>
+</head>
+<body>
+
+<h1>Player Connect / Disconnect Test</h1>
+<p style="color:#aaa; font-size:0.85em; margin:0 0 1em;">
+  AVN(receiver)측의 <code>getPlayerList</code> → <code>connectObigoDevice</code> / <code>disconnectObigoDevice</code> 동작을 검증합니다.
+</p>
+
+<!-- 공통 서버 설정 -->
+<div style="background:#16213e; border:1px solid #0f3460; border-radius:8px; padding:1em; margin-bottom:1em;">
+  <h2 style="color:#e94560; margin-top:0;">서버 설정</h2>
+  <div class="row">
+    <div style="flex:3; min-width:200px;">
+      <label>WSS URL</label>
+      <input id="WSS" value="wss://stg-pickjoy.obigo.ai/webrtc-v2/ws">
+    </div>
+    <div style="flex:1; min-width:100px;">
+      <label>선택</label>
+      <select id="wssSelect">
+        <option value="">선택</option>
+        <option value="wss://pickjoy-dev.obigo.com/webrtc-v2/ws">DEV</option>
+        <option value="wss://stg-pickjoy.obigo.ai/webrtc-v2/ws">STG</option>
+        <option value="wss://pickjoy.obigo.ai/webrtc-v2/ws">PROD</option>
+        <option value="wss://brk-demo-us-west.obigo.com/webrtc-v2/ws">US</option>
+      </select>
+    </div>
+    <div style="flex:1; min-width:100px;">
+      <label>VIN</label>
+      <input id="VIN" value="831fa3f5901c840f">
+    </div>
+    <div style="flex:1; min-width:80px;">
+      <label>AVN ID</label>
+      <input id="AVNID" value="avn1">
+    </div>
+  </div>
+</div>
+
+<div class="row">
+
+  <!-- ===== AVN (Receiver) Panel ===== -->
+  <div class="panel">
+    <h2>📺 AVN (join-receiver) — WebSocketClient 시뮬레이터</h2>
+
+    <div>
+      <span class="status-dot" id="avnDot"></span>
+      <span id="avnState">연결 안됨</span>
+      &nbsp;
+      <button onclick="avnConnect()">연결</button>
+      <button class="secondary" onclick="avnDisconnect()">해제</button>
+    </div>
+
+    <h2 style="margin-top:0.8em;">Player 상태 (getPlayerList 결과)</h2>
+    <div class="players-grid" id="playerGrid">
+      <div class="player-box" id="pb1"><div class="pid">P1</div><div class="pstate">idle</div></div>
+      <div class="player-box" id="pb2"><div class="pid">P2</div><div class="pstate">idle</div></div>
+      <div class="player-box" id="pb3"><div class="pid">P3</div><div class="pstate">idle</div></div>
+      <div class="player-box" id="pb4"><div class="pid">P4</div><div class="pstate">idle</div></div>
+    </div>
+
+    <div>
+      <button class="secondary" onclick="resetPlayers()">Player 상태 초기화</button>
+    </div>
+
+    <div class="log" id="avnLog">(AVN 수신 로그)</div>
+    <button class="secondary" style="margin-top:4px;" onclick="clearLog('avnLog')">LOG CLEAR</button>
+  </div>
+
+  <!-- ===== Phone (Device) Panel ===== -->
+  <div class="panel">
+    <h2>📱 Phone (join-device) — gamepad 송신기</h2>
+
+    <div>
+      <span class="status-dot" id="phoneDot"></span>
+      <span id="phoneState">연결 안됨</span>
+      &nbsp;
+      <button onclick="phoneConnect()">연결</button>
+      <button class="secondary" onclick="phoneDisconnect()">해제</button>
+    </div>
+
+    <label style="margin-top:0.8em;">UUID</label>
+    <input id="UUID" value="#0001">
+
+    <h2 style="margin-top:0.8em;">Player 선택</h2>
+    <select id="PlayerSelect" style="width:100%; margin-bottom:0.4em;">
+      <option value="1">Player 1</option>
+      <option value="2">Player 2</option>
+      <option value="3">Player 3</option>
+      <option value="4">Player 4</option>
+    </select>
+
+    <div class="phone-btns">
+      <b style="font-size:0.85em;">버튼 입력</b><br>
+      <button onclick="sendBtn('btnA','press')" onpointerup="sendBtn('btnA','release')">A</button>
+      <button onclick="sendBtn('btnB','press')" onpointerup="sendBtn('btnB','release')">B</button>
+      <button onclick="sendBtn('btnX','press')" onpointerup="sendBtn('btnX','release')">X</button>
+      <button onclick="sendBtn('btnY','press')" onpointerup="sendBtn('btnY','release')">Y</button>
+      <button onclick="sendBtn('L1','press')" onpointerup="sendBtn('L1','release')">L1</button>
+      <button onclick="sendBtn('R1','press')" onpointerup="sendBtn('R1','release')">R1</button>
+    </div>
+
+    <div class="phone-btns">
+      <b style="font-size:0.85em;">D-Pad</b><br>
+      <button onclick="sendBtn('up','press')" onpointerup="sendBtn('up','release')">▲</button>
+      <button onclick="sendBtn('down','press')" onpointerup="sendBtn('down','release')">▼</button>
+      <button onclick="sendBtn('left','press')" onpointerup="sendBtn('left','release')">◀</button>
+      <button onclick="sendBtn('right','press')" onpointerup="sendBtn('right','release')">▶</button>
+    </div>
+
+    <div class="log" id="phoneLog">(Phone 송신 로그)</div>
+    <button class="secondary" style="margin-top:4px;" onclick="clearLog('phoneLog')">LOG CLEAR</button>
+  </div>
+
+</div>
+
+<!-- ===== 수동 JSON 송신 (서버 메시지 시뮬레이션) ===== -->
+<div style="background:#16213e; border:1px solid #0f3460; border-radius:8px; padding:1em; margin-top:1em;">
+  <h2 style="color:#e94560; margin-top:0;">🧪 수동 JSON 송신 (AVN WebSocket → 서버)</h2>
+  <p style="color:#aaa; font-size:0.82em; margin:0 0 0.5em;">
+    서버가 AVN에 보내는 메시지를 직접 AVN WebSocket으로 흉내내어 파싱 로직을 검증합니다.
+  </p>
+  <div class="row" style="margin-bottom:0.5em;">
+    <button onclick="sendManual('connect1')">
+      connect player=[1]
+    </button>
+    <button onclick="sendManual('connect12')">
+      connect player=[1,2]
+    </button>
+    <button onclick="sendManual('connect1234')">
+      connect player=[1,2,3,4]
+    </button>
+    <button class="secondary" onclick="sendManual('disconnect1')">
+      disconnect player=[1]
+    </button>
+    <button class="secondary" onclick="sendManual('disconnect12')">
+      disconnect player=[1,2]
+    </button>
+  </div>
+
+  <label>직접 입력 (JSON)</label>
+  <div style="display:flex; gap:6px;">
+    <input id="manualJson"
+      value='{"status":"connected","player":[1,2],"from":"PhoneA"}'
+      style="flex:1;">
+    <button onclick="sendManualRaw()">전송</button>
+  </div>
+  <div style="margin-top:0.4em; font-size:0.8em; color:#aaa;">
+    <b>connect 형식:</b>
+    <span class="tag blue">status: "connected"</span>
+    <span class="tag blue">player: [1,2]</span>
+    <span class="tag blue">from: "PhoneA"</span>
+    &nbsp;&nbsp;
+    <b>disconnect 형식:</b>
+    <span class="tag">payload.status: "Device-closed"</span>
+    <span class="tag">player: [1]</span>
+    <span class="tag">from: "PhoneA"</span>
+  </div>
+</div>
+
+<script>
+  // ── 공통 유틸 ─────────────────────────────────────
+  const wssSelect = document.getElementById('wssSelect');
+  wssSelect.addEventListener('change', () => {
+    if (wssSelect.value) document.getElementById('WSS').value = wssSelect.value;
+  });
+
+  function timestamp() {
+    const n = new Date();
+    const p = (v, z=2) => String(v).padStart(z,'0');
+    return `${p(n.getHours())}:${p(n.getMinutes())}:${p(n.getSeconds())}.${p(n.getMilliseconds(),3)}`;
+  }
+  function appendLog(id, msg) {
+    const el = document.getElementById(id);
+    el.textContent += `\n[${timestamp()}] ${msg}`;
+    el.scrollTop = el.scrollHeight;
+  }
+  function clearLog(id) {
+    document.getElementById(id).textContent = '';
+  }
+
+  // ── Player 상태 관리 ─────────────────────────────
+  function setPlayerState(playerId, state) {
+    const box = document.getElementById('pb' + playerId);
+    if (!box) return;
+    box.className = 'player-box ' + state;
+    box.querySelector('.pstate').textContent = state === 'connected' ? '✅ connected'
+                                              : state === 'disconnected' ? '❌ disconnected'
+                                              : 'idle';
+  }
+  function resetPlayers() {
+    [1,2,3,4].forEach(i => setPlayerState(i, ''));
+    appendLog('avnLog', '🔄 Player 상태 초기화');
+  }
+
+  // player 배열 파싱 → 상태 업데이트 (getPlayerList 로직 재현)
+  function applyPlayerList(players, action) {
+    if (!Array.isArray(players) || players.length === 0) {
+      appendLog('avnLog', `  ⚠️ player 필드 없거나 빈 배열`);
+      return;
+    }
+    appendLog('avnLog', `  → getPlayerList: [${players.join(', ')}]`);
+    players.forEach(pid => {
+      if (pid < 1 || pid > 4) {
+        appendLog('avnLog', `  ⚠️ playerId=${pid} 범위 초과 (1~4), 무시`);
+        return;
+      }
+      setPlayerState(pid, action);
+      appendLog('avnLog', `  → ${action === 'connected' ? 'connectObigoDevice' : 'disconnectObigoDevice'}(playerId=${pid})`);
+    });
+  }
+
+  // ── AVN WebSocket ────────────────────────────────
+  let avnWs = null;
+
+  function avnSetStatus(on, msg) {
+    document.getElementById('avnDot').className = 'status-dot' + (on ? ' on' : '');
+    document.getElementById('avnState').textContent = msg;
+  }
+
+  function avnConnect() {
+    const wss  = document.getElementById('WSS').value.trim();
+    const vin  = document.getElementById('VIN').value.trim();
+    const avnid= document.getElementById('AVNID').value.trim();
+    if (avnWs) avnWs.close();
+    avnWs = new WebSocket(wss);
+
+    avnWs.onopen = () => {
+      avnSetStatus(true, '연결됨');
+      obaJs.startGamepad();
+      appendLog('avnLog', `✅ WebSocket connected (join-receiver)`);
+      avnWs.send(JSON.stringify({ type: 'join-receiver', vin, avnid }));
+      appendLog('avnLog', `📤 join-receiver vin=${vin} avnid=${avnid}`);
+    };
+
+    avnWs.onmessage = (e) => {
+      const text = typeof e.data === 'string' ? e.data : null;
+      if (!text) { appendLog('avnLog', `📨 (binary data)`); return; }
+      appendLog('avnLog', `📨 raw: ${text}`);
+      try {
+        const json = JSON.parse(text);
+        // isJoinMessage: status==="connected" && has player
+        if (json.status === 'connected' && json.player !== undefined) {
+          const from = json.from || json.sender || '?';
+          appendLog('avnLog', `🟢 isJoinMessage → user.connected (from: ${from})`);
+          applyPlayerList(json.player, 'connected');
+        }
+        // isClosedMessage: payload.status === "Device-closed"
+        else if (json.payload && json.payload.status === 'Device-closed') {
+          const from = json.from || json.sender || '?';
+          appendLog('avnLog', `🔴 isClosedMessage → user.disconnected (from: ${from})`);
+          applyPlayerList(json.player, 'disconnected');
+        }
+        else {
+          appendLog('avnLog', `  (not a join/close message)`);
+        }
+      } catch(err) {
+        appendLog('avnLog', `  (not JSON: ${err.message})`);
+      }
+    };
+
+    avnWs.onerror = (e) => {
+      appendLog('avnLog', `❌ error`);
+    };
+
+    avnWs.onclose = (e) => {
+      avnSetStatus(false, '연결 끊김');
+      appendLog('avnLog', `🔌 closed (code=${e.code})`);
+    };
+  }
+
+  function avnDisconnect() {
+    if (avnWs) { avnWs.close(); avnWs = null; }
+  }
+
+  // ── Phone WebSocket ──────────────────────────────
+  let phoneWs = null;
+
+  const gamepadPackets = {
+    btnA:  { press: [91,0,1,1,1,48,1,0,93], release: [91,0,1,1,1,48,0,0,93] },
+    btnB:  { press: [91,0,1,1,1,49,1,0,93], release: [91,0,1,1,1,49,0,0,93] },
+    btnX:  { press: [91,0,1,1,1,51,1,0,93], release: [91,0,1,1,1,51,0,0,93] },
+    btnY:  { press: [91,0,1,1,1,52,1,0,93], release: [91,0,1,1,1,52,0,0,93] },
+    L1:    { press: [91,0,1,1,1,54,1,0,93], release: [91,0,1,1,1,54,0,0,93] },
+    R1:    { press: [91,0,1,1,1,55,1,0,93], release: [91,0,1,1,1,55,0,0,93] },
+    up:    { press: [91,0,1,3,0,19,100,1,93], release: [91,0,1,3,0,19,0,0,93] },
+    down:  { press: [91,0,1,3,0,19,100,0,93], release: [91,0,1,3,0,19,0,0,93] },
+    left:  { press: [91,0,1,3,0,18,100,0,93], release: [91,0,1,3,0,18,0,0,93] },
+    right: { press: [91,0,1,3,0,18,100,1,93], release: [91,0,1,3,0,18,0,0,93] },
+  };
+
+  function phoneSetStatus(on, msg) {
+    document.getElementById('phoneDot').className = 'status-dot' + (on ? ' on' : '');
+    document.getElementById('phoneState').textContent = msg;
+  }
+
+  function phoneConnect() {
+    const wss  = document.getElementById('WSS').value.trim();
+    const vin  = document.getElementById('VIN').value.trim();
+    const avnid= document.getElementById('AVNID').value.trim();
+    const uuid = document.getElementById('UUID').value.trim();
+    if (phoneWs) phoneWs.close();
+    phoneWs = new WebSocket(wss);
+
+    phoneWs.onopen = () => {
+      phoneSetStatus(true, '연결됨');
+      appendLog('phoneLog', `✅ WebSocket connected (join-device)`);
+      phoneWs.send(JSON.stringify({ type: 'join-device', vin, avnid, uuid }));
+      appendLog('phoneLog', `📤 join-device vin=${vin} avnid=${avnid} uuid=${uuid}`);
+    };
+
+    phoneWs.onmessage = (e) => {
+      const text = typeof e.data === 'string' ? e.data : null;
+      if (text) appendLog('phoneLog', `📨 ${text}`);
+    };
+
+    phoneWs.onerror = () => appendLog('phoneLog', `❌ error`);
+
+    phoneWs.onclose = (e) => {
+      phoneSetStatus(false, '연결 끊김');
+      appendLog('phoneLog', `🔌 closed (code=${e.code})`);
+    };
+  }
+
+  function phoneDisconnect() {
+    if (phoneWs) { phoneWs.close(); phoneWs = null; }
+  }
+
+  function sendBtn(key, type) {
+    if (!phoneWs || phoneWs.readyState !== WebSocket.OPEN) {
+      appendLog('phoneLog', `⚠️ Phone WebSocket 미연결`);
+      return;
+    }
+    const pid = parseInt(document.getElementById('PlayerSelect').value);
+    const pkt = gamepadPackets[key];
+    if (!pkt) return;
+    const buf = new Uint8Array(pkt[type]);
+    buf[2] = pid;
+    phoneWs.send(buf);
+    appendLog('phoneLog', `📤 ${key} ${type} player=${pid} [${[...buf].join(',')}]`);
+  }
+
+  // ── 수동 JSON 송신 ────────────────────────────────
+  const manualMsgs = {
+    connect1:    { status:'connected', player:[1], from:'PhoneA' },
+    connect12:   { status:'connected', player:[1,2], from:'PhoneA' },
+    connect1234: { status:'connected', player:[1,2,3,4], from:'PhoneA' },
+    disconnect1:  { payload:{ status:'Device-closed' }, player:[1], from:'PhoneA' },
+    disconnect12: { payload:{ status:'Device-closed' }, player:[1,2], from:'PhoneA' },
+  };
+
+  function sendManual(key) {
+    const msg = manualMsgs[key];
+    if (!msg) return;
+    simulateAvnReceive(JSON.stringify(msg));
+  }
+
+  function sendManualRaw() {
+    const raw = document.getElementById('manualJson').value.trim();
+    simulateAvnReceive(raw);
+  }
+
+  // AVN 수신 로직을 직접 시뮬레이션 (WebSocket 없이도 파싱 검증 가능)
+  function simulateAvnReceive(text) {
+    appendLog('avnLog', `\n🧪 [수동] raw: ${text}`);
+    try {
+      const json = JSON.parse(text);
+      if (json.status === 'connected' && json.player !== undefined) {
+        const from = json.from || json.sender || '?';
+        appendLog('avnLog', `🟢 isJoinMessage → user.connected (from: ${from})`);
+        applyPlayerList(json.player, 'connected');
+      } else if (json.payload && json.payload.status === 'Device-closed') {
+        const from = json.from || json.sender || '?';
+        appendLog('avnLog', `🔴 isClosedMessage → user.disconnected (from: ${from})`);
+        applyPlayerList(json.player, 'disconnected');
+      } else {
+        appendLog('avnLog', `  ⚠️ isJoinMessage/isClosedMessage 조건 불일치`);
+        appendLog('avnLog', `     status=${json.status}, player=${JSON.stringify(json.player)}, payload=${JSON.stringify(json.payload)}`);
+      }
+    } catch(err) {
+      appendLog('avnLog', `  ❌ JSON 파싱 오류: ${err.message}`);
+    }
+  }
+</script>
+
+</body>
+</html>

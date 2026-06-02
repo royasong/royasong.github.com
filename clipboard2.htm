@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Clipboard Permission / API Test</title>
+  <style>
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans KR", "Helvetica Neue", Arial; padding: 20px; background:#f7f9fc; color:#111; }
+    h1 { font-size: 1.2rem; margin: 0 0 12px; }
+    #controls { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+    button { padding:8px 12px; border-radius:8px; border:1px solid #d0d7de; background:white; cursor:pointer; }
+    button:active{ transform:translateY(1px); }
+    #log { white-space:pre-wrap; background:#fff; border:1px solid #e1e6ef; padding:12px; border-radius:8px; max-height:50vh; overflow:auto; font-family: monospace; font-size:13px; }
+    input[type=text] { padding:8px; border-radius:8px; border:1px solid #d0d7de; min-width:220px; }
+    .small { font-size:12px; color:#555; margin-top:8px; }
+  </style>
+</head>
+<body>
+  <h1>Clipboard Permission & API Test (WebView)</h1>
+
+  <div id="controls">
+    <button id="btn-check">Permissions API 체크 실행</button>
+    <button id="btn-read">클립보드 읽기 시도 (readText)</button>
+    <button id="btn-write">클립보드 쓰기 시도 (writeText)</button>
+    <input id="txt-write" type="text" value="테스트 텍스트" />
+    <button id="btn-auto">자동 실행 (권한 체크 + 시도)</button>
+    <button id="btn-clear">로그 지우기</button>
+  </div>
+
+  <div id="log" aria-live="polite"></div>
+  <div class="small">실행 결과는 아래 로그 영역과 브라우저 콘솔에 출력됩니다.</div>
+
+  <script>
+    const logEl = document.getElementById('log');
+    function log(...args) {
+      const time = new Date().toISOString();
+      const text = args.map(a => {
+        try { return (typeof a === 'object') ? JSON.stringify(a) : String(a); }
+        catch(e){ return String(a); }
+      }).join(' ');
+      const line = `[${time}] ${text}\\n`;
+      logEl.textContent += line;
+      logEl.scrollTop = logEl.scrollHeight;
+      console.log(...args);
+    }
+
+    async function checkPermissions() {
+      try {
+        log("navigator.permissions:", !!navigator.permissions);
+        if (navigator.permissions && navigator.permissions.query) {
+          try {
+            const rRead = await navigator.permissions.query({ name: 'clipboard-read' });
+            log('clipboard-read state', rRead.state);
+          } catch (e) {
+            log('perm query read err', e && e.message ? e.message : e);
+          }
+          try {
+            const rWrite = await navigator.permissions.query({ name: 'clipboard-write' });
+            log('clipboard-write state', rWrite.state);
+          } catch (e) {
+            log('perm query write err', e && e.message ? e.message : e);
+          }
+        } else {
+          log('Permissions API not available in this WebView');
+        }
+      } catch (e) {
+        log('Permissions check failed:', e && e.message ? e.message : e);
+      }
+    }
+
+    async function tryReadClipboard() {
+      if (!navigator.clipboard || !navigator.clipboard.readText) {
+        log('navigator.clipboard.readText is not available');
+        return;
+      }
+      try {
+        const text = await navigator.clipboard.readText();
+        log('clipboard.readText ok:', text);
+      } catch (e) {
+        log('clipboard.readText err:', e && e.name ? `${e.name}: ${e.message || e}` : e);
+      }
+    }
+
+    async function tryWriteClipboard(text) {
+      if (!navigator.clipboard || !navigator.clipboard.writeText) {
+        log('navigator.clipboard.writeText is not available');
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(text);
+        log('clipboard.writeText ok (wrote):', text);
+      } catch (e) {
+        log('clipboard.writeText err:', e && e.name ? `${e.name}: ${e.message || e}` : e);
+      }
+    }
+
+    // 버튼 바인딩
+    document.getElementById('btn-check').addEventListener('click', checkPermissions);
+    document.getElementById('btn-read').addEventListener('click', tryReadClipboard);
+    document.getElementById('btn-write').addEventListener('click', () => {
+      const v = document.getElementById('txt-write').value;
+      tryWriteClipboard(v);
+    });
+    document.getElementById('btn-clear').addEventListener('click', () => logEl.textContent = '');
+    document.getElementById('btn-auto').addEventListener('click', async () => {
+      await checkPermissions();
+      await tryWriteClipboard(document.getElementById('txt-write').value);
+      await tryReadClipboard();

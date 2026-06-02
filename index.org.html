@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>Clipboard Access Example</title>
+</head>
+<body>
+  <h2>Chrome Clipboard Access Example</h2>
+
+  <button id="writeBtn">클립보드에 텍스트 복사</button>
+  <button id="readBtn">클립보드에서 텍스트 읽기</button>
+
+  <p id="output"></p>
+
+<script>
+  // 🔹 클립보드 쓰기
+  document.getElementById('writeBtn').addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText("Hello Chrome Clipboard!");
+      alert("클립보드에 텍스트가 복사되었습니다.");
+    } catch (err) {
+      alert("클립보드 쓰기 실패: " + err);
+    }
+  });
+
+  // 🔹 클립보드 읽기
+  document.getElementById('readBtn').addEventListener('click', async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      document.getElementById('output').innerText = "읽은 내용: " + text;
+    } catch (err) {
+      alert("클립보드 읽기 실패: " + err);
+    }
+  });
+</script>
+</body>
+</html>

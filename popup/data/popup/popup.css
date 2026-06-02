@@ -1,0 +1,274 @@
+body {
+	border: 0;
+	margin: 0;
+	padding: 0;
+	color: #333;
+	width: 600px;
+	font-size: 13px;
+	overflow: hidden;
+	font-family: arial, sans-serif;
+}
+
+input[type='checkbox'] {
+	margin: 0;
+	margin-top: -4px;
+	margin-right: 2px;
+	vertical-align: middle;
+}
+
+label {
+	color: #333;
+	font-size: 13px;
+	user-select: none;
+	font-family: monospace;
+	background-color: transparent !important;
+}
+
+.spacer {
+	width: 85px;
+}
+
+.button {
+	border: 0;
+	color: #fff;
+	font-size: 13px;
+	cursor: pointer;
+	border-radius: 0;
+	user-select: none;
+	text-align: center;
+	display: inline-block;
+	text-decoration: none;
+	vertical-align: middle;
+	transition: 300ms ease all;
+	font-family: arial, sans-serif;
+}
+
+.button:hover {
+	background-color: rgba(241, 241, 241, 0.95) !important;
+}
+
+.ok, .notok, .presets {
+	color: #333;
+	width: 90px;
+	height: 28px;
+	font-size: 13px;
+	line-height: 28px;
+	text-align: center;
+	font-family: arial, sans-serif;
+	background-color: rgba(255, 255, 255, 0.95);
+}
+
+.controls-main {
+	padding: 0;
+	background-color: #525252;
+}
+
+.chart {
+	margin: 0;
+  margin-top: 10px;
+  max-width: 400px;
+	font-family: arial, sans-serif;
+}
+
+.controls-sliders {
+  gap: 5px;
+  display: flex;
+	padding: 10px 0;
+	user-select: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.controls-sliders .slider {
+	margin: 0;
+	padding: 0;
+	width: 42px;
+  height: 172px;
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+	background-repeat: no-repeat;
+  justify-content: space-between;
+	background-position: top center;
+}
+
+.controls-sliders .slider label {
+	font-weight: 600;
+}
+
+.controls-sliders .slider input {
+	margin: 0;
+	width: 150px;
+	height: 28px;
+	cursor: grab;
+  transform: rotate(-90deg) translate(-61px, 0);
+}
+
+.controls-sliders .slider.master {
+	width: 54px;
+}
+
+.controls-sliders .slider.empty {
+	width: 38px;
+	background: #fff;
+}
+
+.controls-options {
+	background-color: #525252;
+}
+
+.controls-table {
+	margin: 0;
+	width: 100%;
+	padding: 5px 4px;
+	background-color: #525252;
+	font-family: arial, sans-serif;
+	border-spacing: 1px 0 !important;
+}
+
+.controls-options .preset-name {
+	height: 20px;
+	font-size: 10px;
+	line-height: 20px;
+	text-align: right;
+	padding-right: 5px;
+	display: inline-block;
+}
+
+.toolbar {
+  width: 38px;
+  min-width: 38px;
+  max-width: 38px;
+	border-left: solid 1px #6d6d6d;
+}
+
+.toolbar svg {
+	fill: #fff;
+	pointer-events: none;
+	vertical-align: middle;
+}
+
+.toolbar td {
+	width: 100%;
+	height: 32px;
+	cursor: pointer;
+	user-select: none;
+	transition: 300ms ease all;
+}
+
+.toolbar td:hover {
+	background-color: rgba(0,0,0,0.1);
+}
+
+.button-set {
+	width: 120px;
+  min-width: 120px;
+  max-width: 120px;
+	border-right: solid 1px #6d6d6d;
+}
+
+.button-set table {
+	border-spacing: 0 5px !important;
+}
+
+.button-set td {
+	width: 120px;
+}
+
+.button-set td a {
+	width: 92px;
+	color: #333;
+	height: 34px;
+	font-size: 13px;
+	background: #fff;
+	line-height: 34px;
+	font-family: arial, sans-serif;
+}
+
+.button-set td svg {
+	fill: #333;
+	pointer-events: none;
+	vertical-align: middle;
+}
+
+.button-set td a[state='ON'] {color: #333}
+.button-set td a[state='OFF'] {color: #afafaf}
+
+.mono, 
+.snap, 
+.test, 
+.refresh {
+	width: 64px;
+}
+
+.mono label, .snap label {
+	border: 0;
+	padding: 0;
+	height: 28px;
+	font-size: 13px;
+	cursor: pointer;
+	user-select: none;
+	line-height: 30px;
+	padding-left: 5px;
+	text-align: center;
+	display: inline-block;
+	font-family: arial, sans-serif;
+	color: rgba(255, 255, 255, 0.95);
+}
+
+#content {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow: hidden;
+}
+
+#content table {
+  width: 100%;
+  color: #333;
+  font-size: 13px;
+  border-spacing: 0;
+  font-family: arial, sans-serif;
+}
+
+#content table tr td {
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  font-family: arial, sans-serif;
+}
+
+#test, 
+#refresh, 
+#presets-select {
+	border: 0;
+	margin: 0;
+	width: 100%;
+	color: #333;
+	height: 34px;
+	outline: none;
+	cursor: pointer;
+	background: #fff;
+	line-height: 34px;
+	text-align: center;
+}
+
+#test svg, 
+#refresh svg {
+  fill: #333;
+	pointer-events: none;
+	vertical-align: middle;
+}
+
+#presets-select {
+  font-weight: 600;
+  text-align: left;
+	padding: 0 0 0 5px;
+	vertical-align: middle;
+	border: solid 1px rgba(255, 255, 255, 0.95);
+}
+
+#toggle {
+  font-size: 12px;
+  font-weight: 600;
+}

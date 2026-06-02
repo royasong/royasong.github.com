@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Roya Bookmark Index</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f3f4f6;
+      color: #222;
+      overflow-x: hidden;
+      font-size: 16px;
+    }
+
+    header {
+      background: #111827;
+      color: white;
+      padding: 10px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 14px;
+      padding: 14px;
+      align-items: start;
+    }
+
+    .section {
+      background: white;
+      border-radius: 10px;
+      padding: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    .section h2 {
+      margin: 0 0 12px 0;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #e5e7eb;
+      font-size: 20px;
+    }
+
+    .bookmark-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .bookmark-list li {
+      margin: 4px 0;
+      padding: 6px 0;
+      line-height: 1.4;
+    }
+
+    .bookmark-list a {
+      text-decoration: none;
+      color: #1d4ed8;
+      font-size: 16px;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    .bookmark-list a:hover {
+      text-decoration: underline;
+    }
+
+    .log-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .log-code {
+      flex: 1;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 13px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: #111827;
+    }
+
+    /* 10줄 내외 스크롤 박스 스타일 */
+    .log-scroll-box {
+      max-height: 200px; 
+      overflow-y: auto;
+      background: #f8fafc;
+      padding: 8px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+    }
+
+    .copy-btn {
+      border: none;
+      background: #2563eb;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      min-width: 70px;
+      align-self: flex-start;
+    }
+
+    .copy-btn:hover {
+      background: #1d4ed8;
+    }
+
+    footer {
+      text-align: center;
+      padding: 16px;
+      color: #666;
+      font-size: 13px;
+    }
+
+    @media (min-width: 1800px) {
+      .container {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+</header>
+
+<main class="container">
+
+  <section class="section">
+    <h2>AI</h2>
+    <ul class="bookmark-list">
+      <li><a href="https://chatgpt.com/" target="_blank">ChatGPT</a></li>
+      <li><a href="https://claude.ai/login" target="_blank">Claude</a></li>
+      <li><a href="https://gemini.google.com/app" target="_blank">Google Gemini</a></li>
+      <li><a href="https://claude.ai/settings/billing" target="_blank">Claude Billing</a></li>
+    </ul>
+  </section>
+
+<section class="section">
+  <h2>Chromium</h2>
+  <ul class="bookmark-list">
+    <li><a href="https://source.chromium.org/chromium/chromium/src" target="_blank">Chromium Main Source</a></li>
+    <li><a href="https://source.chromium.org/chromium/chromium/src/+/refs/tags/92.0.4515.131" target="_blank">Chromium 92</a></li>
+    <li><a href="https://source.chromium.org/chromium/chromium/src/+/refs/tags/122.0.6261.120" target="_blank">Chromium 122</a></li>
+    <li><a href="https://source.chromium.org/chromium/chromium/src/+/refs/tags/133.0.6943.51" target="_blank">Chromium 133</a></li>
+    <li><a href="https://source.chromium.org/chromium/chromium/src/+/refs/tags/143.0.7499.192" target="_blank">Chromium 143</a></li>
+    <li><a href="https://vikyd.github.io/download-chromium-history-version/#/" target="_blank">Chromium Version Download</a></li>
+  </ul>
+</section>
+  <section class="section">
+    <h2>OBIGO GitHub</h2>
+    <ul class="bookmark-list">
+      <li><a href="https://github.com/orgs/OBIGOGIT/repositories" target="_blank">GitHub OBIGO Repositories</a></li>
+      <li><a href="https://github.com/OBIGOGIT/android-obigo-brs-122" target="_blank">android-obigo-brs-122</a></li>
+      <li><a href="https://github.com/OBIGOGIT/android-obigo-brs-133" target="_blank">android-obigo-brs-133</a></li>
+      <li><a href="https://github.com/OBIGOGIT/obigo-af-agb-143" target="_blank">obigo-af-agb-143</a></li>
+      <li><a href="https://github.com/OBIGOGIT/obigo-ccos-qml-application" target="_blank">(WCH) obigo-ccos-qml-application</a></li>
+    </ul>
+  </section>
+
+  <section class="section">
+    <h2>OBIGO</h2>
+    <ul class="bookmark-list">
+      <li><a href="https://outlook.office.com/owa/" target="_blank">Outlook Mail</a></li>
+      <li><a href="https://ep.obigo.com/" target="_blank">EP</a></li>
+      <li><a href="https://obigoinc.atlassian.net/wiki/spaces/~roya.song/overview?homepageId=80347142" target="_blank">roya confluence</a></li>
+      <li><a href="http://jenkins.obigo.com/" target="_blank">Jenkins</a></li>
+      <li><a href="https://obigoinc.atlassian.net/jira/your-work" target="_blank">Jira My Work</a></li>
+      <li><a href="https://teams.microsoft.com/v2/" target="_blank">Microsoft Teams</a></li>
+      <li><a href="https://obigoinc.atlassian.net/issues/?jql=%28project%20%3D%20%22GR_HKMC_CCNC_MOBIS_AGB%20%22%20OR%20project%20%3D%20GR_HKMC_CCIC_LGE_AGB%20OR%20project%20%3D%20GR_HKMC_GEN6_LGE_AGB%20OR%20project%20%3D%20GR_HKMC_WEBSOLUTION%20OR%20project%20%3D%20%22OpenSource%20SW%20Management%22%20OR%20project%20%3D%20GR_MOTREX_CCNC_PICKNOW%20OR%20project%20%3D%20AppFramework1%20OR%20project%20%3D%20GR_WEBENGINE_UPGRADE_RND%29%20AND%20issuetype%20in%20%28Bug%2C%20Sub-task%2C%20subTaskIssueTypes%28%29%29%20AND%20status%20not%20in%20%28DONE%2C%20CLOSED%2C%20MODIFIED%2C%20%22INTERNAL%20RELEASED%22%2C%20PENDING%2C%20VERIFIED%2C%20CONFIRMED%2C%20Cancelled%29%20AND%20%28assignee%20%3D%20712020%3A385e1b0b-a0b2-4f82-aaf1-c629d7c229ab%20OR%20assignee%20%3D%20712020%3Ae7485331-0f3c-419d-95c5-e4a05e5aa0cc%20OR%20assignee%20%3D%20712020%3A956aad46-bc98-4a06-953f-cd013f7e90ec%20OR%20assignee%20%3D%20712020%3A565380da-24d7-4ee6-b9e0-b3a741895901%20OR%20assignee%20%3D%20712020%3A0d04de4e-54ad-45cd-b489-fe57a3abcc0d%20OR%20assignee%20%3D%205aa7710936a3a82a4e2ea5c3%20OR%20assignee%20%3D%20712020%3A4f250bed-c1bc-4829-9f3d-870379d5f635%20OR%20assignee%20%3D%205aa9c90bf75bb52a8232b1df%20OR%20assignee%20%3D%205aa9c90bbbead52a7eed8f13%20OR%20assignee%20%3D%205aa9c90ba903362a5788e919%29%20AND%20assignee%20%3D%205aa9c90bbbead52a7eed8f13%20ORDER%20BY%20duedate%20ASC" target="_blank">Jira Filter (Assigned)</a></li>
+    </ul>
+  </section>
+
+  <section class="section">
+    <h2>Dev</h2>
+    <ul class="bookmark-list">
+      <li><a href="https://obigoinc.atlassian.net/wiki/spaces/AARD/pages/471007243/06.+CP" target="_blank">CP사 계정 정보</a></li>
+      <li><a href="https://royasong.github.io/game/" target="_blank">Game</a></li>
+      <li><a href="https://royasong.github.io/webrisk/" target="_blank">WebRisk</a></li>
+    </ul>
+  </section>
+
+  <section class="section">
+    <h2>Branch</h2>
+	
+	  <div class="log-item">
+		<div class="log-code" id="branch-text">linux-af/oaf/brs_143; git checkout origin_chromium143; ./build.sh</div>
+		<button class="copy-btn"
+		  onclick='copyText(document.getElementById("branch-text").innerText, this)'>
+		  Copy
+		</button>
+	  </div>
+
+	  <ul class="bookmark-list" style="margin-top:12px;">
+		<li>
+		  <a href="https://obigoinc.atlassian.net/wiki/spaces/~kenith.kim/pages/1645838462/Motre+143+build+and+run"
+			 target="_blank">
+			Motrex 143 Build & Run Guide
+		  </a>
+		</li>
+		<li>
+		  <a href="https://obigoinc.atlassian.net/wiki/spaces/~kenith.kim/pages/1540554769/mobis_ccnc+143+target+build"
+			 target="_blank">
+			CCNC 143 Build & Run Guide
+		  </a>
+		</li>
+	  </ul>
+	</section>
+
+  <section class="section">
+    <h2>LOG</h2>
+
+    <div class="log-item">
+      <div class="log-code">#include "base/logging.h"</div>
+      <button class="copy-btn"
+        onclick='copyText(`#include "base/logging.h"`, this)'>
+        Copy
+      </button>
+    </div>
+
+    <div class="log-item">
+      <div class="log-code">#include "base/debug/stack_trace.h"</div>
+      <button class="copy-btn"
+        onclick='copyText(`#include "base/debug/stack_trace.h"`, this)'>
+        Copy
+      </button>
+    </div>
+
+    <div class="log-item">
+      <div class="log-code">LOG(ERROR) &lt;&lt; "[OBG][" &lt;&lt; __FUNCTION__ &lt;&lt; "] " &lt;&lt; __FILE__ &lt;&lt; ":" &lt;&lt; __LINE__ &lt;&lt; " ";</div>
+      <button class="copy-btn"
+        onclick='copyText(`LOG(ERROR) << "[OBG][" << __FUNCTION__ << "] " << __FILE__ << ":" << __LINE__ << " ";`, this)'>
+        Copy
+      </button>
+    </div>
+
+    <div class="log-item">
+      <div class="log-code">base::debug::StackTrace().Print();</div>
+      <button class="copy-btn"
+        onclick='copyText(`base::debug::StackTrace().Print();`, this)'>
+        Copy
+      </button>
+    </div>
+
+    <div class="log-item">
+      <div class="log-code log-scroll-box" id="diff-text">diff --git a/src/base/logging.cc b/src/base/logging.cc
+index e3b4b65062..d67a76b19f 100644
+--- a/src/base/logging.cc
++++ b/src/base/logging.cc
+@@ -777,8 +777,8 @@ void LogMessage::Flush() {
+       // The handler took care of it, no further processing.
+       return;
+     }
+-#if defined(OBIGO_USE_LOG_SYSTEM) && !defined(BRS_UNIT_TEST_ONLY) && defined(ARCH_CPU_ARM64)
+-#if defined(OBIGO_SANDBOX) && defined(OBIGO_USE_HYUNDAI_LOG_SYSTEM)
++#if 1//defined(OBIGO_USE_LOG_SYSTEM) && !defined(BRS_UNIT_TEST_ONLY) && defined(ARCH_CPU_ARM64)
++#if 1//defined(OBIGO_SANDBOX) && defined(OBIGO_USE_HYUNDAI_LOG_SYSTEM)
+     bool is_sandbox = false;
+     if (base::CommandLine::ForCurrentProcess()) {
+       auto type = base::CommandLine::ForCurrentProcess()->GetSwitchValueASCII("type");  // content_swtiches.cc
+@@ -796,12 +796,13 @@ void LogMessage::Flush() {
+     } else {
+       is_sandbox = true;  // cdm plugin
+     }
++  is_sandbox = true;  // for test
+     LogSeverity severity = severity_;
+     // if (LOG_VERBOSE == severity)
+     //   severity = LOG_INFO;
+     if (is_sandbox) {
+-     fprintf(stderr, "[Sandbox] %s\n", str_newline.c_str());
+-   } else {
++     fprintf(stderr, "BRS[OBG] %s\n", str_newline.c_str());
++   } /* else {
+       if (dltCtxid_.size() == 0) {
+          WriteLog(kBrowserModule, "BRS",
+                     ConvertBrowserLogLevel(static_cast<int>(severity)),
+@@ -811,7 +812,7 @@ void LogMessage::Flush() {
+                     ConvertBrowserLogLevel(static_cast<int>(severity)),
+                     str_newline.c_str());
+       }
+-   }
++   }*/
+ #else
+     LogSeverity severity = severity_;
+     if (LOGGING_VERBOSE == severity)
+diff --git a/src/obigo/public/logging.h b/src/obigo/public/logging.h
+index 8d0511c41c..395d814148 100644
+--- a/src/obigo/public/logging.h
++++ b/src/obigo/public/logging.h
+@@ -139,11 +139,14 @@ class C_COMMON_LOG {
+ 
+     void writeLog() const {
+       constexpr const char* BRS_CTX_ID = "BRS";
++     fprintf(stderr, "MODULE[OBG] %s\n", m_logs.str().c_str());
++/*
+ #if defined(PCLINUX)
+       WriteLog(kBrowser, BRS_CTX_ID, m_logLevel, m_logs.str().c_str());
+ #else
+       WriteLog(kBrowserModule, BRS_CTX_ID, m_logLevel, m_logs.str().c_str());
+ #endif
++*/
+     }
+ 
+    private:
+@@ -191,9 +194,9 @@ class C_ERROR_LOG : public C_COMMON_LOG  {
+     virtual ~C_ERROR_LOG() = default;
+   };
+ 
+-using DEBUG_LOG = C_DEBUG_LOG;
+-using INFO_LOG = C_INFO_LOG;
+-using WARN_LOG = C_WARNING_LOG;
++using DEBUG_LOG = C_ERROR_LOG;
++using INFO_LOG = C_ERROR_LOG;
++using WARN_LOG = C_ERROR_LOG;
+ using ERROR_LOG = C_ERROR_LOG;
+ }  // namespace websolution
+ 를 현재 프로젝트에 적용해줘
+ </div>
+       <button class="copy-btn"
+         onclick='copyText(document.getElementById("diff-text").innerText, this)'>
+         Copy
+       </button>
+     </div>
+
+  </section>
+
+</main>
+
+<footer>
+  Generated Bookmark Dashboard · Roya Song
+</footer>
+
+<script>
+async function copyText(text, button) {
+  try {
+    await navigator.clipboard.writeText(text);
+
+    const original = button.innerText;
+    button.innerText = "Copied!";
+
+    setTimeout(() => {
+      button.innerText = original;
+    }, 1200);
+
+  } catch (err) {
+    alert("Copy failed");
+    console.error(err);
+  }
+}
+</script>
+
+</body>
+</html>

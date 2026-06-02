@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>simple-sse-nodejs-setup</title>
+    <link rel="stylesheet" type="text/css" href="app.css">
+    <script src="vendor/eventsource.min-yaffle.js"></script>
+</head>
+
+<body>
+    <script>
+        // 웹 푸시 알림 권한 요청
+        function requestNotificationPermission() {
+            if ('Notification' in window) {
+                Notification.requestPermission().then(permission => {
+                    if (permission !== 'granted') {
+                        console.log('Notification permission denied.');
+                    }
+                });
+            } else {
+                console.log('Notifications are not supported by your browser.');
+            }
+        }
+
+        // 알림 표시
+        function showNotification(message) {
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification("New Message", {
+                    body: message,
+                    icon: 'notification-icon.png' // 알림에 사용할 아이콘 URL
+                });
+            }
+        }
+
+        // 서버에서 온 메시지를 알림으로 표시
+        const fn = function (e) {
+            console.log(e.data);
+            showNotification(e.data);
+        };
+
+        // SSE 연결 설정
+        const src = new EventSource("https://brk.obigo.com/batch/push");
+
+
+        // 메시지 수신 시 호출
+        src.onmessage = fn;
+
+        // 페이지 로드 시 권한 요청 및 SSE 연결
+        document.addEventListener("DOMContentLoaded", () => {
+            requestNotificationPermission();
+        });
+    </script>
+</body>
+
+</html>

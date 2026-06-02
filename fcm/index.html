@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Insert title here</title>
+</head>
+<body>
+ 
+<h1 id="order"></h1>
+ 
+<h1> 파이어 메세지</h1>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase.js"></script>
+<script>
+    // Initialize Firebase
+    var config = {
+	  apiKey: "AIzaSyClCE5EW4nwL-cMA6b1PdR-zoq874cOe5g",
+	  authDomain: "obigo-3a74b.firebaseapp.com",
+	  projectId: "obigo-3a74b",
+	  storageBucket: "obigo-3a74b.appspot.com",
+	  messagingSenderId: "669767331596",
+	  appId: "1:669767331596:web:6babce977efd036ef9e329",
+	  measurementId: "G-5BTRR1FZEW"
+    };
+    firebase.initializeApp(config);
+ 
+    const messaging = firebase.messaging();
+ 
+    //token값 알아내기
+    console.log("Before 1111");
+    messaging.requestPermission()
+        .then(function(){
+            console.log("Have permission");
+            return messaging.getToken();
+        })
+        .then(function(token){
+			document.getElementById("token").innerText = token;
+            console.log(token);
+            
+        })
+        .catch(function(arr) {
+			document.getElementById("token").innerText = "Error Occured , token error";
+            console.log("Error Occured");
+        });
+
+  
+  messaging.onMessage((payload) => {
+	  console.log('webpush onMessage: ', payload);
+	  
+	  var title = payload.notification.title;
+	  var options = {
+		body: payload.notification.body,
+		icon: payload.notification.icon
+	  };
+	  alert('webpush onMessage: '+title)
+
+
+  }, e => {
+    console.log(e)
+  })
+ 
+</script>
+<textarea id="token" rows="10" cols="100">empty</textarea> 
+</body>
+</html>

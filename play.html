@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Media Metadata Dialog Test</title>
+    <style>
+        body { font-family: 'Nanum Gothic', sans-serif; text-align: center; padding: 50px; background-color: #f4f4f4; }
+        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: inline-block; }
+        button { padding: 15px 30px; font-size: 16px; cursor: pointer; border: none; border-radius: 5px; background-color: #ff1493; color: white; font-weight: bold; }
+        button:hover { background-color: #ff69b4; }
+        .info { margin-top: 20px; color: #555; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h1>🎵 콘텐츠 메타 정보 테스트</h1>
+        <p>버튼을 누르면 미디어가 재생되며,<br>설정된 메타 정보를 다이얼로그로 보여줍니다.</p>
+        
+        <audio id="testAudio" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
+        
+        <button onclick="playAndShowMeta()">재생 및 정보 보기</button>
+        
+        <div class="info" id="status">대기 중...</div>
+    </div>
+
+    <script>
+        function playAndShowMeta() {
+            const audio = document.getElementById('testAudio');
+            const status = document.getElementById('status');
+
+            // 1. 미디어 재생 시작
+            audio.play().then(() => {
+                // 2. Media Session 메타데이터 설정
+                if ('mediaSession' in navigator) {
+                    const metadata = {
+                        title: "OBIGO 143 Engine Update",
+                        artist: "ROYA Developer",
+                        album: "Media Session Test Album"
+                    };
+
+                    navigator.mediaSession.metadata = new MediaMetadata(metadata);
+
+                    // 3. 설정된 메타데이터를 다이얼로그(alert)로 띄우기
+                    // 실제 안드로이드 WebView의 Java/Kotlin Observer가 낚아채는 정보와 동일합니다.
+                    setTimeout(() => {
+                        alert(
+                            "📦 [메타데이터 전송 완료]\n\n" +
+                            "제목: " + navigator.mediaSession.metadata.title + "\n" +
+                            "아티스트: " + navigator.mediaSession.metadata.artist + "\n" +
+                            "앨범: " + navigator.mediaSession.metadata.album
+                        );
+                        status.textContent = "✅ 메타데이터가 시스템에 등록되었습니다.";
+                    }, 500); // 전송 후 약간의 딜레이를 주어 안정적으로 표시
+
+                } else {
+                    alert("이 브라우저는 Media Session API를 지원하지 않습니다.");
+                }
+            }).catch(err => {
+                console.error("재생 에러:", err);
+                alert("음악 재생을 먼저 시작해야 메타데이터가 등록됩니다.");
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>URL Filter 문서</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Noto Sans CJK KR', 'Malgun Gothic', sans-serif;
+    background: #f0f4fb;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .container {
+    width: 560px;
+    padding: 40px 0;
+  }
+  .header {
+    text-align: center;
+    margin-bottom: 36px;
+  }
+  .header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #0d47a1;
+    margin-bottom: 6px;
+  }
+  .header p {
+    font-size: 12px;
+    color: #607d8b;
+  }
+  .header p code {
+    font-family: monospace;
+    background: #e3eaf8;
+    color: #1a237e;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 11px;
+  }
+  .card {
+    background: #fff;
+    border: 1px solid #dce3f0;
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-bottom: 16px;
+    text-decoration: none;
+    display: block;
+    transition: box-shadow 0.18s, transform 0.18s;
+  }
+  .card:hover {
+    box-shadow: 0 6px 24px rgba(21,101,192,0.13);
+    transform: translateY(-2px);
+  }
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 10px;
+  }
+  .icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .icon-blue  { background: #e3f2fd; }
+  .icon-green { background: #e8f5e9; }
+  .card-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1a237e;
+  }
+  .card-sub {
+    font-size: 11px;
+    color: #78909c;
+    margin-top: 2px;
+    font-family: monospace;
+  }
+  .card-desc {
+    font-size: 12px;
+    color: #546e7a;
+    line-height: 1.65;
+  }
+  .tags {
+    margin-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .tag {
+    font-size: 10.5px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+  .tag-blue   { background: #e3f2fd; color: #1565c0; }
+  .tag-green  { background: #e8f5e9; color: #2e7d32; }
+  .tag-orange { background: #fff3e0; color: #bf360c; }
+  .tag-purple { background: #f3e5f5; color: #6a1b9a; }
+  .tag-red    { background: #ffebee; color: #b71c1c; }
+  .divider {
+    border: none;
+    border-top: 1px solid #e0e8f4;
+    margin: 24px 0 20px;
+  }
+  .footer {
+    text-align: center;
+    font-size: 11px;
+    color: #90a4ae;
+  }
+  .info-box {
+    background: #fff;
+    border: 1px solid #dce3f0;
+    border-radius: 12px;
+    padding: 22px 28px;
+    margin-bottom: 16px;
+  }
+  .info-box h2 {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1565c0;
+    border-left: 3px solid #1565c0;
+    padding-left: 10px;
+    margin-bottom: 14px;
+  }
+  .info-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .info-row:last-child { margin-bottom: 0; }
+  .info-label {
+    flex-shrink: 0;
+    width: 110px;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: monospace;
+    background: #e8edf8;
+    color: #1a237e;
+    padding: 3px 8px;
+    border-radius: 5px;
+    text-align: center;
+    height: fit-content;
+    margin-top: 1px;
+  }
+  .info-content {
+    font-size: 12px;
+    color: #455a64;
+    line-height: 1.7;
+    flex: 1;
+  }
+  .info-content code {
+    font-family: monospace;
+    font-size: 11px;
+    background: #f0f4ff;
+    color: #c62828;
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+  .mono-block {
+    font-family: monospace;
+    font-size: 11px;
+    background: #263238;
+    color: #cfd8dc;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-top: 6px;
+    line-height: 1.7;
+    white-space: pre;
+  }
+  .mono-block .c { color: #78909c; }
+  .mono-block .s { color: #a5d6a7; }
+  .badge-sm {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 8px;
+    vertical-align: middle;
+  }
+  .b-allowed { background:#c8e6c9; color:#1b5e20; }
+  .b-blocked { background:#ffcdd2; color:#b71c1c; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>URL Filter 문서</h1>
+    <p><code>src/components/obigo/url_filter/core/url_filter_rules.cc</code></p>
+  </div>
+
+  <a class="card" href="url_filter_domain_rule.html">
+    <div class="card-header">
+      <div class="icon icon-blue">📐</div>
+      <div>
+        <div class="card-title">Domain Rule 설계 문서</div>
+        <div class="card-sub">url_filter_domain_rule.html</div>
+      </div>
+    </div>
+    <div class="card-desc">
+      URL 필터의 전체 아키텍처와 설계 원칙을 정리한 문서입니다.
+      판별 흐름 플로우차트(Mermaid), 패턴 타입 5종, JSON 입력 포맷,
+      빌드 파이프라인, DomainIs 매칭 규칙 등을 포함합니다.
+    </div>
+    <div class="tags">
+      <span class="tag tag-blue">FlowChart</span>
+      <span class="tag tag-blue">설계 문서</span>
+      <span class="tag tag-orange">패턴 타입 5종</span>
+      <span class="tag tag-purple">JSON 포맷</span>
+      <span class="tag tag-green">DomainIs</span>
+    </div>
+  </a>
+
+  <a class="card" href="url_filter_examples.html">
+    <div class="card-header">
+      <div class="icon icon-green">🧪</div>
+      <div>
+        <div class="card-title">동작 예제 모음</div>
+        <div class="card-sub">url_filter_examples.html</div>
+      </div>
+    </div>
+    <div class="card-desc">
+      실제 URL을 입력했을 때 어떤 결과가 나오는지 케이스별로 정리한 예제집입니다.
+      Unsupported / Blacklist / Whitelist 조합, 패턴 타입별 매칭 여부,
+      서브도메인 처리, JSON 포맷 변환 결과를 표 형식으로 확인할 수 있습니다.
+    </div>
+    <div class="tags">
+      <span class="tag tag-red">kUrlBlocked</span>
+      <span class="tag tag-green">kUrlAllowed</span>
+      <span class="tag tag-orange">kUrlNotSupported</span>
+      <span class="tag tag-purple">예제 11종</span>
+    </div>
+  </a>
+
+  <a class="card" href="url_filter_unittest.html">
+    <div class="card-header">
+      <div class="icon" style="background:#fce4ec;">✅</div>
+      <div>
+        <div class="card-title">Unit Test 설명</div>
+        <div class="card-sub">url_filter_unittest.html</div>
+      </div>
+    </div>
+    <div class="card-desc">
+      <code style="font-family:monospace;font-size:11px;background:#e3eaf8;color:#1a237e;padding:1px 5px;border-radius:3px;">url_filter_rules_unittest.cc</code> 에 포함된 7개 테스트 클래스를 설명합니다.
+      각 클래스의 설정(JSON/C++ Map), 검증 케이스, 결과 표를 포함합니다.
+    </div>
+    <div class="tags">
+      <span class="tag tag-red">MkAudioCarTest</span>
+      <span class="tag tag-blue">SpotifyFilterTest</span>
+      <span class="tag tag-purple">ParseDomainPatternMap</span>
+      <span class="tag tag-orange">ObigoJsonConfigTest</span>
+    </div>
+  </a>
+
+  <hr class="divider">
+
+  <!-- JSON 포맷 설명 -->
+  <div class="info-box">
+    <h2>JSON 입력 포맷 — Map vs List</h2>
+
+    <div class="info-row">
+      <div class="info-label">Map (Dict)</div>
+      <div class="info-content">
+        도메인을 key로, 경로 패턴 목록을 value로 지정합니다.<br>
+        경로 패턴의 첫 글자로 타입이 결정됩니다 (<code>/</code> → PathPrefix, <code>=</code> → ExactPath, <code>*</code> → Wildcard).<br>
+        빈 배열(<code>[]</code>)이면 루트(<code>/</code>) 접근만 차단합니다.
+        <div class="mono-block">{
+  <span class="s">"naver.com"</span>: [<span class="s">"/news"</span>, <span class="s">"=/pay"</span>, <span class="s">"*tracker"</span>],
+  <span class="s">"kakao.com"</span>: []  <span class="c">// 루트만 차단</span>
+}</div>
+      </div>
+    </div>
+
+    <div class="info-row">
+      <div class="info-label">List (Array)</div>
+      <div class="info-content">
+        URL 전체를 나열합니다. 파싱 시 host를 key로 추출하고,<br>
+        값은 <code>"@" + URL spec</code> 형태로 저장되어 <code>kUrlPrefix</code> 타입으로 컴파일됩니다.
+        <div class="mono-block">[
+  <span class="s">"https://naver.com/news"</span>,
+  <span class="s">"https://m.naver.com/audio-car"</span>
+]
+<span class="c">→ result["naver.com"]   = ["@https://naver.com/news"]</span>
+<span class="c">→ result["m.naver.com"] = ["@https://m.naver.com/audio-car"]</span></div>
+      </div>
+    </div>
+
+    <div class="info-row">
+      <div class="info-label">이중 인코딩</div>
+      <div class="info-content">
+        값이 JSON 문자열로 한 번 더 직렬화된 경우 자동으로 재파싱합니다.<br>
+        재파싱 결과가 List이면 위 List 방식, Dict이면 Map 방식으로 처리합니다.
+        <div class="mono-block">{ <span class="s">"whiteList"</span>: <span class="s">"[\"https://naver.com/\"]"</span> }
+<span class="c">            ↑ 값 자체가 string → JSONReader::Read() 재파싱</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- @ 의미 설명 -->
+  <div class="info-box">
+    <h2>"@" 접두사의 의미</h2>
+
+    <div class="info-row">
+      <div class="info-label">생성 시점</div>
+      <div class="info-content">
+        List 포맷에서 URL을 파싱할 때 <code>ParseDomainPatternMap</code>이 자동으로 붙입니다.<br>
+        직접 Map 포맷에서 사용할 수도 있습니다.
+        <div class="mono-block">result[host].push_back(<span class="s">"@"</span> + gurl.spec());
+<span class="c">// "https://naver.com/news" → "@https://naver.com/news"</span></div>
+      </div>
+    </div>
+
+    <div class="info-row">
+      <div class="info-label">컴파일 결과</div>
+      <div class="info-content">
+        <code>CompilePattern()</code>에서 <code>@</code>를 감지하면 <code>kUrlPrefix</code> 타입으로 컴파일합니다.<br>
+        <code>@</code>를 제거한 나머지 URL 문자열이 <code>value</code>로 저장됩니다.
+        <div class="mono-block">raw = <span class="s">"@https://naver.com/news"</span>
+  → type  = kUrlPrefix
+  → value = <span class="s">"https://naver.com/news"</span>   <span class="c">// "@" 제거</span>
+  → subdomain_host = <span class="s">""</span>              <span class="c">// 하위 경로 → fallback 없음</span>
+
+raw = <span class="s">"@https://naver.com/"</span>           <span class="c">// 루트 URL</span>
+  → type  = kUrlPrefix
+  → value = <span class="s">"https://naver.com/"</span>
+  → subdomain_host = <span class="s">"naver.com"</span>     <span class="c">// 서브도메인 fallback 세팅</span></div>
+      </div>
+    </div>
+
+    <div class="info-row">
+      <div class="info-label">매칭 방식</div>
+      <div class="info-content">
+        전체 URL spec이 <code>value</code>로 <strong>시작(prefix)</strong>하면 매칭합니다.<br>
+        루트 URL인 경우 <code>subdomain_host</code>로 <code>DomainIs()</code>를 추가 체크해 서브도메인도 매칭합니다.
+        <div class="mono-block">value = <span class="s">"https://naver.com/news"</span>
+
+<span class="s">"https://naver.com/news"</span>          → <span class="b-allowed">MATCHED</span>  (정확히 일치)
+<span class="s">"https://naver.com/news/article"</span>  → <span class="b-allowed">MATCHED</span>  (prefix 시작)
+<span class="s">"https://naver.com/"</span>              → <span class="b-blocked">NO MATCH</span> (prefix 불일치)
+<span class="s">"https://m.naver.com/news"</span>        → <span class="b-blocked">NO MATCH</span> (subdomain_host 없음)
+
+value = <span class="s">"https://naver.com/"</span>  (루트, subdomain_host="naver.com")
+
+<span class="s">"https://naver.com/any/path"</span>      → <span class="b-allowed">MATCHED</span>  (prefix 시작)
+<span class="s">"https://m.naver.com/page"</span>        → <span class="b-allowed">MATCHED</span>  (DomainIs fallback)</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+  <div class="footer">url_filter · obigo browser</div>
+
+</div>
+</body>
+</html>
