@@ -84,14 +84,15 @@
       border-bottom: 1px solid #f0f0f0;
     }
 
-    .log-code {
-      flex: 1;
-      font-family: Consolas, Monaco, monospace;
-      font-size: 13px;
-      white-space: pre-wrap;
-      word-break: break-word;
-      color: #111827;
-    }
+	.log-code {
+	  flex: 1;
+	  font-family: Consolas, Monaco, monospace;
+	  font-size: 13px;
+	  white-space: pre-line;
+	  word-break: break-word;
+	  color: #111827;
+	  line-height: 1.7;
+	}
 
     /* 10줄 내외 스크롤 박스 스타일 */
     .log-scroll-box {
@@ -194,12 +195,21 @@
       <li><a href="https://royasong.github.io/webrisk/" target="_blank">WebRisk</a></li>
     </ul>
   </section>
+	<section class="section">
+	  <h2>Branch</h2>
 
-  <section class="section">
-    <h2>Branch</h2>
-	
 	  <div class="log-item">
-		<div class="log-code" id="branch-text">linux-af/oaf/brs_143; git checkout origin_chromium143; ./build.sh</div>
+		<div class="log-code" id="branch-text">
+	git clone git@github.com:OBIGOGIT/obigo-af-agb-143.git
+
+	cd obigo-af-agb-143
+	git lfs pull
+
+	git checkout origin_chromium143
+
+	./build.sh
+		</div>
+
 		<button class="copy-btn"
 		  onclick='copyText(document.getElementById("branch-text").innerText, this)'>
 		  Copy
@@ -213,6 +223,7 @@
 			Motrex 143 Build & Run Guide
 		  </a>
 		</li>
+
 		<li>
 		  <a href="https://obigoinc.atlassian.net/wiki/spaces/~kenith.kim/pages/1540554769/mobis_ccnc+143+target+build"
 			 target="_blank">
@@ -221,7 +232,6 @@
 		</li>
 	  </ul>
 	</section>
-
   <section class="section">
     <h2>LOG</h2>
 
