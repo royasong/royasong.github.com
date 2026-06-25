@@ -1,26 +1,21 @@
-<!DOCTYPE html> 
-<html lang="ko"> 
+<!DOCTYPE html>
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <title>Scroll Video Example</title>
     <style>
         body { color: white; background: #111; }
         a { color: #7eb8f7; }
-        video {
-            position: sticky;
-            top: 0px;
-            display: block;
-            margin-top: 50px;
-        }
     </style>
 </head>
 <body>
-    <video width="400" controls loop autoplay muted>
-        <source src="Big_Buck_Bunny_1080_10s_1MB.mp4" type="video/mp4">
-        Your browser does not support HTML video.
-    </video>
 
-    <div style="margin-bottom: 20px;">
+    <div style="margin-top:50px;margin-bottom:20px;">
+        <video id="video" width="400" controls>
+            <source src="Big_Buck_Bunny_1080_10s_1MB.mp4" type="video/mp4">
+            Your browser does not support HTML video.
+        </video>
+
         <p>
             Video courtesy of
             <a href="https://www.bigbuckbunny.org/" target="_blank">Big Buck Bunny</a>.
@@ -32,28 +27,41 @@
     <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
     <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
     <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-    
-    <br><br><hr><br><br> <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam.</p>
-    <p>Eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
-    <p>Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos.</p>
-    <p>Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam.</p>
-    
-    <br><br><hr><br><br>
-
-    <p>At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti.</p>
-    <p>Quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia.</p>
-    <p>Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio.</p>
-    <p>Cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus.</p>
 
     <br><br><hr><br><br>
+    <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.</p>
 
+<script>
+const video = document.getElementById("video");
+let dialogShown = false;
 
-    <br><br><hr><br><br>
+// 재생 시작 시 fullscreen 진입
+video.addEventListener("play", async () => {
+    try {
+        if (!document.fullscreenElement) {
+            await video.requestFullscreen();
+        }
+    } catch (e) {
+        console.log("Fullscreen failed:", e);
+    }
+});
 
-    <p>Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae.</p>
-    <p>Sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus.</p>
-    <p>Asperiores repellat. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Elit ac erat curae; donec integer donec.</p>
-    <p>마지막 줄입니다. 여기까지 스크롤이 부드럽게 내려오는지 확인해보세요.</p>
+// fullscreen 진입 후 3초 뒤 Java Dialog 호출
+document.addEventListener("fullscreenchange", () => {
+    if (document.fullscreenElement === video && !dialogShown) {
+        dialogShown = true;
 
-</body> 
+        setTimeout(() => {
+            if (window.Android && Android.showDialog) {
+                Android.showDialog("Video Fullscreen", "3초 경과");
+            } else {
+                // 테스트용
+                alert("Java Dialog 호출(Android.showDialog)");
+            }
+        }, 3000);
+    }
+});
+</script>
+
+</body>
 </html>
