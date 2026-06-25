@@ -13,20 +13,20 @@
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: #f3f4f6;
-      color: #222;
+      background: #ffffff;
+      color: #1e3a5f;
       overflow-x: hidden;
       font-size: 16px;
     }
 
     header {
-      background: #111827;
-      color: white;
+      background: #bfdbfe;
+      color: #1e3a5f;
       padding: 10px 20px;
       position: sticky;
       top: 0;
       z-index: 100;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+      box-shadow: 0 2px 4px rgba(59,130,246,0.15);
     }
 
     .container {
@@ -46,10 +46,12 @@
     }
 
     .section {
-      background: white;
+      background: #ffffff;
       border-radius: 10px;
       padding: 16px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      box-shadow: 0 1px 4px rgba(59,130,246,0.10);
+      border: 1px solid #bfdbfe;
+      min-width: 0;
     }
 
     /* LOG / Branch 섹션은 전체 너비 */
@@ -60,8 +62,10 @@
     .section h2 {
       margin: 0 0 12px 0;
       padding-bottom: 8px;
-      border-bottom: 1px solid #e5e7eb;
+      border-bottom: 2px solid #93c5fd;
       font-size: 20px;
+      font-weight: 700;
+      color: #1e3a5f;
     }
 
     .bookmark-list {
@@ -78,7 +82,7 @@
 
     .bookmark-list a {
       text-decoration: none;
-      color: #1d4ed8;
+      color: #1e40af;
       font-size: 16px;
       font-weight: 600;
       display: inline-block;
@@ -86,6 +90,7 @@
 
     .bookmark-list a:hover {
       text-decoration: underline;
+      color: #1e3a5f;
     }
 
     /* LOG 항목 3열 그리드 */
@@ -101,9 +106,9 @@
       justify-content: space-between;
       gap: 10px;
       padding: 8px;
-      border: 1px solid #e5e7eb;
+      border: 1px solid #bfdbfe;
       border-radius: 6px;
-      background: #fafafa;
+      background: #dbeafe;
     }
 
     .log-code {
@@ -112,7 +117,7 @@
       font-size: 13px;
       white-space: pre-line;
       word-break: break-word;
-      color: #111827;
+      color: #1e3a5f;
       line-height: 1.7;
     }
 
@@ -120,15 +125,15 @@
     .log-scroll-box {
       max-height: 200px;
       overflow-y: auto;
-      background: #f8fafc;
+      background: #ffffff;
       padding: 8px;
-      border: 1px solid #e2e8f0;
+      border: 1px solid #bfdbfe;
       border-radius: 6px;
     }
 
     .copy-btn {
       border: none;
-      background: #2563eb;
+      background: #60a5fa;
       color: white;
       padding: 6px 12px;
       border-radius: 6px;
@@ -140,13 +145,13 @@
     }
 
     .copy-btn:hover {
-      background: #1d4ed8;
+      background: #3b82f6;
     }
 
     footer {
       text-align: center;
       padding: 16px;
-      color: #666;
+      color: #60a5fa;
       font-size: 13px;
     }
 
@@ -175,24 +180,29 @@
     }
 
     .memo-item {
-      border: 1px solid #e2e8f0;
+      border: 1px solid #bfdbfe;
       border-radius: 8px;
       overflow: hidden;
       margin-top: 10px;
+      min-width: 0;
+    }
+
+    .memo-row > div {
+      min-width: 0;
     }
 
     .memo-title {
-      background: #1e40af;
-      color: white;
+      background: #93c5fd;
+      color: #1e3a5f;
       padding: 7px 12px;
       font-weight: 700;
-      font-size: 13px;
+      font-size: 14px;
       letter-spacing: 0.02em;
     }
 
     .memo-body {
       padding: 10px 12px;
-      background: #f8fafc;
+      background: #dbeafe;
       display: flex;
       flex-direction: column;
       gap: 8px;
@@ -205,10 +215,10 @@
     }
 
     .memo-label {
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
-      color: #94a3b8;
+      color: #2563eb;
       letter-spacing: 0.08em;
     }
 
@@ -216,20 +226,31 @@
       margin: 0;
       font-family: Consolas, Monaco, monospace;
       font-size: 12.5px;
-      color: #1e293b;
-      background: #fff;
-      border: 1px solid #e2e8f0;
+      color: #1e3a5f;
+      background: #ffffff;
+      border: 1px solid #bfdbfe;
       border-radius: 5px;
       padding: 6px 10px;
       line-height: 1.7;
+      white-space: pre-wrap;
+      overflow-wrap: break-word;
+      word-break: break-all;
+      min-width: 0;
+    }
+
+    .memo-body pre {
+      white-space: pre-wrap;
+      overflow-wrap: break-word;
+      word-break: break-all;
+      min-width: 0;
     }
 
     .memo-row code {
       font-family: Consolas, Monaco, monospace;
       font-size: 12.5px;
-      color: #0f172a;
-      background: #fff;
-      border: 1px solid #e2e8f0;
+      color: #1e3a5f;
+      background: #ffffff;
+      border: 1px solid #bfdbfe;
       border-radius: 5px;
       padding: 4px 10px;
       display: inline-block;
@@ -251,6 +272,7 @@
       <li><a href="https://claude.ai/login" target="_blank">Claude</a></li>
       <li><a href="https://gemini.google.com/app" target="_blank">Google Gemini</a></li>
       <li><a href="https://claude.ai/settings/billing" target="_blank">Claude Billing(Mobility SW Division)</a></li>
+      <li><a href="https://chatgpt.com/#settings/Account" target="_blank">Codex Billing(Mobility SW Division)</a></li>
     </ul>
   </section>
 
@@ -276,6 +298,9 @@
       <li><a href="https://github.com/OBIGOGIT/android-obigo-brs-133" target="_blank">android-obigo-brs-133</a></li>
       <li><a href="https://github.com/OBIGOGIT/obigo-af-agb-143" target="_blank">obigo-af-agb-143</a></li>
       <li><a href="https://github.com/OBIGOGIT/obigo-ccos-qml-application" target="_blank">(WCH) obigo-ccos-qml-application</a></li>
+      <li><a href="https://github.com/OBIGOGIT/obigo-common-build-suite" target="_blank">(build) obigo-common-build-suite</a></li>
+      <li><a href="https://github.com/OBIGOGIT/obigo-linux-af" target="_blank">(linux-af) obigo-linux-af</a></li>
+      <li><a href="https://github.com/OBIGOGIT/mf1_dev_tools" target="_blank">(MF1) mf1_dev_tools</a></li>
     </ul>
   </section>
 
@@ -293,6 +318,8 @@
       <li><a href="https://obigoinc.atlassian.net/jira/your-work" target="_blank">Jira My Work</a></li>
       <li><a href="https://teams.microsoft.com/v2/" target="_blank">Microsoft Teams</a></li>
       <li><a href="https://obigoinc.atlassian.net/issues/?jql=%28project%20%3D%20%22GR_HKMC_CCNC_MOBIS_AGB%20%22%20OR%20project%20%3D%20GR_HKMC_CCIC_LGE_AGB%20OR%20project%20%3D%20GR_HKMC_GEN6_LGE_AGB%20OR%20project%20%3D%20GR_HKMC_WEBSOLUTION%20OR%20project%20%3D%20%22OpenSource%20SW%20Management%22%20OR%20project%20%3D%20GR_MOTREX_CCNC_PICKNOW%20OR%20project%20%3D%20AppFramework1%20OR%20project%20%3D%20GR_WEBENGINE_UPGRADE_RND%29%20AND%20issuetype%20in%20%28Bug%2C%20Sub-task%2C%20subTaskIssueTypes%28%29%29%20AND%20status%20not%20in%20%28DONE%2C%20CLOSED%2C%20MODIFIED%2C%20%22INTERNAL%20RELEASED%22%2C%20PENDING%2C%20VERIFIED%2C%20CONFIRMED%2C%20Cancelled%29%20AND%20%28assignee%20%3D%20712020%3A385e1b0b-a0b2-4f82-aaf1-c629d7c229ab%20OR%20assignee%20%3D%20712020%3Ae7485331-0f3c-419d-95c5-e4a05e5aa0cc%20OR%20assignee%20%3D%20712020%3A956aad46-bc98-4a06-953f-cd013f7e90ec%20OR%20assignee%20%3D%20712020%3A565380da-24d7-4ee6-b9e0-b3a741895901%20OR%20assignee%20%3D%20712020%3A0d04de4e-54ad-45cd-b489-fe57a3abcc0d%20OR%20assignee%20%3D%205aa7710936a3a82a4e2ea5c3%20OR%20assignee%20%3D%20712020%3A4f250bed-c1bc-4829-9f3d-870379d5f635%20OR%20assignee%20%3D%205aa9c90bf75bb52a8232b1df%20OR%20assignee%20%3D%205aa9c90bbbead52a7eed8f13%20OR%20assignee%20%3D%205aa9c90ba903362a5788e919%29%20AND%20assignee%20%3D%205aa9c90bbbead52a7eed8f13%20ORDER%20BY%20duedate%20ASC" target="_blank">Jira Filter (Assigned)</a></li>
+      <li><a href="https://obigoinc.atlassian.net/wiki/spaces/PicknowOpe/pages/1110835237/3+Configuration" target="_blank">Picknow Config</a></li>
+      <li><a href="http://10.28.3.180:8888/" target="_blank">Picknow 서버 현황 대시보드</a></li>
     </ul>
   </section>
 
@@ -308,6 +335,8 @@
       <li><a href="https://royasong.github.io/event/mouse_scroll.htm" target="_blank">scroll mouse only page</a></li>
       <li><a href="https://speed.cloudflare.com" target="_blank">internet speed check</a></li>
       <li><a href="edu/index.htm" target="_blank">Edu</a></li>
+      <li><a href="https://www.w3schools.com/html/html5_video.asp" target="_blank">H264 VIDEO</a></li>
+      <li><a href="https://www.w3schools.com/html/tryit.asp?filename=tryhtml_input_password" target="_blank">id/password test</a></li>
     </ul>
   </section>
 
@@ -315,60 +344,49 @@
     <h2>Branch</h2>
 
     <div class="memo-item">
-      <div class="memo-title">HKMC 143 branch</div>
+      <div class="memo-title">repo의 manifest에 명시된 브랜치로 돌리는 방법</div>
       <div class="memo-body">
         <div class="memo-row">
-          <span class="memo-label">repo 구성</span>
-          <div style="display:flex;gap:8px;align-items:flex-start;">
-            <pre id="branch-hkmc143-repo" style="flex:1;margin:0;">repo init -u ssh://git@github.com/OBIGOGIT/obigo-af-manifest.git -m hyundai_mobis_ccnc_brs143_01.xml -b ccnc_websolution
-repo sync -j8</pre>
-            <button class="copy-btn" onclick='copyText(document.getElementById("branch-hkmc143-repo").innerText, this)'>Copy</button>
-          </div>
-        </div>
-        <div class="memo-row">
-          <span class="memo-label">Branch 구성</span>
-          <pre>build      : develop_websolution
-linux-af   : develop_websolution
-brs        : ccnc_websolution
-wch / pal  : mobis_ccnc_v143
-lwsapps    : mobis_ccnc_v143</pre>
-        </div>
-        <div class="memo-row">
-          <span class="memo-label">build</span>
-          <div style="display:flex;gap:8px;align-items:flex-start;">
-            <pre id="branch-hkmc143-build" style="flex:1;margin:0;">source build/oaf-init-build-env
-obigo-build hyundai-mobis-ccnc-target_brs143</pre>
-            <button class="copy-btn" onclick='copyText(document.getElementById("branch-hkmc143-build").innerText, this)'>Copy</button>
-          </div>
+          <pre>먼저 manifest를 git pull로 최신으로 만들어 주고
+
+repo forall -c 'git checkout $REPO_RREV'</pre>
         </div>
       </div>
     </div>
 
     <div class="memo-item" style="margin-top:10px;">
-      <div class="memo-title">Motrex v143 branch</div>
+      <div class="memo-title">mobis ccnc 143</div>
       <div class="memo-body">
         <div class="memo-row">
-          <span class="memo-label">repo 구성</span>
-          <div style="display:flex;gap:8px;align-items:flex-start;">
-            <pre id="branch-motrex143-repo" style="flex:1;margin:0;">repo init -u ssh://git@github.com/OBIGOGIT/obigo-af-manifest.git -m hyundai_motrex_ccnc_brs143_01.xml -b ccnc_websolution
-repo sync -j8</pre>
-            <button class="copy-btn" onclick='copyText(document.getElementById("branch-motrex143-repo").innerText, this)'>Copy</button>
-          </div>
+          <pre>cd ccnc
+repo init -u ssh://git@github.com/OBIGOGIT/obigo-af-manifest.git -m hyundai_mobis_ccnc_brs143_01.xml -b ccnc_websolution
+repo sync
+cd .repo/manifests
+git checkout  ccnc_websolution
+git pull
+cd ../..
+repo forall -c 'git checkout $REPO_RREV'</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="memo-item" style="margin-top:10px;">
+      <div class="memo-title">motrex ccnc 143</div>
+      <div class="memo-body">
+        <div class="memo-row">
+          <pre>repo init -u ssh://git@github.com/OBIGOGIT/obigo-af-manifest.git -m hyundai_motrex_ccnc_brs143_01.xml -b ccnc_websolution
+repo sync
+cd .repo/manifests
+git checkout  ccnc_websolution
+git pull
+cd ../..
+repo forall -c 'git checkout $REPO_RREV'</pre>
         </div>
         <div class="memo-row">
-          <span class="memo-label">Branch 구성</span>
-          <pre>build      : develop_websolution
-linux-af   : develop_websolution
-brs        : ccnc_websolution
-wch / pal  : motrex_ccnc_v143
-lwsapps    : motrex_ccnc_v143</pre>
-        </div>
-        <div class="memo-row">
-          <span class="memo-label">build</span>
+          <span class="memo-label">build local webapp</span>
           <div style="display:flex;gap:8px;align-items:flex-start;">
-            <pre id="branch-motrex143-build" style="flex:1;margin:0;">source build/oaf-init-build-env
-obigo-build hyundai-motrex-ccnc-target_brs143</pre>
-            <button class="copy-btn" onclick='copyText(document.getElementById("branch-motrex143-build").innerText, this)'>Copy</button>
+            <pre id="lm-143-build-local-webapp" style="flex:1;margin:0;">build option : --lws-apps-only</pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("lm-143-build-local-webapp").innerText, this)'>Copy</button>
           </div>
         </div>
       </div>
@@ -406,6 +424,20 @@ obigo-build hyundai-motrex-ccnc-target_brs143</pre>
       </div>
     </div>
 
+  </section>
+
+  <section class="section">
+    <h2>PR</h2>
+    <ul class="bookmark-list">
+      <li><a href="https://github.com/OBIGOGIT/obigo-af-agb-143/pulls?q=is%3Apr+is%3Aopen+user-review-requested%3A%40me" target="_blank"> obigo-af-agb-143 PR</a></li>
+      <li><a href="https://github.com/OBIGOGIT/obigo-ccos-qml-application/pulls?q=is%3Apr+is%3Aopen+user-review-requested%3A%40me" target="_blank">obigo-ccos-qml-application PR</a></li>
+      <li><a href="https://github.com/OBIGOGIT/webappmanager-plugin-pal/pulls?q=is%3Apr+is%3Aopen+user-review-requested%3A%40me" target="_blank">Webappmanager-plugin-pal PR</a></li>
+      <li><a href="https://github.com/OBIGOGIT/obigo-local-webserver-apps/pulls?q=is%3Apr+is%3Aopen+user-review-requested%3A%40me" target="_blank">obigo-local-webserver-apps PR</a></li>
+      <li><a href="https://github.com/OBIGOGIT/obigo-linux-af/pulls?q=is%3Apr+is%3Aopen+user-review-requested%3A%40me" target="_blank">obigo-linux-af PR</a></li>
+      <li><a href="https://github.com/OBIGOGIT/obigo-common-build-suite/pulls?q=is%3Apr+is%3Aopen+user-review-requested%3A%40me" target="_blank">obigo-common-build-suite PR</a></li>
+      <li><a href="https://github.com/OBIGOGIT/mf1_dev_tools/pulls?q=is%3Apr+is%3Aopen+user-review-requested%3A%40me" target="_blank">mf1_dev_tools PR</a></li>
+      
+    </ul>
   </section>
 
   <div class="section-pair">
@@ -458,7 +490,7 @@ export OBIGO_COUNTRY_CODE="KR"</pre>
 	</div>
 	<div class="memo-row">
 	  <span class="memo-label">단말에서 dlt copy</span>
-	  <pre>scp -r  /log_data/DLT/*.dlt  obigo@192.168.105.36:/home/obigo/target/</pre>
+	  <pre>sshpass -p "obigo@se" scp -r /log_data/DLT/*.dlt obigo@192.168.105.36:/home/obigo/target/</pre>
 	</div>
 	<div class="memo-row">
 	  <span class="memo-label">CP 이슈시 지라</span>
@@ -502,8 +534,38 @@ git checkout origin_chromium143
         <div class="memo-row">
           <span class="memo-label">dlt log</span>
           <div style="display:flex;gap:8px;align-items:flex-start;">
-            <pre id="misc-dlt-convert-royalog" style="flex:1;margin:0;">dlt-convert -a *.dlt | grep ROYALOG</pre>
+            <pre id="misc-dlt-convert-royalog" style="flex:1;margin:0;">dlt-convert -a *.dlt | grep RLOG</pre>
             <button class="copy-btn" onclick='copyText(document.getElementById("misc-dlt-convert-royalog").innerText, this)'>Copy</button>
+          </div>
+        </div>
+        <div class="memo-row">
+          <span class="memo-label">ccnc wifi </span>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="misc-ccnc-wifi" style="flex:1;margin:0;">ssh root@192.168.105.1</pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("misc-ccnc-wifi").innerText, this)'>Copy</button>
+          </div>
+        </div>
+        <div class="memo-row">
+          <span class="memo-label">target 에서 lib linking fail시 </span>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="misc-ccnc-ldconfig" style="flex:1;margin:0;">ldconfig</pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("misc-ccnc-ldconfig").innerText, this)'>Copy</button>
+          </div>
+        </div>
+        <div class="memo-row">
+          <span class="memo-label">ccnc virtualkeyboard </span>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="misc-ccnc-virtualkeyboard" style="flex:1;margin:0;">./virtualKeypad -home</pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("misc-ccnc-virtualkeyboard").innerText, this)'>Copy</button>
+          </div>
+        </div>
+        <div class="memo-row">
+          <span class="memo-label">ISODev mount</span>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="misc-isodev-mount" style="flex:1;margin:0;">mkdir ISODev
+sudo mount -t cifs -o iocharset=utf8,suid,uid=obigo,gid=obigo,domain=ac,username=isodevw,password=start%55 //10.28.2.24/isodev /home/obigo/ISODev
+cd ./ISODev/</pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("misc-isodev-mount").innerText, this)'>Copy</button>
           </div>
         </div>
       </div>
@@ -539,6 +601,13 @@ git checkout origin_chromium143
           </div>
         </div>
         <div class="memo-row">
+          <span class="memo-label">ccnc 92<->143시</span>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="lm-ccnc-92-143" style="flex:1;margin:0;">rm -rf /ccos/data/web/AGBAsset/;rm -rf /ccos/data/web/AGBSecure</pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("lm-ccnc-92-143").innerText, this)'>Copy</button>
+          </div>
+        </div>
+        <div class="memo-row">
           <span class="memo-label">drop cache</span>
           <div style="display:flex;gap:8px;align-items:flex-start;">
             <pre id="lm-drop-cache" style="flex:1;margin:0;">echo 3 > /proc/sys/vm/drop_caches</pre>
@@ -547,9 +616,19 @@ git checkout origin_chromium143
         </div>
 
         <div class="memo-row">
+          <span class="memo-label">mobis ccnc 단말 설치 위치</span>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="lm-ccnc-install-path" style="flex:1;margin:0;">webcommonhmi  : /ccos/apps/hmi/
+webappmanager : /ccos/apps/manager/webappmanager
+앱위치         : /ccos/apps/web/</pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("lm-ccnc-install-path").innerText, this)'>Copy</button>
+          </div>
+        </div>
+
+        <div class="memo-row">
           <span class="memo-label">pss(from kenith)</span>
           <div style="display:flex;gap:8px;align-items:flex-start;">
-          <textarea id="lm-pss-sh" readonly rows="5" style="font-family:monospace;font-size:12px;flex:1;resize:none;overflow-y:auto;background:#f5f5f5;border:1px solid #ccc;padding:6px;box-sizing:border-box;">
+          <textarea id="lm-pss-sh" readonly rows="5" style="font-family:monospace;font-size:12px;flex:1;resize:none;overflow-y:auto;background:#ffffff;border:1px solid #bfdbfe;padding:6px;box-sizing:border-box;color:#1e3a5f;">
           pgrep -f webappmanager | while read pid; do     rss=$(grep 'Rss' /proc/$pid/smaps 2>/dev/null | awk '{sum += $2} END {print sum+0}');     pss=$(grep 'Pss' /proc/$pid/smaps 2>/dev/null | awk '{sum += $2} END {print sum+0}');     uss=$(grep -E 'Private_(Clean|Dirty)' /proc/$pid/smaps 2>/dev/null | awk '{sum += $2} END {print sum+0}');          cmd=$(ps -p $pid -o args= | awk '{print $1}' | xargs basename);          printf "%d\t\t%d\t\t%d\t\t%d\t\t%s\n" "$pid" "$rss" "$pss" "$uss" "$cmd"; done
           </textarea>
           <button class="copy-btn" onclick='copyText(document.getElementById("lm-pss-sh").value, this)'>Copy</button>
@@ -559,7 +638,7 @@ git checkout origin_chromium143
         <div class="memo-row">
           <span class="memo-label">webappmanager.config</span>
           <div style="display:flex;gap:8px;align-items:flex-start;">
-          <textarea id="lm-wam-config" rows="30" style="font-family:Consolas,Monaco,monospace;font-size:12px;flex:1;resize:vertical;overflow-y:auto;background:#fff;border:1px solid #ccc;padding:6px;box-sizing:border-box;"># Browser
+          <textarea id="lm-wam-config" rows="30" style="font-family:Consolas,Monaco,monospace;font-size:12px;flex:1;resize:vertical;overflow-y:auto;background:#ffffff;border:1px solid #bfdbfe;padding:6px;box-sizing:border-box;color:#1e3a5f;"># Browser
 # finishload-on-fcp : on/off [default:on]
 finishload-on-fcp : on
 
@@ -660,7 +739,9 @@ picknow-kr-stg-host-url : stg-picknow.obigo.ai</pre>
         </div>
         <div class="memo-row">
           <span class="memo-label">적용 후</span>
-          <pre>서비스 재시작</pre>
+          <pre>rm -rf /log_data/DLT/*.dlt
+systemctl restart webappmanager webcommonhmi websocketmanager  theaterhmi
+/pre>
         </div>
       </div>
     </div>
@@ -669,17 +750,40 @@ picknow-kr-stg-host-url : stg-picknow.obigo.ai</pre>
       <div class="memo-title">OEM DEMO → HMC 변경</div>
       <div class="memo-body">
         <div class="memo-row">
-          <span class="memo-label">src/obigo/extension/interface/bookmark/ccnc/BookMarkClient_ccnc.cc</span>
+          <span class="memo-label">BookMarkClient_ccnc.cc</span>
           <div style="display:flex;gap:8px;align-items:flex-start;">
-            <pre id="lm-oem-bookmark" style="flex:1;margin:0;">jvalue["model"] = "ccNC";
+            <pre id="lm-oem-bookmark" style="flex:1;margin:0;">src/obigo/extension/interface/bookmark/ccnc/BookMarkClient_ccnc.cc
+jvalue["model"] = "ccNC";
 -  jvalue["oem"] = "DEMO";
 +  jvalue["oem"] = "HMC";</pre>
             <button class="copy-btn" onclick='copyText(document.getElementById("lm-oem-bookmark").innerText, this)'>Copy</button>
           </div>
         </div>
         <div class="memo-row">
-          <span class="memo-label">webcommonhmi/src/scene/PickNowAccountScene.cc &amp; webcommonhmi/src/SSEClient.cc</span>
-          <pre>oem = DEMO를 HMC로 수정</pre>
+          <span class="memo-label">SSEClient.cc</span>
+          <pre>webcommonhmi/src/scene/PickNowAccountScene.cc &amp; webcommonhmi/src/SSEClient.cc
+oem = DEMO를 HMC로 수정</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="memo-item" style="margin-top:10px;">
+      <div class="memo-title">픽나우홈 진입 안되고 연결안된다는 팝업뜰때</div>
+      <div class="memo-body">
+        <div class="memo-row">
+          <span class="memo-label">확인할것 (현재 서버에 어떻게 세팅이 되어있는지 확인해보고 그거랑 맞춰줄것)</span>
+          <pre>/ccos/apps/manager/webappmanager/configuration/webappmanager.config파일에 picknow-environment, picknow-region확인</pre>
+          <pre>/ccos/apps/manager/webappmanager/webappmanager.env파일의 TARGET_DEVICE_TYPE를 ccNC로 변경</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="memo-item" style="margin-top:10px;">
+      <div class="memo-title">모트렉스 로그 복호화</div>
+      <div class="memo-body">
+        <div class="memo-row">
+          <span class="memo-label">모트렉스 .enc 로그 파일 암호해제 스크립트 같은 경로에 넣고 실행(pycryptodo install)</span>
+          <a href="./data/motrex_log_decryptor.py" target="_blank">./data/motrex_log_decryptor.py</a>
         </div>
       </div>
     </div>
@@ -1103,7 +1207,7 @@ index c27de4f1ae..36c5c40ec5 100644
     <h2>obj open url</h2>
     <div style="display:flex;gap:8px;align-items:flex-start;">
       <textarea id="bottom-obj-open-url" wrap="off" rows="17"
-        style="flex:1;width:100%;font-family:Consolas,Monaco,monospace;font-size:13px;resize:vertical;padding:8px;border:1px solid #e2e8f0;border-radius:6px;background:#fff;box-sizing:border-box;">obaJs.openUrl(
+        style="flex:1;width:100%;font-family:Consolas,Monaco,monospace;font-size:13px;resize:vertical;padding:8px;border:1px solid #bfdbfe;border-radius:6px;background:#ffffff;box-sizing:border-box;color:#1e3a5f;">obaJs.openUrl(
     "https://www.mk.co.kr/audio-car",
     2,
     JSON.stringify({

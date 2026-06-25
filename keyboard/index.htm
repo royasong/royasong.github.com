@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<!--
+  Apple Podcasts Web Player ("Create Your Account" 모달)에서
+  CDP(DevTools Protocol)로 추출한 input method(입력 필드) 부분만 뽑아 만든 샘플 페이지.
+  원본 DOM 구조/class/속성은 그대로 유지하고, 필요한 최소 CSS/JS만 새로 작성했음.
+-->
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Input Method Popup Sample</title>
+<style>
+  :root {
+    --accent: #0071e3;
+    --text: #1d1d1f;
+    --sub: #6e6e73;
+    --border: #d2d2d7;
+    --error: #ff3b30;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: #2b2b2d;
+    font-family: -apple-system, "SF Pro Text", "Helvetica Neue", Arial, "Malgun Gothic", sans-serif;
+    color: var(--text);
+  }
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  /* ---- 팝업(모달) 컨테이너 ---- */
+  .cc-modal {
+    width: 420px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.35);
+    position: relative;
+  }
+  .cc-modal__body { padding: 40px 32px 8px; }
+  .cc-modal__header {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+  }
+  .cc-modal__close-button {
+    width: 30px;
+    height: 30px;
+    border: none;
+    background: #f2f2f4;
+    border-radius: 50%;
+    cursor: pointer;
+    position: relative;
+  }
+  .cc-modal__close-button-icon,
+  .cc-modal__close-button-icon::before,
+  .cc-modal__close-button-icon::after {
+    content: "";
+  }
+  .cc-modal__close-button::before,
+  .cc-modal__close-button::after {
+    content: "";
+    position: absolute;
+    left: 50%; top: 50%;
+    width: 12px; height: 2px;
+    background: var(--sub);
+    transform: translate(-50%,-50%) rotate(45deg);
+  }
+  .cc-modal__close-button::after { transform: translate(-50%,-50%) rotate(-45deg); }
+
+  .cc-modal__footer { padding: 8px 32px 32px; }
+
+  /* ---- 타이틀/서브텍스트 ---- */
+  .heading { font-size: 22px; font-weight: 600; text-align: center; margin: 0 0 6px; }
+  .create-account-v2__subheader {
+    text-align: center;
+    color: var(--sub);
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+
+  /* ---- form-textbox : floating label 입력 필드 ---- */
+  .create-account-v2__form { display: flex; flex-direction: column; }
+  .form-textbox {
+    position: relative;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-top: 10px;
+    height: 52px;
+  }
+  .form-textbox.is-error { border-color: var(--error); }
+  .form-textbox-input {
+    width: 100%;
+    height: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    border-radius: 10px;
+    padding: 22px 14px 6px;
+    font-size: 15px;
+    color: var(--text);
+  }
+  .form-textbox-input:disabled { color: var(--sub); }
+  .form-textbox-label {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 15px;
+    color: var(--sub);
+    pointer-events: none;
+    transition: all .15s ease;
+  }
+  /* 값이 있거나 focus 상태면 라벨이 위로 떠오름 (form-textbox-entered) */
+  .form-textbox.form-textbox-entered .form-textbox-label,
+  .form-textbox-input:focus ~ .form-textbox-label {
+    top: 15px;
+    font-size: 11px;
+    transform: translateY(0);
+  }
+  .create-account-v2__sublabel {
+    font-size: 12px;
+    color: var(--sub);
+    margin: 6px 2px 0;
+  }
+  .form-message-wrapper { margin-top: 4px; }
+  .form-message { font-size: 12px; color: var(--error); }
+
+  .name-fields { display: flex; gap: 10px; }
+  .name-fields__field { flex: 1; }
+
+  /* ---- select(드롭다운) ---- */
+  .form-dropdown {
+    position: relative;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-top: 14px;
+    height: 52px;
+  }
+  .form-dropdown-select {
+    width: 100%;
+    height: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    border-radius: 10px;
+    padding: 20px 30px 6px 14px;
+    font-size: 15px;
+    color: var(--text);
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  .form-dropdown-label {
+    position: absolute;
+    left: 15px;
+    top: 6px;
+    font-size: 11px;
+    color: var(--sub);
+    pointer-events: none;
+  }
+  .form-dropdown-chevron {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    width: 8px; height: 8px;
+    border-right: 2px solid var(--sub);
+    border-bottom: 2px solid var(--sub);
+    transform: translateY(-70%) rotate(45deg);
+    pointer-events: none;
+  }
+
+  /* ---- 체크박스 ---- */
+  .form-checkbox {
+    display: flex;
+    margin-top: 18px;
+  }
+  .form-checkbox-input { position: absolute; opacity: 0; width: 20px; height: 20px; }
+  .form-label { display: flex; gap: 10px; cursor: pointer; font-size: 13px; color: var(--text); }
+  .form-checkbox-indicator {
+    flex: 0 0 18px;
+    width: 18px; height: 18px;
+    border: 1.5px solid var(--border);
+    border-radius: 5px;
+    margin-top: 1px;
+    position: relative;
+  }
+  .form-checkbox-input:checked + .form-label .form-checkbox-indicator,
+  .form-checkbox-input:checked ~ .form-checkbox-indicator {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .form-checkbox-input:checked ~ .form-label .form-checkbox-indicator::after {
+    content: "";
+    position: absolute;
+    left: 5px; top: 1px;
+    width: 5px; height: 9px;
+    border-right: 2px solid #fff;
+    border-bottom: 2px solid #fff;
+    transform: rotate(45deg);
+  }
+  .sublabel { color: var(--sub); font-size: 11px; margin-top: 2px; }
+
+  .horizontal-line { border: none; border-top: 1px solid var(--border); margin: 20px 0 10px; }
+  .create-account__terms-subtext { font-size: 11px; color: var(--sub); line-height: 1.5; }
+  .create-account-index__terms-link { color: var(--accent); text-decoration: none; }
+
+  /* ---- 하단 버튼 ---- */
+  .form-buttons-modal { display: flex; gap: 10px; margin-top: 4px; }
+  .web-button {
+    flex: 1;
+    height: 44px;
+    border-radius: 22px;
+    border: none;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .web-button--primary { background: var(--accent); color: #fff; }
+  .web-button--primary:disabled { background: #b7d8f7; cursor: not-allowed; }
+  .web-button--secondary { background: #f2f2f4; color: var(--text); }
+</style>
+</head>
+<body>
+
+<!-- ===================== 아래부터 CDP로 추출한 input method(입력 폼) 원본 구조 ===================== -->
+<div aria-labelledby="page-header-title" aria-modal="true" class="cc-modal" data-modal="" role="dialog" tabindex="-1" id="modal-0">
+  <div class="cc-modal__header">
+    <button aria-label="Close" class="cc-modal__close-button" id="closeBtn">
+      <span class="cc-modal__close-button-icon"></span>
+    </button>
+  </div>
+
+  <div id="modal-body" class="cc-modal__body">
+    <div class="create-account-v2" data-test="create-account">
+      <h1 class="heading typography-headline" data-test="title">Create Your Account</h1>
+      <div class="create-account-v2__subheader typography-body">You'll use this account for all Apple services.</div>
+
+      <form class="create-account-v2__form">
+        <div class="form-textbox fin-input create-account-v2__acAccountName form-textbox-entered" data-test="acAccountName-field" field-value="kfkdk@dkdk.com">
+          <input id="acAccountName" autocapitalize="none" autocomplete="email" class="form-textbox-input" data-test="acAccountName-input" dir="auto" disabled required name="acAccountName" type="text" value="kfkdk@dkdk.com">
+          <label class="form-textbox-label" for="acAccountName">Apple Account</label>
+        </div>
+        <p class="create-account-v2__sublabel typography-body-reduced">This email address will become your Apple Account.</p>
+
+        <div class="form-textbox fin-input create-account-v2__password" data-test="acAccountPassword-field">
+          <input id="acAccountPassword" autocomplete="new-password" class="form-textbox-input" data-test="acAccountPassword-input" dir="auto" required name="acAccountPassword" type="password">
+          <label class="form-textbox-label" for="acAccountPassword">Password</label>
+        </div>
+        <p class="create-account-v2__sublabel typography-body-reduced">Your password must have 8 or more characters, upper and lowercase letters, and at least one number.</p>
+
+        <div class="name-fields" data-test="name-fields">
+          <div class="form-textbox fin-input name-fields__field name-fields__field--first" data-test="firstName-field">
+            <input id="firstName" autocomplete="given-name" class="form-textbox-input" data-test="firstName-input" dir="auto" name="firstName" type="text">
+            <label class="form-textbox-label" for="firstName">First Name</label>
+          </div>
+          <div class="form-textbox fin-input name-fields__field" data-test="lastName-field">
+            <input id="lastName" autocomplete="family-name" class="form-textbox-input" data-test="lastName-input" dir="auto" name="lastName" type="text">
+            <label class="form-textbox-label" for="lastName">Last Name</label>
+          </div>
+        </div>
+
+        <div class="create-account-v2__birthday">
+          <div class="form-textbox fin-input is-error" data-test="birthday-field">
+            <input id="birthday" autocomplete="bday" class="form-textbox-input" data-test="birthday-input" dir="auto" required name="birthday" type="tel" inputmode="numeric" maxlength="10" aria-invalid="true">
+            <label class="form-textbox-label" for="birthday">Birthday</label>
+            <div class="form-message-wrapper">
+              <span class="form-message" data-test="birthday-error">This field is required</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-dropdown fin-select create-account-v2__country-select" data-test="storefront-field">
+          <select id="storefront" autocomplete="on" class="form-dropdown-select" data-test="storefront-input" name="storefront" required>
+            <option value="USA" selected>United States</option>
+            <option value="KOR">Korea, Republic of</option>
+            <option value="JPN">Japan</option>
+            <option value="GBR">United Kingdom</option>
+            <option value="DEU">Germany</option>
+            <option value="FRA">France</option>
+            <option value="IND">India</option>
+            <option value="CHN">China mainland</option>
+          </select>
+          <span class="form-dropdown-chevron"></span>
+          <label aria-hidden="true" class="form-dropdown-label" for="storefront">Country/Region</label>
+        </div>
+
+        <div class="form-checkbox create-account-v2__checkbox" data-test="marketing-field">
+          <input id="marketing" class="form-checkbox-input" data-test="marketing-checkbox" name="marketing" type="checkbox">
+          <label class="form-label" for="marketing">
+            <span class="form-checkbox-indicator"></span>
+            <span>
+              <span class="form-label__label">Apple Updates</span>
+              <div class="sublabel typography-caption">Receive Apple emails and communications including new releases, exclusive content, special offers, and marketing and recommendations for apps, music, movies, TV, books, podcasts, Apple Pay, and more.</div>
+            </span>
+          </label>
+        </div>
+
+        <div class="terms-container create-account-v2__terms-checkbox">
+          <div class="form-checkbox terms-container__field" data-test="agreedToTerms-field">
+            <input id="agreedToTerms" class="form-checkbox-input" data-test="agreedToTerms-checkbox" name="agreedToTerms" type="checkbox" required>
+            <label class="form-label" for="agreedToTerms">
+              <span class="form-checkbox-indicator"></span>
+              <span class="form-label__label">Agree to Terms &amp; Conditions</span>
+            </label>
+          </div>
+          <hr class="horizontal-line create-account__line">
+          <p class="create-account__terms-subtext typography-caption">
+            By selecting Continue, you agree to the
+            <a class="create-account-index__terms-link" target="_blank" href="https://www.apple.com/legal/internet-services/itunes/" rel="noopener noreferrer">Apple Media Services Terms &amp; Conditions</a>
+            and acknowledge that you will be signed in on this browser.
+          </p>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="cc-modal__footer" data-modal-footer="" data-test="cc-modal-footer">
+    <div class="form-buttons-modal">
+      <button slot="primary" data-test="back-button" class="web-button web-button--secondary" type="button" id="backBtn">Back</button>
+      <button slot="primary" data-test="continue-button" class="web-button web-button--primary" type="button" id="continueBtn" disabled>Continue</button>
+    </div>
+  </div>
+</div>
+<!-- ===================== 원본 구조 끝 ===================== -->
+
+<script>
+  // form-textbox-entered 토글: 값이 있거나 focus 상태면 라벨을 위로 띄움 (원본 동작 재현)
+  document.querySelectorAll('.form-textbox .form-textbox-input').forEach(function (input) {
+    var wrapper = input.closest('.form-textbox');
+    function sync() {
+      var hasValue = input.value.trim().length > 0;
+      wrapper.classList.toggle('form-textbox-entered', hasValue);
+    }
+    input.addEventListener('input', sync);
+    input.addEventListener('blur', sync);
+    sync();
+  });
+
+  // 필수 입력값이 모두 채워지면 Continue 버튼 활성화 (간단한 데모용 검증)
+  var requiredInputs = document.querySelectorAll('form [required]');
+  var continueBtn = document.getElementById('continueBtn');
+  function validate() {
+    var ok = true;
+    requiredInputs.forEach(function (el) {
+      if (el.type === 'checkbox') {
+        if (!el.checked) ok = false;
+      } else if (!el.value || !el.value.trim()) {
+        ok = false;
+      }
+    });
+    continueBtn.disabled = !ok;
+  }
+  requiredInputs.forEach(function (el) {
+    el.addEventListener('input', validate);
+    el.addEventListener('change', validate);
+  });
+  validate();
+
+  // birthday 필드: focus 시 DD/MM/YYYY 형식 힌트를 placeholder로 노출하고,
+  // 입력 중에는 숫자만 남겨 자동으로 "/"를 채워넣는다.
+  var birthdayInput = document.getElementById('birthday');
+  birthdayInput.addEventListener('focus', function () {
+    this.placeholder = 'DD/MM/YYYY';
+  });
+  birthdayInput.addEventListener('blur', function () {
+    if (!this.value) this.placeholder = '';
+  });
+  birthdayInput.addEventListener('input', function () {
+    var digits = this.value.replace(/\D/g, '').slice(0, 8);
+    var parts = [];
+    if (digits.length > 0) parts.push(digits.slice(0, 2));
+    if (digits.length > 2) parts.push(digits.slice(2, 4));
+    if (digits.length > 4) parts.push(digits.slice(4, 8));
+    this.value = parts.join('/');
+  });
+
+  document.getElementById('backBtn').addEventListener('click', function () {
+    console.log('back clicked');
+  });
+  document.getElementById('continueBtn').addEventListener('click', function () {
+    console.log('continue clicked');
+  });
+  document.getElementById('closeBtn').addEventListener('click', function () {
+    console.log('close clicked');
+  });
+</script>
+</body>
+</html>
