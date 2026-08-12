@@ -1,0 +1,1802 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Roya Bookmark Index</title>
+
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #1e3a5f;
+      --header-bg: #bfdbfe;
+      --header-shadow: rgba(59,130,246,0.15);
+      --section-bg: #ffffff;
+      --section-border: #bfdbfe;
+      --section-shadow: rgba(59,130,246,0.10);
+      --h2-border: #93c5fd;
+      --link-color: #1e40af;
+      --link-hover: #1e3a5f;
+      --log-item-bg: #dbeafe;
+      --btn-bg: #60a5fa;
+      --btn-bg-hover: #3b82f6;
+      --select-bg: #dbeafe;
+      --select-border: #93c5fd;
+      --footer-color: #60a5fa;
+      --memo-title-bg: #93c5fd;
+      --memo-body-bg: #dbeafe;
+      --memo-label-color: #2563eb;
+      --code-bg: #ffffff;
+      --code-border: #bfdbfe;
+      --scrollbox-bg: #ffffff;
+      --scrollbox-border: #bfdbfe;
+      --chip-bg: #dbeafe;
+      --chip-border: #93c5fd;
+      --chip-text: #1e3a5f;
+      --input-bg: #ffffff;
+      --input-border: #93c5fd;
+      --diff-add-bg: rgba(34,197,94,0.16);
+      --diff-add-text: #166534;
+      --diff-del-bg: rgba(239,68,68,0.16);
+      --diff-del-text: #991b1b;
+      --diff-hunk-text: #7c3aed;
+      --diff-meta-text: #64748b;
+      --diff-file-text: #1d4ed8;
+    }
+
+    [data-theme="dark"] {
+      --bg: #0f172a;
+      --text: #e2e8f0;
+      --header-bg: #1e293b;
+      --header-shadow: rgba(0,0,0,0.4);
+      --section-bg: #182236;
+      --section-border: #334155;
+      --section-shadow: rgba(0,0,0,0.35);
+      --h2-border: #3b82f6;
+      --link-color: #93c5fd;
+      --link-hover: #bfdbfe;
+      --log-item-bg: #1e2a42;
+      --btn-bg: #3b82f6;
+      --btn-bg-hover: #60a5fa;
+      --select-bg: #1e2a42;
+      --select-border: #3b82f6;
+      --footer-color: #64748b;
+      --memo-title-bg: #2c4870;
+      --memo-body-bg: #16213a;
+      --memo-label-color: #7dd3fc;
+      --code-bg: #0f172a;
+      --code-border: #334155;
+      --scrollbox-bg: #0f172a;
+      --scrollbox-border: #334155;
+      --chip-bg: #1e2a42;
+      --chip-border: #3b82f6;
+      --chip-text: #cbd5e1;
+      --input-bg: #0f172a;
+      --input-border: #3b82f6;
+      --diff-add-bg: rgba(34,197,94,0.2);
+      --diff-add-text: #4ade80;
+      --diff-del-bg: rgba(239,68,68,0.2);
+      --diff-del-text: #f87171;
+      --diff-hunk-text: #c4b5fd;
+      --diff-meta-text: #94a3b8;
+      --diff-file-text: #93c5fd;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Pretendard", "Malgun Gothic", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      font-size: 16px;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    section {
+      scroll-margin-top: 130px;
+    }
+
+    header {
+      background: var(--header-bg);
+      color: var(--text);
+      padding: 10px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 4px var(--header-shadow);
+    }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .site-title {
+      font-weight: 800;
+      font-size: 16px;
+      white-space: nowrap;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+      justify-content: flex-end;
+    }
+
+    .search-input {
+      font-family: inherit;
+      font-size: 13px;
+      color: var(--text);
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 16px;
+      padding: 6px 12px;
+      width: 220px;
+      max-width: 45vw;
+    }
+
+    .icon-btn {
+      border: 1px solid var(--input-border);
+      background: var(--input-bg);
+      color: var(--text);
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .icon-btn:hover {
+      background: var(--chip-bg);
+    }
+
+    .quick-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .nav-chip {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--chip-text);
+      background: var(--chip-bg);
+      border: 1px solid var(--chip-border);
+      border-radius: 12px;
+      padding: 3px 10px;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .nav-chip:hover {
+      background: var(--btn-bg);
+      color: #ffffff;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      padding: 14px;
+      align-items: start;
+    }
+
+    .section-pair {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .section {
+      background: var(--section-bg);
+      border-radius: 10px;
+      padding: 16px;
+      box-shadow: 0 1px 4px var(--section-shadow);
+      border: 1px solid var(--section-border);
+      border-top: 4px solid var(--accent, var(--h2-border));
+      min-width: 0;
+    }
+
+    /* 섹션별 포인트 컬러 (라이트/다크 공통으로 톤만 유지) */
+    .accent-ai        { --accent: #a78bfa; }
+    .accent-chromium  { --accent: #fbbf24; }
+    .accent-github    { --accent: #94a3b8; }
+    .accent-obigo     { --accent: #38bdf8; }
+    .accent-dev       { --accent: #34d399; }
+    .accent-branch    { --accent: #fb7185; }
+    .accent-pr        { --accent: #22d3ee; }
+    .accent-memo      { --accent: #fb923c; }
+    .accent-linux     { --accent: #2dd4bf; }
+    .accent-log       { --accent: #818cf8; }
+    .accent-openurl   { --accent: #e879f9; }
+    .accent-useragent { --accent: #a3e635; }
+    .accent-pinned    { --accent: #facc15; }
+
+    /* LOG / Branch 섹션은 전체 너비 */
+    .section-full {
+      grid-column: 1 / -1;
+    }
+
+    .section h2 {
+      margin: 0 0 12px 0;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--accent, var(--h2-border));
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .bookmark-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .bookmark-list li {
+      margin: 4px 0;
+      padding: 6px 0;
+      line-height: 1.4;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .bookmark-list a {
+      text-decoration: none;
+      color: var(--link-color);
+      font-size: 16px;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    .bookmark-list a:hover {
+      text-decoration: underline;
+      color: var(--link-hover);
+    }
+
+    .favicon-img {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+      border-radius: 3px;
+    }
+
+    .pin-btn {
+      border: none;
+      background: transparent;
+      color: var(--select-border);
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+      padding: 0 2px;
+      flex-shrink: 0;
+      margin-left: auto;
+    }
+
+    .pin-btn.pinned {
+      color: #f59e0b;
+    }
+
+    #sec-pinned {
+      display: none;
+    }
+
+    #sec-pinned.has-items {
+      display: block;
+    }
+
+    /* LOG 항목 3열 그리드 */
+    .log-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .log-item {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px;
+      border: 1px solid var(--section-border);
+      border-radius: 6px;
+      background: var(--log-item-bg);
+    }
+
+    .log-code {
+      flex: 1;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 13px;
+      white-space: pre-line;
+      word-break: break-word;
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    /* 스크롤 박스 스타일 */
+    .log-scroll-box {
+      max-height: 200px;
+      overflow-y: auto;
+      background: var(--scrollbox-bg);
+      padding: 8px;
+      border: 1px solid var(--scrollbox-border);
+      border-radius: 6px;
+    }
+
+    /* diff +/- 라인 색상 강조 */
+    .diff-add  { background: var(--diff-add-bg); color: var(--diff-add-text); display: inline-block; width: 100%; }
+    .diff-del  { background: var(--diff-del-bg); color: var(--diff-del-text); display: inline-block; width: 100%; }
+    .diff-hunk { color: var(--diff-hunk-text); font-weight: 600; }
+    .diff-meta { color: var(--diff-meta-text); font-weight: 600; }
+    .diff-file { color: var(--diff-file-text); font-weight: 600; }
+
+    .copy-btn {
+      border: none;
+      background: var(--btn-bg);
+      color: white;
+      width: 30px;
+      height: 30px;
+      padding: 0;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 0;
+      flex-shrink: 0;
+      align-self: flex-start;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .copy-btn::before {
+      content: "📋";
+      font-size: 14px;
+    }
+
+    .copy-btn.copied::before {
+      content: "✅";
+    }
+
+    .copy-btn:hover {
+      background: var(--btn-bg-hover);
+    }
+
+    .pr-type-select {
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      background: var(--select-bg);
+      border: 1px solid var(--select-border);
+      border-radius: 6px;
+      padding: 4px 8px;
+      cursor: pointer;
+    }
+
+    .pr-type-select:hover {
+      background: var(--chip-bg);
+    }
+
+    footer {
+      text-align: center;
+      padding: 16px;
+      color: var(--footer-color);
+      font-size: 13px;
+    }
+
+    @media (max-width: 1100px) {
+      .container {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .log-grid {
+        grid-template-columns: 1fr;
+      }
+      .section-pair {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 650px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+      .search-input {
+        width: 140px;
+      }
+    }
+
+    .memo-item {
+      border: 1px solid var(--section-border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-top: 10px;
+      min-width: 0;
+    }
+
+    .memo-row > div {
+      min-width: 0;
+    }
+
+    .memo-title {
+      background: var(--memo-title-bg);
+      color: var(--text);
+      padding: 7px 12px;
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      user-select: none;
+    }
+
+    .memo-title::after {
+      content: "▸";
+      font-size: 12px;
+      flex-shrink: 0;
+      transition: transform 0.15s;
+    }
+
+    .memo-item.expanded .memo-title::after {
+      transform: rotate(90deg);
+    }
+
+    .memo-body {
+      padding: 10px 12px;
+      background: var(--memo-body-bg);
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .memo-item.expanded .memo-body {
+      display: flex;
+    }
+
+    .memo-row {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .memo-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--memo-label-color);
+      letter-spacing: 0.08em;
+    }
+
+    .memo-row pre {
+      margin: 0;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 12.5px;
+      color: var(--text);
+      background: var(--code-bg);
+      border: 1px solid var(--code-border);
+      border-radius: 5px;
+      padding: 6px 10px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      overflow-wrap: break-word;
+      word-break: break-all;
+      min-width: 0;
+    }
+
+    .memo-body pre {
+      white-space: pre-wrap;
+      overflow-wrap: break-word;
+      word-break: break-all;
+      min-width: 0;
+    }
+
+    .memo-row code {
+      font-family: Consolas, Monaco, monospace;
+      font-size: 12.5px;
+      color: var(--text);
+      background: var(--code-bg);
+      border: 1px solid var(--code-border);
+      border-radius: 5px;
+      padding: 4px 10px;
+      display: inline-block;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="header-top">
+    <span class="site-title">📌 Roya Bookmark</span>
+    <div class="header-controls">
+      <input type="text" id="global-search" class="search-input" placeholder="🔍 검색 (링크·메모·명령어)" oninput="filterAll()">
+      <button id="dark-toggle" class="icon-btn" title="다크모드 전환" onclick="toggleDarkMode()">🌙</button>
+    </div>
+  </div>
+  <nav class="quick-nav">
+    <a href="#sec-ai" class="nav-chip">AI</a>
+    <a href="#sec-chromium" class="nav-chip">Chromium</a>
+    <a href="#sec-github" class="nav-chip">GitHub</a>
+    <a href="#sec-obigo" class="nav-chip">OBIGO</a>
+    <a href="#sec-dev" class="nav-chip">Dev</a>
+    <a href="#sec-branch" class="nav-chip">Branch</a>
+    <a href="#sec-pr" class="nav-chip">PR</a>
+    <a href="#sec-memo" class="nav-chip">Memo</a>
+    <a href="#sec-linux" class="nav-chip">Linux/Motrex</a>
+    <a href="#sec-log" class="nav-chip">LOG</a>
+    <a href="#sec-openurl" class="nav-chip">openUrl</a>
+    <a href="#sec-useragent" class="nav-chip">UA</a>
+  </nav>
+</header>
+
+<main class="container">
+
+  <section class="section section-full accent-pinned" id="sec-pinned">
+    <h2>⭐ Pinned</h2>
+    <ul class="bookmark-list" id="pinned-list"></ul>
+  </section>
+
+  <section class="section accent-ai" id="sec-ai">
+    <h2>AI</h2>
+    <ul class="bookmark-list">
+      <li><a href="https://chatgpt.com/" target="_blank">ChatGPT</a></li>
+      <li><a href="https://claude.ai/login" target="_blank">Claude</a></li>
+      <li><a href="https://gemini.google.com/app" target="_blank">Google Gemini</a></li>
+      <li><a href="https://claude.ai/settings/billing" target="_blank">Claude Billing //활동센터:Mobility SW Division</a></li>
+      <li><a href="https://chatgpt.com/#settings/Account" target="_blank">Codex Billing //활동센터:Mobility SW Division</a></li>
+    </ul>
+  </section>
+
+  <section class="section accent-chromium" id="sec-chromium">
+    <h2>Chromium</h2>
+    <ul class="bookmark-list">
+      <li><a href="https://source.chromium.org/chromium/chromium/src" target="_blank">Chromium Main Source</a></li>
+      <li><a href="https://source.chromium.org/chromium/chromium/src/+/refs/tags/92.0.4515.131" target="_blank">Chromium 92</a></li>
+      <li><a href="https://source.chromium.org/chromium/chromium/src/+/refs/tags/122.0.6261.120" target="_blank">Chromium 122</a></li>
+      <li><a href="https://source.chromium.org/chromium/chromium/src/+/refs/tags/133.0.6943.51" target="_blank">Chromium 133</a></li>
+      <li><a href="https://source.chromium.org/chromium/chromium/src/+/refs/tags/143.0.7499.192" target="_blank">Chromium 143</a></li>
+      <li><a href="https://chromium.googlesource.com/chromium/src/+/143.0.7499.192" target="_blank">Chromium 149</a></li>
+      <li><a href="https://vikyd.github.io/download-chromium-history-version/#/" target="_blank">Chromium Version Download</a></li>
+    </ul>
+  </section>
+
+  <section class="section accent-github" id="sec-github">
+    <h2>OBIGO GitHub</h2>
+    <ul class="bookmark-list">
+      <li><a href="https://github.com/orgs/OBIGOGIT/repositories" target="_blank">GitHub OBIGO Repositories</a></li>
+      <li><a href="https://github.com/OBIGOGIT/obigo-af-agb-92" target="_blank">obigo-af-agb-92</a></li>
+      <li><a href="https://github.com/OBIGOGIT/android-obigo-brs-122" target="_blank">android-obigo-brs-122</a></li>
+      <li><a href="https://github.com/OBIGOGIT/android-obigo-brs-133" target="_blank">android-obigo-brs-133</a></li>
+      <li><a href="https://github.com/OBIGOGIT/obigo-af-agb-143" target="_blank">obigo-af-agb-143</a></li>
+      <li><a href="https://github.com/OBIGOGIT/obigo-ccos-qml-application" target="_blank">(WCH) obigo-ccos-qml-application</a></li>
+      <li><a href="https://github.com/OBIGOGIT/obigo-common-build-suite" target="_blank">(build) obigo-common-build-suite</a></li>
+      <li><a href="https://github.com/OBIGOGIT/obigo-linux-af" target="_blank">(linux-af) obigo-linux-af</a></li>
+      <li><a href="https://github.com/OBIGOGIT/mf1_dev_tools" target="_blank">(MF1) mf1_dev_tools</a></li>
+    </ul>
+  </section>
+
+  <section class="section accent-obigo" id="sec-obigo">
+    <h2>OBIGO</h2>
+    <ul class="bookmark-list">
+	  <li><a href="https://ep.obigo.com/" target="_blank">EP</a></li>
+	  <li><a href="https://www.e-hrok.co.kr/obigo_login.asp" target="_blank">pay</a></li>
+	  <li><a href="https://outlook.office.com/owa/" target="_blank">Outlook Mail</a></li>
+	  <li><a href="https://obigoinc.atlassian.net/wiki/spaces/~roya.song/overview?homepageId=80347142" target="_blank">roya confluence</a></li>
+      <li><a href="https://obigoinc.atlassian.net/jira/dashboards/10374" target="_blank">MF1 dashboard</a></li>
+      <li><a href="https://home.atlassian.com/o/5a6289kj-cb76-10b4-67jj-69ca7ad1786k/people/team/3a24e0a4-3d38-4af6-a5fd-ada4b9b3609f?cloudId=7c8056ba-ed98-43d2-89aa-86ec9cf4958b" target="_blank">MF1 confluence</a></li>
+      <li><a href="https://obigoinc.atlassian.net/wiki/spaces/YVMJ/overview?homepageId=962331091" target="_blank">motrex confulence</a></li>
+      <li><a href="http://jenkins.obigo.com/" target="_blank">Jenkins</a></li>
+      <li><a href="https://obigoinc.atlassian.net/jira/your-work" target="_blank">Jira My Work</a></li>
+      <li><a href="https://teams.microsoft.com/v2/" target="_blank">Microsoft Teams</a></li>
+      <li><a href="https://obigoinc.atlassian.net/issues/?jql=%28project%20%3D%20%22GR_HKMC_CCNC_MOBIS_AGB%20%22%20OR%20project%20%3D%20GR_HKMC_CCIC_LGE_AGB%20OR%20project%20%3D%20GR_HKMC_GEN6_LGE_AGB%20OR%20project%20%3D%20GR_HKMC_WEBSOLUTION%20OR%20project%20%3D%20%22OpenSource%20SW%20Management%22%20OR%20project%20%3D%20GR_MOTREX_CCNC_PICKNOW%20OR%20project%20%3D%20AppFramework1%20OR%20project%20%3D%20GR_WEBENGINE_UPGRADE_RND%29%20AND%20issuetype%20in%20%28Bug%2C%20Sub-task%2C%20subTaskIssueTypes%28%29%29%20AND%20status%20not%20in%20%28DONE%2C%20CLOSED%2C%20MODIFIED%2C%20%22INTERNAL%20RELEASED%22%2C%20PENDING%2C%20VERIFIED%2C%20CONFIRMED%2C%20Cancelled%29%20AND%20%28assignee%20%3D%20712020%3A385e1b0b-a0b2-4f82-aaf1-c629d7c229ab%20OR%20assignee%20%3D%20712020%3Ae7485331-0f3c-419d-95c5-e4a05e5aa0cc%20OR%20assignee%20%3D%20712020%3A956aad46-bc98-4a06-953f-cd013f7e90ec%20OR%20assignee%20%3D%20712020%3A565380da-24d7-4ee6-b9e0-b3a741895901%20OR%20assignee%20%3D%20712020%3A0d04de4e-54ad-45cd-b489-fe57a3abcc0d%20OR%20assignee%20%3D%205aa7710936a3a82a4e2ea5c3%20OR%20assignee%20%3D%20712020%3A4f250bed-c1bc-4829-9f3d-870379d5f635%20OR%20assignee%20%3D%205aa9c90bf75bb52a8232b1df%20OR%20assignee%20%3D%205aa9c90bbbead52a7eed8f13%20OR%20assignee%20%3D%205aa9c90ba903362a5788e919%29%20AND%20assignee%20%3D%205aa9c90bbbead52a7eed8f13%20ORDER%20BY%20duedate%20ASC" target="_blank">Jira Filter (Assigned)</a></li>
+      <li><a href="https://obigoinc.atlassian.net/wiki/spaces/PicknowOpe/pages/1110835237/3+Configuration" target="_blank">Picknow Config</a></li>
+      <li><a href="http://10.28.3.180:8888/" target="_blank">Picknow 서버 현황 대시보드</a></li>
+      <li><a href="https://obigoinc.atlassian.net/issues/?jql=%28project%20%3D%20%22GR_HKMC_CCNC_MOBIS_AGB%20%22%20OR%20project%20%3D%20GR_HKMC_CCIC_LGE_AGB%20OR%20project%20%3D%20GR_HKMC_GEN6_LGE_AGB%20OR%20project%20%3D%20GR_HKMC_WEBSOLUTION%20OR%20project%20%3D%20%22OpenSource%20SW%20Management%22%20OR%20project%20%3D%20GR_MOTREX_CCNC_PICKNOW%20OR%20project%20%3D%20AppFramework1%20OR%20project%20%3D%20GR_WEBENGINE_UPGRADE_RND%20OR%20project%20%3D%20GR_KGM_SE10_PICKNOW%29%20AND%20issuetype%20in%20%28Bug%2C%20Sub-task%2C%20subTaskIssueTypes%28%29%29%20AND%20status%20not%20in%20%28DONE%2C%20CLOSED%2C%20MODIFIED%2C%20%22INTERNAL%20RELEASED%22%2C%20PENDING%2C%20VERIFIED%2C%20CONFIRMED%2C%20Cancelled%29%20AND%20%28assignee%20%3D%20712020%3A385e1b0b-a0b2-4f82-aaf1-c629d7c229ab%20OR%20assignee%20%3D%20712020%3Ae7485331-0f3c-419d-95c5-e4a05e5aa0cc%20OR%20assignee%20%3D%20712020%3A956aad46-bc98-4a06-953f-cd013f7e90ec%20OR%20assignee%20%3D%20712020%3A565380da-24d7-4ee6-b9e0-b3a741895901%20OR%20assignee%20%3D%20712020%3A0d04de4e-54ad-45cd-b489-fe57a3abcc0d%20OR%20assignee%20%3D%205aa7710936a3a82a4e2ea5c3%20OR%20assignee%20%3D%20712020%3A4f250bed-c1bc-4829-9f3d-870379d5f635%20OR%20assignee%20%3D%205aa9c90bf75bb52a8232b1df%20OR%20assignee%20%3D%205aa9c90bbbead52a7eed8f13%20OR%20assignee%20%3D%205aa9c90ba903362a5788e919%29%20AND%20assignee%20%3D%205aa9c90bbbead52a7eed8f13%20ORDER%20BY%20duedate%20ASC" target="_blank">## my issue - MF1 ##</a></li>
+      <li><a href="https://obigoinc.atlassian.net/wiki/spaces/AARD/pages/471007243/06.+CP" target="_blank">CP사 계정 정보</a></li>
+      <li><a href="https://obigoinc.atlassian.net/wiki/spaces/~roya.song/pages/1919549453/ccnc_vpn" target="_blank">ccnc에서 vpn test 하는 법</a></li>
+      <li><a href="https://im.mobis.com/" target="_blank">(모비스)im.mobis.com</a></li>
+    </ul>
+  </section>
+
+  <section class="section accent-dev" id="sec-dev">
+    <h2>Dev</h2>
+    <ul class="bookmark-list">
+	  <li><a href="http://192.168.105.1:9222" target="_blank">192.168.105.1:9222</a></li>
+	  <li><a href="https://ip.pe.kr/" target="_blank">내 ip및 위치 확인</a></li>
+      <li><a href="https://stg-picknow.obigo.ai/admin-web/#/" target="_blank">STG Admin-web(admin/1***)</a></li>
+      <li><a href="https://obigoinc.atlassian.net/wiki/spaces/AARD/pages/471007243/06.+CP" target="_blank">CP사 계정 정보</a></li>
+      <li><a href="https://royasong.github.io/game/" target="_blank">Game</a></li>
+      <li><a href="https://royasong.github.io/webrisk/" target="_blank">WebRisk</a></li>
+      <li><a href="https://royasong.github.io/event/mouse_scroll.htm" target="_blank">scroll mouse only page</a></li>
+      <li><a href="https://speed.cloudflare.com" target="_blank">internet speed check</a></li>
+      <li><a href="edu/index.htm" target="_blank">Edu</a></li>
+      <li><a href="https://www.w3schools.com/html/html5_video.asp" target="_blank">H264 VIDEO</a></li>
+      <li><a href="https://www.w3schools.com/html/tryit.asp?filename=tryhtml_input_password" target="_blank">id/password test</a></li>
+      <li><a href="https://excelkospi.pages.dev/" target="_blank">excelkospi.pages.dev/</a></li>
+    </ul>
+  </section>
+
+  <section class="section accent-branch" id="sec-branch">
+    <h2>Branch</h2>
+
+    <div class="memo-item">
+      <div class="memo-title">repo의 manifest에 명시된 브랜치로 돌리는 방법</div>
+      <div class="memo-body">
+        <div class="memo-row">
+          <pre>먼저 manifest를 git pull로 최신으로 만들어 주고
+
+repo forall -c 'git checkout $REPO_RREV'</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="memo-item" style="margin-top:10px;">
+      <div class="memo-title">mobis ccnc 143</div>
+      <div class="memo-body">
+        <div class="memo-row">
+          <pre>cd ccnc
+repo init -u ssh://git@github.com/OBIGOGIT/obigo-af-manifest.git -m hyundai_mobis_ccnc_brs143_01.xml -b ccnc_websolution
+repo sync
+cd .repo/manifests
+git checkout  ccnc_websolution
+git pull
+cd ../..
+repo forall -c 'git checkout $REPO_RREV'</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="memo-item" style="margin-top:10px;">
+      <div class="memo-title">motrex ccnc 143</div>
+      <div class="memo-body">
+        <div class="memo-row">
+          <pre>repo init -u ssh://git@github.com/OBIGOGIT/obigo-af-manifest.git -m hyundai_motrex_ccnc_brs143_01.xml -b ccnc_websolution
+repo sync
+cd .repo/manifests
+git checkout  ccnc_websolution
+git pull
+cd ../..
+repo forall -c 'git checkout $REPO_RREV'</pre>
+        </div>
+        <div class="memo-row">
+          <span class="memo-label">build local webapp</span>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="lm-143-build-local-webapp" style="flex:1;margin:0;">build option : --lws-apps-only</pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("lm-143-build-local-webapp").innerText, this)'>Copy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="memo-item" style="margin-top:10px;">
+      <div class="memo-title">92 mobis_ccnc 브랜치 코드 다운 및 빌드</div>
+      <div class="memo-body">
+        <div class="memo-row">
+          <span class="memo-label">manifests branch</span>
+          <code>cd .repo/manifests branch : mobis_ccnc</code>
+        </div>
+        <div class="memo-row">
+          <span class="memo-label">code branch</span>
+          <code>모두 mobis_ccnc (build/adt의 branch만 mobis)</code>
+        </div>
+        <div class="memo-row">
+          <span class="memo-label">build</span>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="lm-92-mobis-ccnc-build" style="flex:1;margin:0;">source build/oaf-init-build-env;obigo-build hyundai-mobis-ccnc-target --ccache --j=48</pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("lm-92-mobis-ccnc-build").innerText, this)'>Copy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="memo-item" style="margin-top:10px;">
+      <div class="memo-title">etc</div>
+      <div class="memo-body">
+        <ul class="bookmark-list" style="margin:0;">
+          <li><a href="https://obigoinc.atlassian.net/wiki/spaces/~kenith.kim/pages/1763311686/Motrex+92+build+-+mobis_ccnc_picknow_service" target="_blank">Motrex/Ccnc 92 Build &amp; Run Guide</a></li>
+          <li><a href="https://obigoinc.atlassian.net/wiki/spaces/YVMJ/pages/1357905935/DLT+or+Journal+log" target="_blank">DLT or Journal log 설정법</a></li>
+          <li><a href="https://obigoinc.atlassian.net/wiki/spaces/HKMCCCNCMOB/pages/1766981736/Motrex+VPN" target="_blank">Motrex VPN(105/106 check)</a></li>
+        </ul>
+      </div>
+    </div>
+
+  </section>
+
+  <section class="section accent-pr" id="sec-pr">
+    <h2 style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+      <span>PR</span>
+      <select id="pr-type-select" class="pr-type-select" onchange="renderPRList()">
+        <option value="review">review PR</option>
+        <option value="open">open PR</option>
+        <option value="my">my PR</option>
+        <option value="closed">closed PR</option>
+      </select>
+    </h2>
+    <ul class="bookmark-list" id="pr-list"></ul>
+  </section>
+
+  <div class="section-pair">
+  <section class="section accent-memo" id="sec-memo">
+    <h2>Memo</h2>
+
+    <div class="memo-item">
+      <div class="memo-title">ep 프로젝트</div>
+      <div class="memo-body">
+        <div class="memo-row">
+          <span class="memo-label">모비스 v143 Pick 시리즈 기아 인도 (북미 현대 임시 작성) EP</span>
+          <code>GR_KIA_INDIA_PICKNOW_DEV</code>
+        </div>
+        <div class="memo-row">
+          <span class="memo-label">모비스 v92 시네마</span>
+          <code>HKMC_CCNC_MOBIS_AGB_M&amp;S_2026</code>
+        </div>
+        <div class="memo-row">
+          <span class="memo-label">모트렉스</span>
+          <code>GR_PICKNOW_LINUX_26_PRD</code>
+        </div>
+        <div class="memo-row">
+          <span class="memo-label">Engine Upgrade</span>
+          <code>GR_LINUX_PICKNOW_UPGRADE_RND_26</code>
+        </div>
+        <div class="memo-row">
+          <span class="memo-label">KGM</span>
+          <code>GR_KGM_SE10_PICKNOW</code>
+        </div>
+      </div>
+    </div>
+
+    <div class="memo-item" style="margin-top:10px;">
+      <div class="memo-title">잡다 정보</div>
+      <div class="memo-body">
+        <div class="memo-row">
+          <span class="memo-label">MOTREX WIFI(093)</span>
+          <code>ap093 / obigoap093</code>
+        </div>
+        <div class="memo-row">
+          <span class="memo-label">VPN 지역 변경시(캐시삭제필요)</span>
+          <code>Linux (Ubuntu) : sudo resolvectl flush-caches</code>
+          <code>Windows : ipconfig /flushdns</code>
+        </div>
+        <div class="memo-row">
+          <span class="memo-label">Android 설정 파일</span>
+          <code>android_agb_features.h</code>
+        </div>
+        <div class="memo-row">
+          <span class="memo-label">Android 환경 변수</span>
+          <pre>export OBIGO_DEVICE_OEM="KGM"
+export OBIGO_DEVICE_MODEL="SE10"
+export OBIGO_COUNTRY_CODE="KR"</pre>
+        </div>
+        <div class="memo-row">
+          <span class="memo-label">Android 빌드 명령</span>
+          <pre>./build.sh picknow arm64 stg</pre>
+        </div>
+        <div class="memo-row">
+          <span class="memo-label">PR commit</span>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="memo-pr-commit" style="flex:1;margin:0;">[changed info]
+
+[static analysis]
+(1) JIRA Issue :: 링크넣기
+(2) Build Warning Check Result :: Warning : 0, Error: 0
+(3) Unit Test Result :: N/A
+(4) Static Analysis Result :: Cppcheck Error : 0, Warning : 0, Performance : 0</pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("memo-pr-commit").innerText, this)'>Copy</button>
+          </div>
+        </div>
+        
+	<div class="memo-row">
+	  <span class="memo-label">인도 wifi변경</span>
+	  <pre>인도 wifi obigo_94(start$44)</pre>
+	</div>
+	<div class="memo-row">
+	  <span class="memo-label">단말에서 dlt copy</span>
+	  <pre>sshpass -p "obigo@se" scp -r /log_data/DLT/*.dlt obigo@192.168.105.36:/home/obigo/target/</pre>
+	</div>
+	<div class="memo-row">
+	  <span class="memo-label">CP 이슈시 지라</span>
+	  <pre>Description of Bug Analysis
+이라고 적기[RCA] pc에서 동일하게 재현됨 content 이슈로 판단됨 
+Won't Fix 로 설정
+CP 로 설정
+작업 상태는 reject</pre>
+	</div>
+        <div class="memo-row">
+          <span class="memo-label">마지막 git commit 내용 수정</span>
+          <pre>git commit --amend -m "새로운 commit 메시지"</pre>
+        </div>
+        <div class="memo-row">
+          <span class="memo-label">고객전달binary</span>
+          <pre>\\krsefs01\ISODev\Customer Delivery\MOTREX\HKMX_CCNC</pre>
+        </div>                
+        <div class="memo-row">
+          <span class="memo-label">!!공유기 타국가 설정!!</span>
+          <pre>
+192.168.106.200(or 192.168.105.200)
+ID : obigoap093   PW: ccnc#93(or start$44)
+VPN 설정 → WireGuard 클라이언트 → 원하는 국가 선택</pre>
+        </div>
+        <div class="memo-row">
+          <span class="memo-label">공유기설정(192.168.105.200)</span>
+          <pre>
+http://192.168.105.200
+ID : obigoap086   PW: obigo#86</pre>
+        </div>
+        <div class="memo-row">
+          <span class="memo-label">143 chrome origin build</span>
+          <pre>
+git clone git@github.com:OBIGOGIT/obigo-af-agb-143.git
+cd obigo-af-agb-143
+git lfs pull
+git checkout origin_chromium143
+./build.sh</pre>
+        </div>
+        <div class="memo-row">
+          <span class="memo-label">DLT WCH/WMP 로그 필터</span>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="misc-dlt-wch-wmp" style="flex:1;margin:0;">dlt-receive -a 192.168.105.1  | grep --line-buffered -E "WCH|WMP|BRS|WAPP|RLOG"</pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("misc-dlt-wch-wmp").innerText, this)'>Copy</button>
+          </div>
+        </div>
+        <div class="memo-row">
+          <span class="memo-label">dlt log</span>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="misc-dlt-convert-royalog" style="flex:1;margin:0;">dlt-convert -a *.dlt | grep RLOG</pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("misc-dlt-convert-royalog").innerText, this)'>Copy</button>
+          </div>
+        </div>
+        <div class="memo-row">
+          <span class="memo-label">ccnc wifi </span>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="misc-ccnc-wifi" style="flex:1;margin:0;">ssh root@192.168.105.1</pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("misc-ccnc-wifi").innerText, this)'>Copy</button>
+          </div>
+        </div>
+        <div class="memo-row">
+          <span class="memo-label">target 에서 lib linking fail시 </span>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="misc-ccnc-ldconfig" style="flex:1;margin:0;">ldconfig</pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("misc-ccnc-ldconfig").innerText, this)'>Copy</button>
+          </div>
+        </div>
+        <div class="memo-row">
+          <span class="memo-label">ccnc virtualkeyboard </span>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="misc-ccnc-virtualkeyboard" style="flex:1;margin:0;">./virtualKeypad -home</pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("misc-ccnc-virtualkeyboard").innerText, this)'>Copy</button>
+          </div>
+        </div>
+        <div class="memo-row">
+          <span class="memo-label">ISODev mount</span>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="misc-isodev-mount" style="flex:1;margin:0;">mkdir ISODev
+sudo mount -t cifs -o iocharset=utf8,suid,uid=obigo,gid=obigo,domain=ac,username=isodevw,password=start%55 //10.28.2.24/isodev /home/obigo/ISODev
+cd ./ISODev/</pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("misc-isodev-mount").innerText, this)'>Copy</button>
+          </div>
+        </div>
+        <div class="memo-row">
+          <span class="memo-label">motrex screen capture</span>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="misc-motrex-screen-capture" style="flex:1;margin:0;">/app/sbin/hlayout-debugTool capture -s front
+// 결과
+screen: front
+!!! DLT LOG INITIALIZE !!!
+size = 5529600
+Current Screen is saved at /tmp/front-screen-1920x720@135448.jpeg</pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("misc-motrex-screen-capture").innerText, this)'>Copy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <section class="section accent-linux" id="sec-linux">
+    <h2>Linux / Motrex</h2>
+
+    <div class="memo-item">
+      <div class="memo-title">Linux / Motrex</div>
+      <div class="memo-body">
+        <div class="memo-row">
+          <span class="memo-label">linux build</span>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="lm-linux-build" style="flex:1;margin:0;">pyenv local 3.11.7</pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("lm-linux-build").innerText, this)'>Copy</button>
+          </div>
+        </div>
+        <div class="memo-row">
+          <span class="memo-label">motrex network</span>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="lm-motrex-network" style="flex:1;margin:0;">rdate -s time.bora.net</pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("lm-motrex-network").innerText, this)'>Copy</button>
+          </div>
+        </div>
+        <div class="memo-row">
+          <span class="memo-label">motrex 92<->143시</span>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="lm-motrex-92-143" style="flex:1;margin:0;">rm -rf /ccOSData/web/</pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("lm-motrex-92-143").innerText, this)'>Copy</button>
+          </div>
+        </div>
+        <div class="memo-row">
+          <span class="memo-label">ccnc 92<->143시</span>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="lm-ccnc-92-143" style="flex:1;margin:0;">rm -rf /ccos/data/web/AGBAsset/;rm -rf /ccos/data/web/AGBSecure</pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("lm-ccnc-92-143").innerText, this)'>Copy</button>
+          </div>
+        </div>
+        <div class="memo-row">
+          <span class="memo-label">drop cache</span>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="lm-drop-cache" style="flex:1;margin:0;">echo 3 > /proc/sys/vm/drop_caches</pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("lm-drop-cache").innerText, this)'>Copy</button>
+          </div>
+        </div>
+
+        <div class="memo-row">
+          <span class="memo-label">mobis ccnc 단말 설치 위치</span>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="lm-ccnc-install-path" style="flex:1;margin:0;">webcommonhmi  : /ccos/apps/hmi/
+webappmanager : /ccos/apps/manager/webappmanager
+앱위치         : /ccos/apps/web/</pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("lm-ccnc-install-path").innerText, this)'>Copy</button>
+          </div>
+        </div>
+
+        <div class="memo-row">
+          <span class="memo-label">pss(from kenith)</span>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+          <textarea id="lm-pss-sh" readonly rows="5" style="font-family:monospace;font-size:12px;flex:1;resize:none;overflow-y:auto;background:#ffffff;border:1px solid #bfdbfe;padding:6px;box-sizing:border-box;color:#1e3a5f;">
+          pgrep -f webappmanager | while read pid; do     rss=$(grep 'Rss' /proc/$pid/smaps 2>/dev/null | awk '{sum += $2} END {print sum+0}');     pss=$(grep 'Pss' /proc/$pid/smaps 2>/dev/null | awk '{sum += $2} END {print sum+0}');     uss=$(grep -E 'Private_(Clean|Dirty)' /proc/$pid/smaps 2>/dev/null | awk '{sum += $2} END {print sum+0}');          cmd=$(ps -p $pid -o args= | awk '{print $1}' | xargs basename);          printf "%d\t\t%d\t\t%d\t\t%d\t\t%s\n" "$pid" "$rss" "$pss" "$uss" "$cmd"; done
+          </textarea>
+          <button class="copy-btn" onclick='copyText(document.getElementById("lm-pss-sh").value, this)'>Copy</button>
+          </div>
+        </div>
+
+        <div class="memo-row">
+          <span class="memo-label">webappmanager.config</span>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+          <textarea id="lm-wam-config" rows="30" style="font-family:Consolas,Monaco,monospace;font-size:12px;flex:1;resize:vertical;overflow-y:auto;background:#ffffff;border:1px solid #bfdbfe;padding:6px;box-sizing:border-box;color:#1e3a5f;"># Browser
+# finishload-on-fcp : on/off [default:on]
+finishload-on-fcp : on
+
+# disable-web-security : on/off [default:off]
+disable-web-security : off
+
+# BRS sandbox enable : on/off [default : on]
+enable-sandbox : on
+
+# disable-check-network-state : on/off [default:off]
+disable-check-network-state : on
+
+# disable-check-ccs-available : on/off [default:off]
+disable-check-ccs-available : on
+
+# disable-check-driving-restriction-state : on/off [default:off]
+disable-check-driving-restriction-state : off
+
+# disable-filtering-urls : on/off [default:off]
+disable-filtering-urls : on
+
+################ PICKNOW #########################
+# picknow - kr or us or in
+picknow-region: kr
+
+# picknow - dev or stg or prod
+picknow-environment: stg
+
+# picknow
+picknow-kr-dev-host-url : kr-demo-picknow.obigo.ai
+picknow-kr-stg-host-url : stg-picknow.obigo.ai
+picknow-kr-prod-host-url : picknow.obigo.ai
+picknow-us-dev-host-url : brk-demo-us-west.obigo.com/picknow
+picknow-in-prod-host-url : brk-demo-india.obigo.com/picknow
+picknow-eu-prod-host-url : eu-demo-picknow.obigo.ai
+
+# picknow default home path
+picknow-default-home-path : /launcher/#/
+picknow-kr-dev-home-path : /launcher/#/
+
+################ PICKJOY #########################
+# pickjoy - kr or us
+pickjoy-region: kr
+
+# picknow - dev or stg or prod
+pickjoy-environment: prod
+
+# pickjoy
+pickjoy-kr-dev-host-url : pickjoy-dev.obigo.com
+pickjoy-kr-stg-host-url : stg-pickjoy.obigo.ai
+pickjoy-kr-prod-host-url : pickjoy.obigo.ai
+pickjoy-us-dev-host-url : brk-demo-us-west.obigo.com
+pickjoy-in-prod-host-url : brk-demo-india.obigo.com
+pickjoy-eu-prod-host-url : eu-demo-pickjoy.obigo.ai
+
+# pickjoy default home path
+pickjoy-default-home-path : /apps/
+
+pickjoy-us-dev-home-path : /pickjoy/apps/
+
+pickjoy-in-prod-home-path : /pickjoy/apps/
+
+pickjoy-eu-prod-home-path : /apps/
+
+# Tune server
+tune-server-default-url : wss://brk-demo-us-west.obigo.com/ws/
+tune-server-us-dev-url : wss://brk-demo-us-west.obigo.com/ws/
+tune-server-in-prod-url : wss://brk-demo-india.obigo.com/ws/
+tune-server-eu-prod-url : wss://eu-demo-picknow.obigo.ai/ws/
+
+tune-server-id : 111111
+lpsound-volume : 1.4
+rainsound-volume : 0.0
+</textarea>
+          <button class="copy-btn" onclick='copyText(document.getElementById("lm-wam-config").value, this)'>Copy</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="memo-item" style="margin-top:10px;">
+      <div class="memo-title">모비스 단말 설정 방법 - stg 서버</div>
+      <div class="memo-body">
+        <div class="memo-row">
+          <span class="memo-label">1. appinfo.json 확인</span>
+          <pre>/ccos/apps/web/uplustvweb/appinfo.json
+파일 내용중
+"host": "stg-picknow.obigo.ai/launcher/#/" 으로 되어있는지 확인</pre>
+        </div>
+        <div class="memo-row">
+          <span class="memo-label">2. webappmanager.config 확인</span>
+          <pre>/ccos/apps/manager/webappmanager/configuration/webappmanager.config
+파일의 아래 설정으로 되어있는지 확인
+picknow-region: kr
+picknow-environment: stg
+picknow-kr-stg-host-url : stg-picknow.obigo.ai</pre>
+        </div>
+        <div class="memo-row">
+          <span class="memo-label">적용 후</span>
+          <pre>rm -rf /log_data/DLT/*.dlt
+systemctl restart webappmanager webcommonhmi websocketmanager  theaterhmi
+/pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="memo-item" style="margin-top:10px;">
+      <div class="memo-title">OEM DEMO → HMC 변경</div>
+      <div class="memo-body">
+        <div class="memo-row">
+          <span class="memo-label">BookMarkClient_ccnc.cc</span>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="lm-oem-bookmark" style="flex:1;margin:0;">src/obigo/extension/interface/bookmark/ccnc/BookMarkClient_ccnc.cc
+jvalue["model"] = "ccNC";
+-  jvalue["oem"] = "DEMO";
++  jvalue["oem"] = "HMC";</pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("lm-oem-bookmark").innerText, this)'>Copy</button>
+          </div>
+        </div>
+        <div class="memo-row">
+          <span class="memo-label">SSEClient.cc</span>
+          <pre>webcommonhmi/src/scene/PickNowAccountScene.cc &amp; webcommonhmi/src/SSEClient.cc
+oem = DEMO를 HMC로 수정</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="memo-item" style="margin-top:10px;">
+      <div class="memo-title">픽나우홈 진입 안되고 연결안된다는 팝업뜰때</div>
+      <div class="memo-body">
+        <div class="memo-row">
+          <span class="memo-label">확인할것 (현재 서버에 어떻게 세팅이 되어있는지 확인해보고 그거랑 맞춰줄것)</span>
+          <pre>/ccos/apps/manager/webappmanager/configuration/webappmanager.config파일에 picknow-environment, picknow-region확인</pre>
+          <pre>/ccos/apps/manager/webappmanager/webappmanager.env파일의 TARGET_DEVICE_TYPE를 ccNC로 변경</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="memo-item" style="margin-top:10px;">
+      <div class="memo-title">모트렉스 로그 복호화</div>
+      <div class="memo-body">
+        <div class="memo-row">
+          <span class="memo-label">모트렉스 .enc 로그 파일 암호해제 스크립트 같은 경로에 넣고 실행(pycryptodo install)</span>
+          <a href="./data/motrex_log_decryptor.py" target="_blank">./data/motrex_log_decryptor.py</a>
+        </div>
+      </div>
+    </div>
+
+  </section>
+  </div><!-- /section-pair -->
+
+  <section class="section section-full accent-log" id="sec-log">
+    <h2>LOG</h2>
+
+    <div class="log-grid">
+
+      <!-- 1 -->
+      <div class="log-item">
+        <div class="log-code">#include "base/logging.h"</div>
+        <button class="copy-btn"
+          onclick='copyText(`#include "base/logging.h"`, this)'>
+          Copy
+        </button>
+      </div>
+
+      <!-- 2 -->
+      <div class="log-item">
+        <div class="log-code">#include "base/debug/stack_trace.h"</div>
+        <button class="copy-btn"
+          onclick='copyText(`#include "base/debug/stack_trace.h"`, this)'>
+          Copy
+        </button>
+      </div>
+
+      <!-- 3 -->
+      <div class="log-item">
+        <div class="log-code">LOG(ERROR) &lt;&lt; "[OBG][" &lt;&lt; __FUNCTION__ &lt;&lt; "] " &lt;&lt; __FILE__ &lt;&lt; ":" &lt;&lt; __LINE__ &lt;&lt; " ";</div>
+        <button class="copy-btn"
+          onclick='copyText(`LOG(ERROR) << "[OBG][" << __FUNCTION__ << "] " << __FILE__ << ":" << __LINE__ << " ";`, this)'>
+          Copy
+        </button>
+      </div>
+
+      <!-- 4 -->
+      <div class="log-item">
+        <div class="log-code">base::debug::StackTrace().Print();</div>
+        <button class="copy-btn"
+          onclick='copyText(`base::debug::StackTrace().Print();`, this)'>
+          Copy
+        </button>
+      </div>
+
+      <!-- 5 -->
+      <div class="log-item">
+        <div class="log-code log-scroll-box" id="diff-text-1"> // terminal 에 찍도록 하는 code (fprintf)
+			diff --git a/src/base/logging.cc b/src/base/logging.cc
+index e3b4b65062..d67a76b19f 100644
+--- a/src/base/logging.cc
++++ b/src/base/logging.cc
+@@ -777,8 +777,8 @@ void LogMessage::Flush() {
+       // The handler took care of it, no further processing.
+       return;
+     }
+-#if defined(OBIGO_USE_LOG_SYSTEM) && !defined(BRS_UNIT_TEST_ONLY) && defined(ARCH_CPU_ARM64)
+-#if defined(OBIGO_SANDBOX) && defined(OBIGO_USE_HYUNDAI_LOG_SYSTEM)
++#if 1//defined(OBIGO_USE_LOG_SYSTEM) && !defined(BRS_UNIT_TEST_ONLY) && defined(ARCH_CPU_ARM64)
++#if 1//defined(OBIGO_SANDBOX) && defined(OBIGO_USE_HYUNDAI_LOG_SYSTEM)
+     bool is_sandbox = false;
+     if (base::CommandLine::ForCurrentProcess()) {
+       auto type = base::CommandLine::ForCurrentProcess()->GetSwitchValueASCII("type");
+@@ -796,12 +796,13 @@ void LogMessage::Flush() {
+     } else {
+       is_sandbox = true;  // cdm plugin
+     }
++  is_sandbox = true;  // for test
+     LogSeverity severity = severity_;
+     if (is_sandbox) {
+-     fprintf(stderr, "[Sandbox] %s\n", str_newline.c_str());
+-   } else {
++     fprintf(stderr, "BRS[OBG] %s\n", str_newline.c_str());
++   } /* else {
+       ...
+-   }
++   }*/
+ #else
+diff --git a/src/obigo/public/logging.h b/src/obigo/public/logging.h
+@@ -139,11 +139,14 @@ class C_COMMON_LOG {
+     void writeLog() const {
+       constexpr const char* BRS_CTX_ID = "BRS";
++     fprintf(stderr, "MODULE[OBG] %s\n", m_logs.str().c_str());
++/*
+ #if defined(PCLINUX)
+       WriteLog(kBrowser, BRS_CTX_ID, m_logLevel, m_logs.str().c_str());
+ #else
+       WriteLog(kBrowserModule, BRS_CTX_ID, m_logLevel, m_logs.str().c_str());
+ #endif
++*/
+     }
+@@ -191,9 +194,9 @@ class C_ERROR_LOG : public C_COMMON_LOG  {
+-using DEBUG_LOG = C_DEBUG_LOG;
+-using INFO_LOG = C_INFO_LOG;
+-using WARN_LOG = C_WARNING_LOG;
++using DEBUG_LOG = C_ERROR_LOG;
++using INFO_LOG = C_ERROR_LOG;
++using WARN_LOG = C_ERROR_LOG;
+ using ERROR_LOG = C_ERROR_LOG;</div>
+        <button class="copy-btn"
+          onclick='copyText(document.getElementById("diff-text-1").innerText, this)'>
+          Copy
+        </button>
+      </div>
+
+      <!-- 6 -->
+      <div class="log-item">
+        <div class="log-code log-scroll-box" id="diff-text-2">// stg 로 열기 (motrex) ./webcommonhmi/src/core/SystemInfo.cpp
+std::string SystemInfo::getPicknowBaseUrl() {
+    // return Config::getInst().getPicknowBaseUrl();
+    return "https://stg-picknow.obigo.ai";
+}
+
+std::string SystemInfo::getPicknowApiBaseUrl() {
+    // return Config::getInst().getPicknowApiBaseUrl();
+    return "https://stg-picknow.obigo.ai/core";
+}
+
+./localwebserver-apps/ccos_sample/ccos/apps/web/picknowweb/appinfo.json
+
+    "front-center": {
+        "id": "ccos.hmi.picknowweb.center-front",
+        "screen": "FRONT_CENTER",
+        "appType": "GENERAL",
+        "serviceTypes" : ["SAMPLE"],
+        "web": {
+            "protocol": "https",
+            "host": "stg-picknow.obigo.ai/motrex-launcher/#/",
+            "port": 0
+        }
+    } 적용해줘 </div>
+        <button class="copy-btn"
+          onclick='copyText(document.getElementById("diff-text-2").innerText, this)'>
+          Copy
+        </button>
+      </div>
+
+      <!-- 8 -->
+      <div class="log-item">
+        <div class="log-code log-scroll-box" id="diff-text-4"> // dlt log 짧게 + black/white list 동작하지 않도록 하는 코드
+
+diff --git a/src/base/logging.cc b/src/base/logging.cc
+index c27de4f1ae..12c06ca2e5 100644
+--- a/src/base/logging.cc
++++ b/src/base/logging.cc
+@@ -798,6 +798,7 @@ void LogMessage::Flush() {
+   } else {
+     is_sandbox = true;  // cdm plugin
+   }
++  is_sandbox = false;
+   LogSeverity severity = severity_;
+   // if (LOG_VERBOSE == severity)
+   //   severity = LOG_INFO;
+@@ -1095,16 +1096,12 @@ void LogMessage::Init(const char* file, int line) {
+     if (base::CommandLine::InitializedForCurrentProcess() &&
+         base::CommandLine::ForCurrentProcess()) {
+       std::string process_type_str = base::CommandLine::ForCurrentProcess()->GetSwitchValueASCII("type"); //switches::kProcessType
+-      if (process_info_color) {
+-        process_info_str = "]\033[0m[";
+-      } else {
+-        process_info_str = "][";
+-      }
++      process_info_str = "-";
+       if (process_type_str.empty()) {
+         if (base::CommandLine::ForCurrentProcess()->HasSwitch("single-process")) //switches::kSingleProcess
+-          process_type_str = "single-process";
++          process_type_str = "single";
+         else
+-          process_type_str = "browser-process";
++          process_type_str = "browser";
+         if (process_info_color) {
+           process_info_str += "\033[36;2m";
+         }
+@@ -1119,7 +1116,7 @@ void LogMessage::Init(const char* file, int line) {
+             process_info_str += "\033[32;2m";
+         }
+       }
+-      else if (process_type_str == "gpu-process" /*switches::kGpuProcess*/) {
++      else if (process_type_str == "gpu" /*switches::kGpuProcess*/) {
+         if (process_info_color) {
+             process_info_str += "\033[33;2m";
+         }
+@@ -1130,23 +1127,23 @@ void LogMessage::Init(const char* file, int line) {
+             process_info_str += "\033[35;2m";
+         }
+       }
+-      process_info_str += process_type_str;
+-      if (process_info_str.find("process") == std::string::npos)
+-        process_info_str += "-process";
+-      if (!process_title_str.empty()) {
+-        process_info_str += "|";
+-        process_info_str += process_title_str;
++      static const std::string kProcessSuffix = "-process";
++      if (process_type_str.size() > kProcessSuffix.size() &&
++          process_type_str.compare(process_type_str.size() - kProcessSuffix.size(),
++                                   kProcessSuffix.size(), kProcessSuffix) == 0) {
++        process_type_str.resize(process_type_str.size() - kProcessSuffix.size());
+       }
++      if (process_type_str == "browser")
++        process_info_str += "BRS";
++      else
++        process_info_str += base::ToUpperASCII(process_type_str);
+ #ifdef __USE_GNU
+-      char threadname[32] = "";
+-      if (pthread_getname_np(pthread_self(), threadname, 31) == 0) {
+-        process_info_str += "|";
+-        process_info_str += threadname;
+-      }
+       if (process_info_color) {
+           process_info_str += "\033[0m";
+       }
+-      stream_ << process_info_str << "|" << filename << ":" << line << "] ";
++      auto slash_pos = filename.rfind('/');
++      auto base_filename = (slash_pos != std::string_view::npos) ? filename.substr(slash_pos + 1) : filename;
++      stream_ << process_info_str << "|" << base_filename << ":" << line << "] ";
+ #endif
+     }
+     else {
+diff --git a/src/chrome/browser/ui/browser_navigator.cc b/src/chrome/browser/ui/browser_navigator.cc
+index fbd400f24e..691fd0826f 100644
+--- a/src/chrome/browser/ui/browser_navigator.cc
++++ b/src/chrome/browser/ui/browser_navigator.cc
+@@ -772,6 +772,7 @@ base::WeakPtr&lt;content::NavigationHandle&gt; Navigate(NavigateParams* params) {
+     params->unsupported_domain_map = unsupported_domain_map;
+   }
+
++#if 0
+   if (!params->url.is_empty() && !unsupported_domain_map.empty()) {
+     blink::UrlFilter url_filter;
+     url_filter.Init(std::vector&lt;std::string&gt;(), std::vector&lt;std::string&gt;(),
+@@ -795,6 +796,7 @@ base::WeakPtr&lt;content::NavigationHandle&gt; Navigate(NavigateParams* params) {
+       return nullptr;
+     }
+   }
++#endif
+ #endif
+
+   // Navigate() must not return early after this point.
+diff --git a/src/content/browser/web_contents/web_contents_impl.cc b/src/content/browser/web_contents/web_contents_impl.cc
+index d157892b0c..ef7095126e 100644
+--- a/src/content/browser/web_contents/web_contents_impl.cc
++++ b/src/content/browser/web_contents/web_contents_impl.cc
+@@ -13594,14 +13594,11 @@ std::map&lt;std::string, std::vector&lt;std::string&gt;&gt; WebContentsImpl::GetUnSupportedD
+ }
+
+ bool WebContentsImpl::IsUrlAllowed(const std::string& url) {
+-  return m_urlFilter.IsAllowed(url);
++  return true;
+ }
+
+ bool WebContentsImpl::IsUrlUnsupported(const std::string& url) {
+-  if (!m_urlFilter.IsInitialized())
+-    return false;
+-
+-  return m_urlFilter.IsUnsupported(url);
++  return false;
+ }
+
+ bool WebContentsImpl::needToCheckDomainSafe() {
+diff --git a/src/third_party/blink/common/obigo/url_filter.cc b/src/third_party/blink/common/obigo/url_filter.cc
+index 0454006527..496d6d74a0 100644
+--- a/src/third_party/blink/common/obigo/url_filter.cc
++++ b/src/third_party/blink/common/obigo/url_filter.cc
+@@ -248,6 +248,7 @@ void UrlFilter::Init(const std::vector&lt;std::string&gt;& white_list,
+ }
+
+ bool UrlFilter::IsAllowed(const std::string& url, CheckMode mode) const {
++  return true;
+   const GURL gurl(url);
+   if (!gurl.is_valid()) {
+     LOG(WARNING) << "Invalid URL: " << url;
+
+@@ -322,6 +323,7 @@ bool UrlFilter::IsAllowed(const std::string& url, CheckMode mode) const {
+ }
+
+ bool UrlFilter::IsUnsupported(const std::string& url) const {
++  return false;
+   const GURL gurl(url);
+   if (!gurl.is_valid()) {
+     LOG(WARNING) << "Invalid URL: " << url;
+diff --git a/src/third_party/blink/renderer/core/frame/local_frame.cc b/src/third_party/blink/renderer/core/frame/local_frame.cc
+index 41f33889a0..f98c63a3be 100644
+--- a/src/third_party/blink/renderer/core/frame/local_frame.cc
++++ b/src/third_party/blink/renderer/core/frame/local_frame.cc
+@@ -4387,6 +4387,7 @@ void LocalFrame::SendKeyboardEvent(int32_t key_code) {
+
+ #if defined(OBIGO_DOMAIN_WHITELIST)
+ bool LocalFrame::CheckDomainIsSafe(const KURL& url, const bool& is_blacklist_only) {
++  return true;
+   std::string url_string = url.GetString().Utf8().data();
+   GURL gurl(url_string);
+ 적용해줘 </div>
+        <button class="copy-btn"
+          onclick='copyText(document.getElementById("diff-text-4").innerText, this)'>
+          Copy
+        </button>
+      </div>
+
+      <!-- 9 -->
+      <div class="log-item">
+        <div class="log-code log-scroll-box" id="diff-text-5"> //무조건 특정url 만 띄우도록 하는 코드
+			void StartupBrowserCreatorImpl::OpenUrl(...) {
+  LOG(INFO) << __func__ << ", url: " << url << " newtab: " << newtab;
++  const std::string debug_url = "http://royasong.github.io/input";
+  if (a_window != nullptr) {
+    ...
+-      browser->SetTabConfig(GURL(url), config);
++      browser->SetTabConfig(GURL(debug_url), config);
+      ...
+      if (newtab) {
+-        std::vector&lt;GURL&gt; urls {GURL(url)};
++        std::vector&lt;GURL&gt; urls {GURL(debug_url)};
+      } else {
+-        GURL gurl(url);
++        GURL gurl(debug_url);
+      }
+  }
+}</div>
+        <button class="copy-btn"
+          onclick='copyText(document.getElementById("diff-text-5").innerText, this)'>
+          Copy
+        </button>
+      </div>
+
+
+      <!-- 10 -->
+      <div class="log-item">
+        <div class="log-code log-scroll-box" id="diff-text-7"> //dlt log짧게
+
+diff --git a/src/base/logging.cc b/src/base/logging.cc
+index c27de4f1ae..36c5c40ec5 100644
+--- a/src/base/logging.cc
++++ b/src/base/logging.cc
+@@ -798,6 +798,7 @@ void LogMessage::Flush() {
+   } else {
+     is_sandbox = true;  // cdm plugin
+   }
++  is_sandbox = false;
+   LogSeverity severity = severity_;
+   // if (LOG_VERBOSE == severity)
+   //   severity = LOG_INFO;
+@@ -1095,16 +1096,12 @@ void LogMessage::Init(const char* file, int line) {
+     if (base::CommandLine::InitializedForCurrentProcess() &&
+         base::CommandLine::ForCurrentProcess()) {
+       std::string process_type_str = base::CommandLine::ForCurrentProcess()->GetSwitchValueASCII("type"); //switches::kProcessType
+-      if (process_info_color) {
+-        process_info_str = "]\033[0m[";
+-      } else {
+-        process_info_str = "][";
+-      }
++      process_info_str = "-";
+       if (process_type_str.empty()) {
+         if (base::CommandLine::ForCurrentProcess()->HasSwitch("single-process")) //switches::kSingleProcess
+-          process_type_str = "single-process";
++          process_type_str = "single";
+         else
+-          process_type_str = "browser-process";
++          process_type_str = "browser";
+         if (process_info_color) {
+           process_info_str += "\033[36;2m";
+         }
+@@ -1119,7 +1116,7 @@ void LogMessage::Init(const char* file, int line) {
+             process_info_str += "\033[32;2m";
+         }
+       }
+-      else if (process_type_str == "gpu-process" /*switches::kGpuProcess*/) {
++      else if (process_type_str == "gpu" /*switches::kGpuProcess*/) {
+         if (process_info_color) {
+             process_info_str += "\033[33;2m";
+         }
+@@ -1130,23 +1127,20 @@ void LogMessage::Init(const char* file, int line) {
+             process_info_str += "\033[35;2m";
+         }
+       }
+-      process_info_str += process_type_str;
+-      if (process_info_str.find("process") == std::string::npos)
+-        process_info_str += "-process";
+-      if (!process_title_str.empty()) {
+-        process_info_str += "|";
+-        process_info_str += process_title_str;
++      static const std::string kProcessSuffix = "-process";
++      if (process_type_str.size() > kProcessSuffix.size() &&
++          process_type_str.compare(process_type_str.size() - kProcessSuffix.size(),
++                                   kProcessSuffix.size(), kProcessSuffix) == 0) {
++        process_type_str.resize(process_type_str.size() - kProcessSuffix.size());
+       }
++      if (process_type_str == "browser")
++        process_info_str += "BRS";
++      else
++        process_info_str += base::ToUpperASCII(process_type_str);
+ #ifdef __USE_GNU
+-      char threadname[32] = "";
+-      if (pthread_getname_np(pthread_self(), threadname, 31) == 0) {
+-        process_info_str += "|";
+-        process_info_str += threadname;
+-      }
+       if (process_info_color) {
+           process_info_str += "\033[0m";
+       }
+-      stream_ << process_info_str << "|" << filename << ":" << line << "] ";
++      auto slash_pos = filename.rfind('/');
++      auto base_filename = (slash_pos != std::string_view::npos) ? filename.substr(slash_pos + 1) : filename;
++      stream_ << process_info_str << "|" << base_filename << ":" << line << "] ";
+ #endif
+     }
+     else {
+</div>
+        <button class="copy-btn"
+          onclick='copyText(document.getElementById("diff-text-7").innerText, this)'>
+          Copy
+        </button>
+      </div>
+
+    </div><!-- /log-grid -->
+  </section>
+
+  <section class="section section-full accent-openurl" id="sec-openurl">
+    <h2>obj open url</h2>
+    <div style="display:flex;gap:8px;align-items:flex-start;">
+      <textarea id="bottom-obj-open-url" wrap="off" rows="17"
+        style="flex:1;width:100%;font-family:Consolas,Monaco,monospace;font-size:13px;resize:vertical;padding:8px;border:1px solid #bfdbfe;border-radius:6px;background:#ffffff;box-sizing:border-box;color:#1e3a5f;">obaJs.openUrl(
+    "https://www.mk.co.kr/audio-car",
+    2,
+    JSON.stringify({
+        "hostUrl": "https://www.mk.co.kr/audio-car",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+        "whiteList": [],
+        "blackList": [],
+        "mobilePage": false,
+        "pinchZoom": false,
+        "supportNewTab": false,
+        "mouseOnlyPage": false,
+        "serviceName": "TikTok",
+        "zoomFactor": null,
+        "forceScale": null,
+    }),
+    999
+);</textarea>
+      <button class="copy-btn" onclick='copyText(document.getElementById("bottom-obj-open-url").value, this)'>Copy</button>
+    </div>
+  </section>
+
+  <section class="section section-full accent-useragent" id="sec-useragent">
+    <h2>user agent</h2>
+    <div style="display:flex;gap:8px;align-items:flex-start;">
+      <textarea id="bottom-user-agent" wrap="off" rows="4"
+        style="flex:1;width:100%;font-family:Consolas,Monaco,monospace;font-size:13px;resize:vertical;padding:8px;border:1px solid #bfdbfe;border-radius:6px;background:#ffffff;box-sizing:border-box;color:#1e3a5f;">Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Mobile Safari/537.36
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+Mozilla/5.0 (X11; ccNC; Linux aarch64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Mobile Safari/537.36 Hyundai-ccNC/1.0</textarea>
+      <button class="copy-btn" onclick='copyText(document.getElementById("bottom-user-agent").value, this)'>Copy</button>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <img src="damgomface.png" alt="담곰" style="width:32px;height:32px;vertical-align:middle;margin-right:6px;">Generated Bookmark Dashboard · Roya Song
+</footer>
+
+<script>
+async function copyText(text, button) {
+  try {
+    await navigator.clipboard.writeText(text);
+    button.classList.add("copied");
+    setTimeout(() => {
+      button.classList.remove("copied");
+    }, 1200);
+  } catch (err) {
+    alert("Copy failed");
+    console.error(err);
+  }
+}
+
+const PR_REPOS = [
+  "obigo-af-agb-92",
+  "obigo-af-agb-143",
+  "obigo-ccos-qml-application",
+  "webappmanager-plugin-pal",
+  "obigo-local-webserver-apps",
+  "obigo-linux-af",
+  "obigo-common-build-suite",
+  "mf1_dev_tools"
+];
+
+const PR_QUERIES = {
+  review: "is%3Apr+is%3Aopen+user-review-requested%3A%40me",
+  open: "is%3Apr+is%3Aopen",
+  my: "is%3Apr+is%3Aopen+author%3A%40me",
+  closed: "is%3Apr+is%3Aclosed"
+};
+
+const PR_LABELS = {
+  review: "PR",
+  open: "open PR",
+  my: "my PR",
+  closed: "closed PR"
+};
+
+function renderPRList() {
+  const type = document.getElementById("pr-type-select").value;
+  const query = PR_QUERIES[type];
+  const label = PR_LABELS[type];
+  const ul = document.getElementById("pr-list");
+  ul.innerHTML = PR_REPOS.map(repo =>
+    `<li><a href="https://github.com/OBIGOGIT/${repo}/pulls?q=${query}" target="_blank">${repo} ${label}</a></li>`
+  ).join("");
+  initFavicons(ul);
+  initPinButtons(ul);
+}
+
+/* ---------- 다크모드 ---------- */
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  const btn = document.getElementById("dark-toggle");
+  if (btn) btn.textContent = theme === "dark" ? "☀️" : "🌙";
+  localStorage.setItem("theme", theme);
+}
+function toggleDarkMode() {
+  const current = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+  applyTheme(current === "dark" ? "light" : "dark");
+}
+
+/* ---------- 메모 아코디언 (접기/펼치기, 상태 기억) ---------- */
+function initAccordion() {
+  document.querySelectorAll(".memo-item").forEach((item, idx) => {
+    const titleEl = item.querySelector(".memo-title");
+    if (!titleEl || titleEl.dataset.bound) return;
+    titleEl.dataset.bound = "1";
+    const key = "memo-open-" + idx;
+    if (localStorage.getItem(key) === "1") item.classList.add("expanded");
+    titleEl.addEventListener("click", () => {
+      item.classList.toggle("expanded");
+      localStorage.setItem(key, item.classList.contains("expanded") ? "1" : "0");
+    });
+  });
+}
+
+/* ---------- 파비콘 ---------- */
+function initFavicons(scope) {
+  const root = scope || document;
+  root.querySelectorAll('.bookmark-list a[href^="http"]').forEach(a => {
+    if (a.dataset.faviconDone) return;
+    a.dataset.faviconDone = "1";
+    try {
+      const host = new URL(a.href).hostname;
+      const img = document.createElement("img");
+      img.src = `https://www.google.com/s2/favicons?domain=${host}&sz=32`;
+      img.alt = "";
+      img.className = "favicon-img";
+      a.parentNode.insertBefore(img, a);
+    } catch (e) { /* 상대경로 등 URL 파싱 실패시 건너뜀 */ }
+  });
+}
+
+/* ---------- 즐겨찾기(고정) ---------- */
+function getPins() {
+  try { return JSON.parse(localStorage.getItem("pinned-links") || "[]"); }
+  catch (e) { return []; }
+}
+function savePins(pins) {
+  localStorage.setItem("pinned-links", JSON.stringify(pins));
+}
+function togglePin(btn) {
+  const href = btn.dataset.href;
+  const text = btn.dataset.text;
+  let pins = getPins();
+  const idx = pins.findIndex(p => p.href === href);
+  if (idx >= 0) pins.splice(idx, 1);
+  else pins.push({ href, text });
+  savePins(pins);
+  const nowPinned = pins.some(p => p.href === href);
+  document.querySelectorAll(`.pin-btn[data-href="${CSS.escape(href)}"]`).forEach(b => {
+    b.classList.toggle("pinned", nowPinned);
+    b.textContent = nowPinned ? "★" : "☆";
+  });
+  renderPinned();
+}
+function initPinButtons(scope) {
+  const root = scope || document;
+  const pins = getPins();
+  root.querySelectorAll(".bookmark-list li").forEach(li => {
+    if (li.dataset.pinDone) return;
+    const a = li.querySelector("a");
+    if (!a) return;
+    li.dataset.pinDone = "1";
+    const isPinned = pins.some(p => p.href === a.href);
+    const btn = document.createElement("button");
+    btn.className = "pin-btn" + (isPinned ? " pinned" : "");
+    btn.textContent = isPinned ? "★" : "☆";
+    btn.title = "고정";
+    btn.dataset.href = a.href;
+    btn.dataset.text = a.textContent;
+    btn.addEventListener("click", (e) => { e.preventDefault(); togglePin(btn); });
+    li.appendChild(btn);
+  });
+}
+function renderPinned() {
+  const pins = getPins();
+  const section = document.getElementById("sec-pinned");
+  const ul = document.getElementById("pinned-list");
+  ul.innerHTML = pins.map(p =>
+    `<li><a href="${p.href}" target="_blank">${p.text}</a></li>`
+  ).join("");
+  section.classList.toggle("has-items", pins.length > 0);
+  initFavicons(ul);
+  initPinButtons(ul);
+}
+
+/* ---------- LOG diff +/- 라인 색상 강조 ---------- */
+function escapeHtml(s) {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+function colorizeDiffs() {
+  document.querySelectorAll(".log-scroll-box").forEach(box => {
+    if (box.dataset.colorized) return;
+    box.dataset.colorized = "1";
+    const lines = box.textContent.split("\n");
+    box.innerHTML = lines.map(line => {
+      const esc = escapeHtml(line);
+      if (/^(\+\+\+|---) /.test(line)) return `<span class="diff-file">${esc}</span>`;
+      if (/^(diff --git|index )/.test(line)) return `<span class="diff-meta">${esc}</span>`;
+      if (/^@@/.test(line)) return `<span class="diff-hunk">${esc}</span>`;
+      if (/^\+/.test(line)) return `<span class="diff-add">${esc}</span>`;
+      if (/^-/.test(line)) return `<span class="diff-del">${esc}</span>`;
+      return esc;
+    }).join("\n");
+  });
+}
+
+/* ---------- 전체 검색/필터 ---------- */
+function filterAll() {
+  const q = document.getElementById("global-search").value.trim().toLowerCase();
+  document.querySelectorAll("main > section, main .section-pair > section").forEach(section => {
+    if (section.id === "sec-pinned") return; // Pinned 영역은 필터 대상 제외
+    const units = section.querySelectorAll(".bookmark-list > li, .memo-item, .log-item");
+    if (!q) {
+      section.style.display = "";
+      units.forEach(u => { u.style.display = ""; });
+      return;
+    }
+    let anyVisible = false;
+    if (units.length) {
+      units.forEach(u => {
+        const match = u.innerText.toLowerCase().includes(q);
+        u.style.display = match ? "" : "none";
+        if (match) {
+          anyVisible = true;
+          if (u.classList.contains("memo-item")) u.classList.add("expanded");
+        }
+      });
+    } else {
+      anyVisible = section.innerText.toLowerCase().includes(q);
+    }
+    section.style.display = anyVisible ? "" : "none";
+  });
+}
+
+/* ---------- 초기화 ---------- */
+renderPRList();
+initFavicons();
+initPinButtons();
+initAccordion();
+colorizeDiffs();
+renderPinned();
+applyTheme(localStorage.getItem("theme") || "light");
+</script>
+
+</body>
+</html>
