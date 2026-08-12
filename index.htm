@@ -6,27 +6,189 @@
   <title>Roya Bookmark Index</title>
 
   <style>
+    :root {
+      --bg: #ffffff;
+      --text: #1e3a5f;
+      --header-bg: #bfdbfe;
+      --header-shadow: rgba(59,130,246,0.15);
+      --section-bg: #ffffff;
+      --section-border: #bfdbfe;
+      --section-shadow: rgba(59,130,246,0.10);
+      --h2-border: #93c5fd;
+      --link-color: #1e40af;
+      --link-hover: #1e3a5f;
+      --log-item-bg: #dbeafe;
+      --btn-bg: #60a5fa;
+      --btn-bg-hover: #3b82f6;
+      --select-bg: #dbeafe;
+      --select-border: #93c5fd;
+      --footer-color: #60a5fa;
+      --memo-title-bg: #93c5fd;
+      --memo-body-bg: #dbeafe;
+      --memo-label-color: #2563eb;
+      --code-bg: #ffffff;
+      --code-border: #bfdbfe;
+      --scrollbox-bg: #ffffff;
+      --scrollbox-border: #bfdbfe;
+      --chip-bg: #dbeafe;
+      --chip-border: #93c5fd;
+      --chip-text: #1e3a5f;
+      --input-bg: #ffffff;
+      --input-border: #93c5fd;
+      --diff-add-bg: rgba(34,197,94,0.16);
+      --diff-add-text: #166534;
+      --diff-del-bg: rgba(239,68,68,0.16);
+      --diff-del-text: #991b1b;
+      --diff-hunk-text: #7c3aed;
+      --diff-meta-text: #64748b;
+      --diff-file-text: #1d4ed8;
+    }
+
+    [data-theme="dark"] {
+      --bg: #0f172a;
+      --text: #e2e8f0;
+      --header-bg: #1e293b;
+      --header-shadow: rgba(0,0,0,0.4);
+      --section-bg: #182236;
+      --section-border: #334155;
+      --section-shadow: rgba(0,0,0,0.35);
+      --h2-border: #3b82f6;
+      --link-color: #93c5fd;
+      --link-hover: #bfdbfe;
+      --log-item-bg: #1e2a42;
+      --btn-bg: #3b82f6;
+      --btn-bg-hover: #60a5fa;
+      --select-bg: #1e2a42;
+      --select-border: #3b82f6;
+      --footer-color: #64748b;
+      --memo-title-bg: #2c4870;
+      --memo-body-bg: #16213a;
+      --memo-label-color: #7dd3fc;
+      --code-bg: #0f172a;
+      --code-border: #334155;
+      --scrollbox-bg: #0f172a;
+      --scrollbox-border: #334155;
+      --chip-bg: #1e2a42;
+      --chip-border: #3b82f6;
+      --chip-text: #cbd5e1;
+      --input-bg: #0f172a;
+      --input-border: #3b82f6;
+      --diff-add-bg: rgba(34,197,94,0.2);
+      --diff-add-text: #4ade80;
+      --diff-del-bg: rgba(239,68,68,0.2);
+      --diff-del-text: #f87171;
+      --diff-hunk-text: #c4b5fd;
+      --diff-meta-text: #94a3b8;
+      --diff-file-text: #93c5fd;
+    }
+
     * {
       box-sizing: border-box;
     }
 
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #ffffff;
-      color: #1e3a5f;
+      font-family: "Pretendard", "Malgun Gothic", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
       overflow-x: hidden;
       font-size: 16px;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    section {
+      scroll-margin-top: 130px;
     }
 
     header {
-      background: #bfdbfe;
-      color: #1e3a5f;
+      background: var(--header-bg);
+      color: var(--text);
       padding: 10px 20px;
       position: sticky;
       top: 0;
       z-index: 100;
-      box-shadow: 0 2px 4px rgba(59,130,246,0.15);
+      box-shadow: 0 2px 4px var(--header-shadow);
+    }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .site-title {
+      font-weight: 800;
+      font-size: 16px;
+      white-space: nowrap;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+      justify-content: flex-end;
+    }
+
+    .search-input {
+      font-family: inherit;
+      font-size: 13px;
+      color: var(--text);
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 16px;
+      padding: 6px 12px;
+      width: 220px;
+      max-width: 45vw;
+    }
+
+    .icon-btn {
+      border: 1px solid var(--input-border);
+      background: var(--input-bg);
+      color: var(--text);
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .icon-btn:hover {
+      background: var(--chip-bg);
+    }
+
+    .quick-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .nav-chip {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--chip-text);
+      background: var(--chip-bg);
+      border: 1px solid var(--chip-border);
+      border-radius: 12px;
+      padding: 3px 10px;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .nav-chip:hover {
+      background: var(--btn-bg);
+      color: #ffffff;
     }
 
     .container {
@@ -46,13 +208,29 @@
     }
 
     .section {
-      background: #ffffff;
+      background: var(--section-bg);
       border-radius: 10px;
       padding: 16px;
-      box-shadow: 0 1px 4px rgba(59,130,246,0.10);
-      border: 1px solid #bfdbfe;
+      box-shadow: 0 1px 4px var(--section-shadow);
+      border: 1px solid var(--section-border);
+      border-top: 4px solid var(--accent, var(--h2-border));
       min-width: 0;
     }
+
+    /* 섹션별 포인트 컬러 (라이트/다크 공통으로 톤만 유지) */
+    .accent-ai        { --accent: #a78bfa; }
+    .accent-chromium  { --accent: #fbbf24; }
+    .accent-github    { --accent: #94a3b8; }
+    .accent-obigo     { --accent: #38bdf8; }
+    .accent-dev       { --accent: #34d399; }
+    .accent-branch    { --accent: #fb7185; }
+    .accent-pr        { --accent: #22d3ee; }
+    .accent-memo      { --accent: #fb923c; }
+    .accent-linux     { --accent: #2dd4bf; }
+    .accent-log       { --accent: #818cf8; }
+    .accent-openurl   { --accent: #e879f9; }
+    .accent-useragent { --accent: #a3e635; }
+    .accent-pinned    { --accent: #facc15; }
 
     /* LOG / Branch 섹션은 전체 너비 */
     .section-full {
@@ -62,10 +240,10 @@
     .section h2 {
       margin: 0 0 12px 0;
       padding-bottom: 8px;
-      border-bottom: 2px solid #93c5fd;
+      border-bottom: 2px solid var(--accent, var(--h2-border));
       font-size: 20px;
       font-weight: 700;
-      color: #1e3a5f;
+      color: var(--text);
     }
 
     .bookmark-list {
@@ -78,11 +256,14 @@
       margin: 4px 0;
       padding: 6px 0;
       line-height: 1.4;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
     .bookmark-list a {
       text-decoration: none;
-      color: #1e40af;
+      color: var(--link-color);
       font-size: 16px;
       font-weight: 600;
       display: inline-block;
@@ -90,7 +271,38 @@
 
     .bookmark-list a:hover {
       text-decoration: underline;
-      color: #1e3a5f;
+      color: var(--link-hover);
+    }
+
+    .favicon-img {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+      border-radius: 3px;
+    }
+
+    .pin-btn {
+      border: none;
+      background: transparent;
+      color: var(--select-border);
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+      padding: 0 2px;
+      flex-shrink: 0;
+      margin-left: auto;
+    }
+
+    .pin-btn.pinned {
+      color: #f59e0b;
+    }
+
+    #sec-pinned {
+      display: none;
+    }
+
+    #sec-pinned.has-items {
+      display: block;
     }
 
     /* LOG 항목 3열 그리드 */
@@ -106,9 +318,9 @@
       justify-content: space-between;
       gap: 10px;
       padding: 8px;
-      border: 1px solid #bfdbfe;
+      border: 1px solid var(--section-border);
       border-radius: 6px;
-      background: #dbeafe;
+      background: var(--log-item-bg);
     }
 
     .log-code {
@@ -117,7 +329,7 @@
       font-size: 13px;
       white-space: pre-line;
       word-break: break-word;
-      color: #1e3a5f;
+      color: var(--text);
       line-height: 1.7;
     }
 
@@ -125,64 +337,75 @@
     .log-scroll-box {
       max-height: 200px;
       overflow-y: auto;
-      background: #ffffff;
+      background: var(--scrollbox-bg);
       padding: 8px;
-      border: 1px solid #bfdbfe;
+      border: 1px solid var(--scrollbox-border);
       border-radius: 6px;
     }
+
+    /* diff +/- 라인 색상 강조 */
+    .diff-add  { background: var(--diff-add-bg); color: var(--diff-add-text); display: inline-block; width: 100%; }
+    .diff-del  { background: var(--diff-del-bg); color: var(--diff-del-text); display: inline-block; width: 100%; }
+    .diff-hunk { color: var(--diff-hunk-text); font-weight: 600; }
+    .diff-meta { color: var(--diff-meta-text); font-weight: 600; }
+    .diff-file { color: var(--diff-file-text); font-weight: 600; }
 
     .copy-btn {
       border: none;
-      background: #60a5fa;
+      background: var(--btn-bg);
       color: white;
-      padding: 6px 12px;
-      border-radius: 6px;
+      width: 30px;
+      height: 30px;
+      padding: 0;
+      border-radius: 50%;
       cursor: pointer;
-      font-size: 13px;
-      min-width: 60px;
+      font-size: 0;
       flex-shrink: 0;
       align-self: flex-start;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .copy-btn::before {
+      content: "📋";
+      font-size: 14px;
+    }
+
+    .copy-btn.copied::before {
+      content: "✅";
     }
 
     .copy-btn:hover {
-      background: #3b82f6;
+      background: var(--btn-bg-hover);
     }
 
     .pr-type-select {
-      font-family: Arial, sans-serif;
+      font-family: inherit;
       font-size: 13px;
       font-weight: 600;
-      color: #1e3a5f;
-      background: #dbeafe;
-      border: 1px solid #93c5fd;
+      color: var(--text);
+      background: var(--select-bg);
+      border: 1px solid var(--select-border);
       border-radius: 6px;
       padding: 4px 8px;
       cursor: pointer;
     }
 
     .pr-type-select:hover {
-      background: #bfdbfe;
+      background: var(--chip-bg);
     }
 
     footer {
       text-align: center;
       padding: 16px;
-      color: #60a5fa;
+      color: var(--footer-color);
       font-size: 13px;
     }
 
     @media (max-width: 1100px) {
       .container {
         grid-template-columns: repeat(2, 1fr);
-      }
-    }
-
-    @media (max-width: 650px) {
-      .container {
-        grid-template-columns: 1fr;
-      }
-      .section-pair {
-        grid-template-columns: 1fr;
       }
     }
 
@@ -195,8 +418,17 @@
       }
     }
 
+    @media (max-width: 650px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+      .search-input {
+        width: 140px;
+      }
+    }
+
     .memo-item {
-      border: 1px solid #bfdbfe;
+      border: 1px solid var(--section-border);
       border-radius: 8px;
       overflow: hidden;
       margin-top: 10px;
@@ -208,20 +440,41 @@
     }
 
     .memo-title {
-      background: #93c5fd;
-      color: #1e3a5f;
+      background: var(--memo-title-bg);
+      color: var(--text);
       padding: 7px 12px;
       font-weight: 700;
       font-size: 14px;
       letter-spacing: 0.02em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      user-select: none;
+    }
+
+    .memo-title::after {
+      content: "▸";
+      font-size: 12px;
+      flex-shrink: 0;
+      transition: transform 0.15s;
+    }
+
+    .memo-item.expanded .memo-title::after {
+      transform: rotate(90deg);
     }
 
     .memo-body {
       padding: 10px 12px;
-      background: #dbeafe;
-      display: flex;
+      background: var(--memo-body-bg);
+      display: none;
       flex-direction: column;
       gap: 8px;
+    }
+
+    .memo-item.expanded .memo-body {
+      display: flex;
     }
 
     .memo-row {
@@ -234,7 +487,7 @@
       font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
-      color: #2563eb;
+      color: var(--memo-label-color);
       letter-spacing: 0.08em;
     }
 
@@ -242,9 +495,9 @@
       margin: 0;
       font-family: Consolas, Monaco, monospace;
       font-size: 12.5px;
-      color: #1e3a5f;
-      background: #ffffff;
-      border: 1px solid #bfdbfe;
+      color: var(--text);
+      background: var(--code-bg);
+      border: 1px solid var(--code-border);
       border-radius: 5px;
       padding: 6px 10px;
       line-height: 1.7;
@@ -264,9 +517,9 @@
     .memo-row code {
       font-family: Consolas, Monaco, monospace;
       font-size: 12.5px;
-      color: #1e3a5f;
-      background: #ffffff;
-      border: 1px solid #bfdbfe;
+      color: var(--text);
+      background: var(--code-bg);
+      border: 1px solid var(--code-border);
       border-radius: 5px;
       padding: 4px 10px;
       display: inline-block;
@@ -277,22 +530,49 @@
 <body>
 
 <header>
+  <div class="header-top">
+    <span class="site-title">📌 Roya Bookmark</span>
+    <div class="header-controls">
+      <input type="text" id="global-search" class="search-input" placeholder="🔍 검색 (링크·메모·명령어)" oninput="filterAll()">
+      <button id="dark-toggle" class="icon-btn" title="다크모드 전환" onclick="toggleDarkMode()">🌙</button>
+    </div>
+  </div>
+  <nav class="quick-nav">
+    <a href="#sec-ai" class="nav-chip">AI</a>
+    <a href="#sec-chromium" class="nav-chip">Chromium</a>
+    <a href="#sec-github" class="nav-chip">GitHub</a>
+    <a href="#sec-obigo" class="nav-chip">OBIGO</a>
+    <a href="#sec-dev" class="nav-chip">Dev</a>
+    <a href="#sec-branch" class="nav-chip">Branch</a>
+    <a href="#sec-pr" class="nav-chip">PR</a>
+    <a href="#sec-memo" class="nav-chip">Memo</a>
+    <a href="#sec-linux" class="nav-chip">Linux/Motrex</a>
+    <a href="#sec-log" class="nav-chip">LOG</a>
+    <a href="#sec-openurl" class="nav-chip">openUrl</a>
+    <a href="#sec-useragent" class="nav-chip">UA</a>
+  </nav>
 </header>
 
 <main class="container">
 
-  <section class="section">
+  <section class="section section-full accent-pinned" id="sec-pinned">
+    <h2>⭐ Pinned</h2>
+    <ul class="bookmark-list" id="pinned-list"></ul>
+  </section>
+
+  <section class="section accent-ai" id="sec-ai">
     <h2>AI</h2>
     <ul class="bookmark-list">
       <li><a href="https://chatgpt.com/" target="_blank">ChatGPT</a></li>
       <li><a href="https://claude.ai/login" target="_blank">Claude</a></li>
       <li><a href="https://gemini.google.com/app" target="_blank">Google Gemini</a></li>
-      <li><a href="https://claude.ai/settings/billing" target="_blank">Claude Billing //활동센터:Mobility SW Division</a></li>
-      <li><a href="https://chatgpt.com/#settings/Account" target="_blank">Codex Billing //활동센터:Mobility SW Division</a></li>
+      <li><em>//활동센터:Mobility SW Division</em></li>
+      <li><a href="https://claude.ai/settings/billing" target="_blank">Claude Billing</a></li>
+      <li><a href="https://chatgpt.com/#settings/Account" target="_blank">Codex Billing</a></li>
     </ul>
   </section>
 
-  <section class="section">
+  <section class="section accent-chromium" id="sec-chromium">
     <h2>Chromium</h2>
     <ul class="bookmark-list">
       <li><a href="https://source.chromium.org/chromium/chromium/src" target="_blank">Chromium Main Source</a></li>
@@ -305,7 +585,7 @@
     </ul>
   </section>
 
-  <section class="section">
+  <section class="section accent-github" id="sec-github">
     <h2>OBIGO GitHub</h2>
     <ul class="bookmark-list">
       <li><a href="https://github.com/orgs/OBIGOGIT/repositories" target="_blank">GitHub OBIGO Repositories</a></li>
@@ -320,7 +600,7 @@
     </ul>
   </section>
 
-  <section class="section">
+  <section class="section accent-obigo" id="sec-obigo">
     <h2>OBIGO</h2>
     <ul class="bookmark-list">
 	  <li><a href="https://ep.obigo.com/" target="_blank">EP</a></li>
@@ -330,38 +610,35 @@
       <li><a href="https://obigoinc.atlassian.net/jira/dashboards/10374" target="_blank">MF1 dashboard</a></li>
       <li><a href="https://home.atlassian.com/o/5a6289kj-cb76-10b4-67jj-69ca7ad1786k/people/team/3a24e0a4-3d38-4af6-a5fd-ada4b9b3609f?cloudId=7c8056ba-ed98-43d2-89aa-86ec9cf4958b" target="_blank">MF1 confluence</a></li>
       <li><a href="https://obigoinc.atlassian.net/wiki/spaces/YVMJ/overview?homepageId=962331091" target="_blank">motrex confulence</a></li>
-      <li><a href="http://jenkins.obigo.com/" target="_blank">Jenkins</a></li>
       <li><a href="https://obigoinc.atlassian.net/jira/your-work" target="_blank">Jira My Work</a></li>
       <li><a href="https://teams.microsoft.com/v2/" target="_blank">Microsoft Teams</a></li>
       <li><a href="https://obigoinc.atlassian.net/issues/?jql=%28project%20%3D%20%22GR_HKMC_CCNC_MOBIS_AGB%20%22%20OR%20project%20%3D%20GR_HKMC_CCIC_LGE_AGB%20OR%20project%20%3D%20GR_HKMC_GEN6_LGE_AGB%20OR%20project%20%3D%20GR_HKMC_WEBSOLUTION%20OR%20project%20%3D%20%22OpenSource%20SW%20Management%22%20OR%20project%20%3D%20GR_MOTREX_CCNC_PICKNOW%20OR%20project%20%3D%20AppFramework1%20OR%20project%20%3D%20GR_WEBENGINE_UPGRADE_RND%29%20AND%20issuetype%20in%20%28Bug%2C%20Sub-task%2C%20subTaskIssueTypes%28%29%29%20AND%20status%20not%20in%20%28DONE%2C%20CLOSED%2C%20MODIFIED%2C%20%22INTERNAL%20RELEASED%22%2C%20PENDING%2C%20VERIFIED%2C%20CONFIRMED%2C%20Cancelled%29%20AND%20%28assignee%20%3D%20712020%3A385e1b0b-a0b2-4f82-aaf1-c629d7c229ab%20OR%20assignee%20%3D%20712020%3Ae7485331-0f3c-419d-95c5-e4a05e5aa0cc%20OR%20assignee%20%3D%20712020%3A956aad46-bc98-4a06-953f-cd013f7e90ec%20OR%20assignee%20%3D%20712020%3A565380da-24d7-4ee6-b9e0-b3a741895901%20OR%20assignee%20%3D%20712020%3A0d04de4e-54ad-45cd-b489-fe57a3abcc0d%20OR%20assignee%20%3D%205aa7710936a3a82a4e2ea5c3%20OR%20assignee%20%3D%20712020%3A4f250bed-c1bc-4829-9f3d-870379d5f635%20OR%20assignee%20%3D%205aa9c90bf75bb52a8232b1df%20OR%20assignee%20%3D%205aa9c90bbbead52a7eed8f13%20OR%20assignee%20%3D%205aa9c90ba903362a5788e919%29%20AND%20assignee%20%3D%205aa9c90bbbead52a7eed8f13%20ORDER%20BY%20duedate%20ASC" target="_blank">Jira Filter (Assigned)</a></li>
       <li><a href="https://obigoinc.atlassian.net/wiki/spaces/PicknowOpe/pages/1110835237/3+Configuration" target="_blank">Picknow Config</a></li>
       <li><a href="http://10.28.3.180:8888/" target="_blank">Picknow 서버 현황 대시보드</a></li>
-      <li><a href="https://obigoinc.atlassian.net/issues/?jql=%28project%20%3D%20%22GR_HKMC_CCNC_MOBIS_AGB%20%22%20OR%20project%20%3D%20GR_HKMC_CCIC_LGE_AGB%20OR%20project%20%3D%20GR_HKMC_GEN6_LGE_AGB%20OR%20project%20%3D%20GR_HKMC_WEBSOLUTION%20OR%20project%20%3D%20%22OpenSource%20SW%20Management%22%20OR%20project%20%3D%20GR_MOTREX_CCNC_PICKNOW%20OR%20project%20%3D%20AppFramework1%20OR%20project%20%3D%20GR_WEBENGINE_UPGRADE_RND%20OR%20project%20%3D%20GR_KGM_SE10_PICKNOW%29%20AND%20issuetype%20in%20%28Bug%2C%20Sub-task%2C%20subTaskIssueTypes%28%29%29%20AND%20status%20not%20in%20%28DONE%2C%20CLOSED%2C%20MODIFIED%2C%20%22INTERNAL%20RELEASED%22%2C%20PENDING%2C%20VERIFIED%2C%20CONFIRMED%2C%20Cancelled%29%20AND%20%28assignee%20%3D%20712020%3A385e1b0b-a0b2-4f82-aaf1-c629d7c229ab%20OR%20assignee%20%3D%20712020%3Ae7485331-0f3c-419d-95c5-e4a05e5aa0cc%20OR%20assignee%20%3D%20712020%3A956aad46-bc98-4a06-953f-cd013f7e90ec%20OR%20assignee%20%3D%20712020%3A565380da-24d7-4ee6-b9e0-b3a741895901%20OR%20assignee%20%3D%20712020%3A0d04de4e-54ad-45cd-b489-fe57a3abcc0d%20OR%20assignee%20%3D%205aa7710936a3a82a4e2ea5c3%20OR%20assignee%20%3D%20712020%3A4f250bed-c1bc-4829-9f3d-870379d5f635%20OR%20assignee%20%3D%205aa9c90bf75bb52a8232b1df%20OR%20assignee%20%3D%205aa9c90bbbead52a7eed8f13%20OR%20assignee%20%3D%205aa9c90ba903362a5788e919%29%20AND%20assignee%20%3D%205aa9c90bbbead52a7eed8f13%20ORDER%20BY%20duedate%20ASC" target="_blank">## my issue - MF1 ##</a></li>
+      <li><a href="https://obigoinc.atlassian.net/issues/?jql=%28project%20%3D%20%22GR_HKMC_CCNC_MOBIS_AGB%20%22%20OR%20project%20%3D%20GR_HKMC_CCIC_LGE_AGB%20OR%20project%20%3D%20GR_HKMC_GEN6_LGE_AGB%20OR%20project%20%3D%20GR_HKMC_WEBSOLUTION%20OR%20project%20%3D%20%22OpenSource%20SW%20Management%22%20OR%20project%20%3D%20GR_MOTREX_CCNC_PICKNOW%20OR%20project%20%3D%20AppFramework1%20OR%20project%20%3D%20GR_WEBENGINE_UPGRADE_RND%20OR%20project%20%3D%20GR_KGM_SE10_PICKNOW%29%20AND%20issuetype%20in%20%28Bug%2C%20Sub-task%2C%20subTaskIssueTypes%28%29%29%20AND%20status%20not%20in%20%28DONE%2C%20CLOSED%2C%20MODIFIED%2C%20%22INTERNAL%20RELEASED%22%2C%20PENDING%2C%20VERIFIED%2C%20CONFIRMED%2C%20Cancelled%29%20AND%20%28assignee%20%3D%20712020%3A385e1b0b-a0b2-4f82-aaf1-c629d7c229ab%20OR%20assignee%20%3D%20712020%3Ae7485331-0f3c-419d-95c5-e4a05e5aa0cc%20OR%20assignee%20%3D%20712020%3A956aad46-bc98-4a06-953f-cd013f7e90ec%20OR%20assignee%20%3D%20712020%3A565380da-24d7-4ee6-b9e0-b3a741895901%20OR%20assignee%20%3D%20712020%3A0d04de4e-54ad-45cd-b489-fe57a3abcc0d%20OR%20assignee%20%3D%205aa7710936a3a82a4e2ea5c3%20OR%20assignee%20%3D%20712020%3A4f250bed-c1bc-4829-9f3d-870379d5f635%20OR%20assignee%20%3D%205aa9c90bf75bb52a8232b1df%20OR%20assignee%20%3D%205aa9c90bbbead52a7eed8f13%20OR%20assignee%20%3D%205aa9c90ba903362a5788e919%29%20AND%20assignee%20%3D%205aa9c90bbbead52a7eed8f13%20ORDER%20BY%20duedate%20ASC" target="_blank">my issue</a></li>
+      <li><a href="https://stg-picknow.obigo.ai/admin-web/#/" target="_blank">STG Admin-web(admin/1***)</a></li>
       <li><a href="https://obigoinc.atlassian.net/wiki/spaces/AARD/pages/471007243/06.+CP" target="_blank">CP사 계정 정보</a></li>
       <li><a href="https://obigoinc.atlassian.net/wiki/spaces/~roya.song/pages/1919549453/ccnc_vpn" target="_blank">ccnc에서 vpn test 하는 법</a></li>
       <li><a href="https://im.mobis.com/" target="_blank">(모비스)im.mobis.com</a></li>
     </ul>
   </section>
 
-  <section class="section">
+  <section class="section accent-dev" id="sec-dev">
     <h2>Dev</h2>
     <ul class="bookmark-list">
 	  <li><a href="http://192.168.105.1:9222" target="_blank">192.168.105.1:9222</a></li>
 	  <li><a href="https://ip.pe.kr/" target="_blank">내 ip및 위치 확인</a></li>
-      <li><a href="https://stg-picknow.obigo.ai/admin-web/#/" target="_blank">STG Admin-web(admin/1***)</a></li>
-      <li><a href="https://obigoinc.atlassian.net/wiki/spaces/AARD/pages/471007243/06.+CP" target="_blank">CP사 계정 정보</a></li>
       <li><a href="https://royasong.github.io/game/" target="_blank">Game</a></li>
       <li><a href="https://royasong.github.io/webrisk/" target="_blank">WebRisk</a></li>
       <li><a href="https://royasong.github.io/event/mouse_scroll.htm" target="_blank">scroll mouse only page</a></li>
       <li><a href="https://speed.cloudflare.com" target="_blank">internet speed check</a></li>
-      <li><a href="edu/index.htm" target="_blank">Edu</a></li>
       <li><a href="https://www.w3schools.com/html/html5_video.asp" target="_blank">H264 VIDEO</a></li>
       <li><a href="https://www.w3schools.com/html/tryit.asp?filename=tryhtml_input_password" target="_blank">id/password test</a></li>
       <li><a href="https://excelkospi.pages.dev/" target="_blank">excelkospi.pages.dev/</a></li>
     </ul>
   </section>
 
-  <section class="section">
+  <section class="section accent-branch" id="sec-branch">
     <h2>Branch</h2>
 
     <div class="memo-item">
@@ -447,7 +724,7 @@ repo forall -c 'git checkout $REPO_RREV'</pre>
 
   </section>
 
-  <section class="section">
+  <section class="section accent-pr" id="sec-pr">
     <h2 style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
       <span>PR</span>
       <select id="pr-type-select" class="pr-type-select" onchange="renderPRList()">
@@ -461,7 +738,7 @@ repo forall -c 'git checkout $REPO_RREV'</pre>
   </section>
 
   <div class="section-pair">
-  <section class="section">
+  <section class="section accent-memo" id="sec-memo">
     <h2>Memo</h2>
 
     <div class="memo-item">
@@ -491,17 +768,8 @@ repo forall -c 'git checkout $REPO_RREV'</pre>
     </div>
 
     <div class="memo-item" style="margin-top:10px;">
-      <div class="memo-title">잡다 정보</div>
+      <div class="memo-title">android</div>
       <div class="memo-body">
-        <div class="memo-row">
-          <span class="memo-label">MOTREX WIFI(093)</span>
-          <code>ap093 / obigoap093</code>
-        </div>
-        <div class="memo-row">
-          <span class="memo-label">VPN 지역 변경시(캐시삭제필요)</span>
-          <code>Linux (Ubuntu) : sudo resolvectl flush-caches</code>
-          <code>Windows : ipconfig /flushdns</code>
-        </div>
         <div class="memo-row">
           <span class="memo-label">Android 설정 파일</span>
           <code>android_agb_features.h</code>
@@ -516,6 +784,12 @@ export OBIGO_COUNTRY_CODE="KR"</pre>
           <span class="memo-label">Android 빌드 명령</span>
           <pre>./build.sh picknow arm64 stg</pre>
         </div>
+      </div>
+    </div>
+
+    <div class="memo-item" style="margin-top:10px;">
+      <div class="memo-title">rule - jira / pr</div>
+      <div class="memo-body">
         <div class="memo-row">
           <span class="memo-label">PR commit</span>
           <div style="display:flex;gap:8px;align-items:flex-start;">
@@ -529,7 +803,30 @@ export OBIGO_COUNTRY_CODE="KR"</pre>
             <button class="copy-btn" onclick='copyText(document.getElementById("memo-pr-commit").innerText, this)'>Copy</button>
           </div>
         </div>
-        
+        <div class="memo-row">
+          <span class="memo-label">CP 이슈시 지라</span>
+          <pre>Description of Bug Analysis
+이라고 적기[RCA] pc에서 동일하게 재현됨 content 이슈로 판단됨
+Won't Fix 로 설정
+CP 로 설정
+작업 상태는 reject</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="memo-item" style="margin-top:10px;">
+      <div class="memo-title">잡다 정보</div>
+      <div class="memo-body">
+        <div class="memo-row">
+          <span class="memo-label">MOTREX WIFI(093)</span>
+          <code>ap093 / obigoap093</code>
+        </div>
+        <div class="memo-row">
+          <span class="memo-label">VPN 지역 변경시(캐시삭제필요)</span>
+          <code>Linux (Ubuntu) : sudo resolvectl flush-caches</code>
+          <code>Windows : ipconfig /flushdns</code>
+        </div>
+
 	<div class="memo-row">
 	  <span class="memo-label">인도 wifi변경</span>
 	  <pre>인도 wifi obigo_94(start$44)</pre>
@@ -537,14 +834,6 @@ export OBIGO_COUNTRY_CODE="KR"</pre>
 	<div class="memo-row">
 	  <span class="memo-label">단말에서 dlt copy</span>
 	  <pre>sshpass -p "obigo@se" scp -r /log_data/DLT/*.dlt obigo@192.168.105.36:/home/obigo/target/</pre>
-	</div>
-	<div class="memo-row">
-	  <span class="memo-label">CP 이슈시 지라</span>
-	  <pre>Description of Bug Analysis
-이라고 적기[RCA] pc에서 동일하게 재현됨 content 이슈로 판단됨 
-Won't Fix 로 설정
-CP 로 설정
-작업 상태는 reject</pre>
 	</div>
         <div class="memo-row">
           <span class="memo-label">마지막 git commit 내용 수정</span>
@@ -637,7 +926,7 @@ Current Screen is saved at /tmp/front-screen-1920x720@135448.jpeg</pre>
 
   </section>
 
-  <section class="section">
+  <section class="section accent-linux" id="sec-linux">
     <h2>Linux / Motrex</h2>
 
     <div class="memo-item">
@@ -855,7 +1144,7 @@ oem = DEMO를 HMC로 수정</pre>
   </section>
   </div><!-- /section-pair -->
 
-  <section class="section section-full">
+  <section class="section section-full accent-log" id="sec-log">
     <h2>LOG</h2>
 
     <div class="log-grid">
@@ -1267,7 +1556,7 @@ index c27de4f1ae..36c5c40ec5 100644
     </div><!-- /log-grid -->
   </section>
 
-  <section class="section section-full">
+  <section class="section section-full accent-openurl" id="sec-openurl">
     <h2>obj open url</h2>
     <div style="display:flex;gap:8px;align-items:flex-start;">
       <textarea id="bottom-obj-open-url" wrap="off" rows="17"
@@ -1293,7 +1582,7 @@ index c27de4f1ae..36c5c40ec5 100644
     </div>
   </section>
 
-  <section class="section section-full">
+  <section class="section section-full accent-useragent" id="sec-useragent">
     <h2>user agent</h2>
     <div style="display:flex;gap:8px;align-items:flex-start;">
       <textarea id="bottom-user-agent" wrap="off" rows="4"
@@ -1315,14 +1604,10 @@ Mozilla/5.0 (X11; ccNC; Linux aarch64) AppleWebKit/537.36 (KHTML, like Gecko) Ch
 async function copyText(text, button) {
   try {
     await navigator.clipboard.writeText(text);
-
-    const original = button.innerText;
-    button.innerText = "Copied!";
-
+    button.classList.add("copied");
     setTimeout(() => {
-      button.innerText = original;
+      button.classList.remove("copied");
     }, 1200);
-
   } catch (err) {
     alert("Copy failed");
     console.error(err);
@@ -1359,12 +1644,169 @@ function renderPRList() {
   const query = PR_QUERIES[type];
   const label = PR_LABELS[type];
   const ul = document.getElementById("pr-list");
-  ul.innerHTML = PR_REPOS.map(repo =>
-    `<li><a href="https://github.com/OBIGOGIT/${repo}/pulls?q=${query}" target="_blank">${repo} ${label}</a></li>`
-  ).join("");
+  ul.innerHTML = `<li><a href="https://github.com/pulls/inbox" target="_blank">Inbox</a></li>` +
+    PR_REPOS.map(repo =>
+      `<li><a href="https://github.com/OBIGOGIT/${repo}/pulls?q=${query}" target="_blank">${repo} ${label}</a></li>`
+    ).join("");
+  initFavicons(ul);
+  initPinButtons(ul);
 }
 
+/* ---------- 다크모드 ---------- */
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  const btn = document.getElementById("dark-toggle");
+  if (btn) btn.textContent = theme === "dark" ? "☀️" : "🌙";
+  localStorage.setItem("theme", theme);
+}
+function toggleDarkMode() {
+  const current = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+  applyTheme(current === "dark" ? "light" : "dark");
+}
+
+/* ---------- 메모 아코디언 (접기/펼치기, 상태 기억) ---------- */
+function initAccordion() {
+  document.querySelectorAll(".memo-item").forEach((item, idx) => {
+    const titleEl = item.querySelector(".memo-title");
+    if (!titleEl || titleEl.dataset.bound) return;
+    titleEl.dataset.bound = "1";
+    const key = "memo-open-" + idx;
+    if (localStorage.getItem(key) === "1") item.classList.add("expanded");
+    titleEl.addEventListener("click", () => {
+      item.classList.toggle("expanded");
+      localStorage.setItem(key, item.classList.contains("expanded") ? "1" : "0");
+    });
+  });
+}
+
+/* ---------- 파비콘 ---------- */
+function initFavicons(scope) {
+  const root = scope || document;
+  root.querySelectorAll('.bookmark-list a[href^="http"]').forEach(a => {
+    if (a.dataset.faviconDone) return;
+    a.dataset.faviconDone = "1";
+    try {
+      const host = new URL(a.href).hostname;
+      const img = document.createElement("img");
+      img.src = `https://www.google.com/s2/favicons?domain=${host}&sz=32`;
+      img.alt = "";
+      img.className = "favicon-img";
+      a.parentNode.insertBefore(img, a);
+    } catch (e) { /* 상대경로 등 URL 파싱 실패시 건너뜀 */ }
+  });
+}
+
+/* ---------- 즐겨찾기(고정) ---------- */
+function getPins() {
+  try { return JSON.parse(localStorage.getItem("pinned-links") || "[]"); }
+  catch (e) { return []; }
+}
+function savePins(pins) {
+  localStorage.setItem("pinned-links", JSON.stringify(pins));
+}
+function togglePin(btn) {
+  const href = btn.dataset.href;
+  const text = btn.dataset.text;
+  let pins = getPins();
+  const idx = pins.findIndex(p => p.href === href);
+  if (idx >= 0) pins.splice(idx, 1);
+  else pins.push({ href, text });
+  savePins(pins);
+  const nowPinned = pins.some(p => p.href === href);
+  document.querySelectorAll(`.pin-btn[data-href="${CSS.escape(href)}"]`).forEach(b => {
+    b.classList.toggle("pinned", nowPinned);
+    b.textContent = nowPinned ? "★" : "☆";
+  });
+  renderPinned();
+}
+function initPinButtons(scope) {
+  const root = scope || document;
+  const pins = getPins();
+  root.querySelectorAll(".bookmark-list li").forEach(li => {
+    if (li.dataset.pinDone) return;
+    const a = li.querySelector("a");
+    if (!a) return;
+    li.dataset.pinDone = "1";
+    const isPinned = pins.some(p => p.href === a.href);
+    const btn = document.createElement("button");
+    btn.className = "pin-btn" + (isPinned ? " pinned" : "");
+    btn.textContent = isPinned ? "★" : "☆";
+    btn.title = "고정";
+    btn.dataset.href = a.href;
+    btn.dataset.text = a.textContent;
+    btn.addEventListener("click", (e) => { e.preventDefault(); togglePin(btn); });
+    li.appendChild(btn);
+  });
+}
+function renderPinned() {
+  const pins = getPins();
+  const section = document.getElementById("sec-pinned");
+  const ul = document.getElementById("pinned-list");
+  ul.innerHTML = pins.map(p =>
+    `<li><a href="${p.href}" target="_blank">${p.text}</a></li>`
+  ).join("");
+  section.classList.toggle("has-items", pins.length > 0);
+  initFavicons(ul);
+  initPinButtons(ul);
+}
+
+/* ---------- LOG diff +/- 라인 색상 강조 ---------- */
+function escapeHtml(s) {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+function colorizeDiffs() {
+  document.querySelectorAll(".log-scroll-box").forEach(box => {
+    if (box.dataset.colorized) return;
+    box.dataset.colorized = "1";
+    const lines = box.textContent.split("\n");
+    box.innerHTML = lines.map(line => {
+      const esc = escapeHtml(line);
+      if (/^(\+\+\+|---) /.test(line)) return `<span class="diff-file">${esc}</span>`;
+      if (/^(diff --git|index )/.test(line)) return `<span class="diff-meta">${esc}</span>`;
+      if (/^@@/.test(line)) return `<span class="diff-hunk">${esc}</span>`;
+      if (/^\+/.test(line)) return `<span class="diff-add">${esc}</span>`;
+      if (/^-/.test(line)) return `<span class="diff-del">${esc}</span>`;
+      return esc;
+    }).join("\n");
+  });
+}
+
+/* ---------- 전체 검색/필터 ---------- */
+function filterAll() {
+  const q = document.getElementById("global-search").value.trim().toLowerCase();
+  document.querySelectorAll("main > section, main .section-pair > section").forEach(section => {
+    if (section.id === "sec-pinned") return; // Pinned 영역은 필터 대상 제외
+    const units = section.querySelectorAll(".bookmark-list > li, .memo-item, .log-item");
+    if (!q) {
+      section.style.display = "";
+      units.forEach(u => { u.style.display = ""; });
+      return;
+    }
+    let anyVisible = false;
+    if (units.length) {
+      units.forEach(u => {
+        const match = u.innerText.toLowerCase().includes(q);
+        u.style.display = match ? "" : "none";
+        if (match) {
+          anyVisible = true;
+          if (u.classList.contains("memo-item")) u.classList.add("expanded");
+        }
+      });
+    } else {
+      anyVisible = section.innerText.toLowerCase().includes(q);
+    }
+    section.style.display = anyVisible ? "" : "none";
+  });
+}
+
+/* ---------- 초기화 ---------- */
 renderPRList();
+initFavicons();
+initPinButtons();
+initAccordion();
+colorizeDiffs();
+renderPinned();
+applyTheme(localStorage.getItem("theme") || "light");
 </script>
 
 </body>

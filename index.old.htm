@@ -6,189 +6,27 @@
   <title>Roya Bookmark Index</title>
 
   <style>
-    :root {
-      --bg: #ffffff;
-      --text: #1e3a5f;
-      --header-bg: #bfdbfe;
-      --header-shadow: rgba(59,130,246,0.15);
-      --section-bg: #ffffff;
-      --section-border: #bfdbfe;
-      --section-shadow: rgba(59,130,246,0.10);
-      --h2-border: #93c5fd;
-      --link-color: #1e40af;
-      --link-hover: #1e3a5f;
-      --log-item-bg: #dbeafe;
-      --btn-bg: #60a5fa;
-      --btn-bg-hover: #3b82f6;
-      --select-bg: #dbeafe;
-      --select-border: #93c5fd;
-      --footer-color: #60a5fa;
-      --memo-title-bg: #93c5fd;
-      --memo-body-bg: #dbeafe;
-      --memo-label-color: #2563eb;
-      --code-bg: #ffffff;
-      --code-border: #bfdbfe;
-      --scrollbox-bg: #ffffff;
-      --scrollbox-border: #bfdbfe;
-      --chip-bg: #dbeafe;
-      --chip-border: #93c5fd;
-      --chip-text: #1e3a5f;
-      --input-bg: #ffffff;
-      --input-border: #93c5fd;
-      --diff-add-bg: rgba(34,197,94,0.16);
-      --diff-add-text: #166534;
-      --diff-del-bg: rgba(239,68,68,0.16);
-      --diff-del-text: #991b1b;
-      --diff-hunk-text: #7c3aed;
-      --diff-meta-text: #64748b;
-      --diff-file-text: #1d4ed8;
-    }
-
-    [data-theme="dark"] {
-      --bg: #0f172a;
-      --text: #e2e8f0;
-      --header-bg: #1e293b;
-      --header-shadow: rgba(0,0,0,0.4);
-      --section-bg: #182236;
-      --section-border: #334155;
-      --section-shadow: rgba(0,0,0,0.35);
-      --h2-border: #3b82f6;
-      --link-color: #93c5fd;
-      --link-hover: #bfdbfe;
-      --log-item-bg: #1e2a42;
-      --btn-bg: #3b82f6;
-      --btn-bg-hover: #60a5fa;
-      --select-bg: #1e2a42;
-      --select-border: #3b82f6;
-      --footer-color: #64748b;
-      --memo-title-bg: #2c4870;
-      --memo-body-bg: #16213a;
-      --memo-label-color: #7dd3fc;
-      --code-bg: #0f172a;
-      --code-border: #334155;
-      --scrollbox-bg: #0f172a;
-      --scrollbox-border: #334155;
-      --chip-bg: #1e2a42;
-      --chip-border: #3b82f6;
-      --chip-text: #cbd5e1;
-      --input-bg: #0f172a;
-      --input-border: #3b82f6;
-      --diff-add-bg: rgba(34,197,94,0.2);
-      --diff-add-text: #4ade80;
-      --diff-del-bg: rgba(239,68,68,0.2);
-      --diff-del-text: #f87171;
-      --diff-hunk-text: #c4b5fd;
-      --diff-meta-text: #94a3b8;
-      --diff-file-text: #93c5fd;
-    }
-
     * {
       box-sizing: border-box;
     }
 
-    html {
-      scroll-behavior: smooth;
-    }
-
     body {
       margin: 0;
-      font-family: "Pretendard", "Malgun Gothic", Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
+      font-family: Arial, sans-serif;
+      background: #ffffff;
+      color: #1e3a5f;
       overflow-x: hidden;
       font-size: 16px;
-      transition: background 0.2s, color 0.2s;
-    }
-
-    section {
-      scroll-margin-top: 130px;
     }
 
     header {
-      background: var(--header-bg);
-      color: var(--text);
+      background: #bfdbfe;
+      color: #1e3a5f;
       padding: 10px 20px;
       position: sticky;
       top: 0;
       z-index: 100;
-      box-shadow: 0 2px 4px var(--header-shadow);
-    }
-
-    .header-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .site-title {
-      font-weight: 800;
-      font-size: 16px;
-      white-space: nowrap;
-    }
-
-    .header-controls {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex: 1;
-      justify-content: flex-end;
-    }
-
-    .search-input {
-      font-family: inherit;
-      font-size: 13px;
-      color: var(--text);
-      background: var(--input-bg);
-      border: 1px solid var(--input-border);
-      border-radius: 16px;
-      padding: 6px 12px;
-      width: 220px;
-      max-width: 45vw;
-    }
-
-    .icon-btn {
-      border: 1px solid var(--input-border);
-      background: var(--input-bg);
-      color: var(--text);
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      cursor: pointer;
-      font-size: 14px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .icon-btn:hover {
-      background: var(--chip-bg);
-    }
-
-    .quick-nav {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 8px;
-    }
-
-    .nav-chip {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--chip-text);
-      background: var(--chip-bg);
-      border: 1px solid var(--chip-border);
-      border-radius: 12px;
-      padding: 3px 10px;
-      text-decoration: none;
-      white-space: nowrap;
-    }
-
-    .nav-chip:hover {
-      background: var(--btn-bg);
-      color: #ffffff;
+      box-shadow: 0 2px 4px rgba(59,130,246,0.15);
     }
 
     .container {
@@ -208,29 +46,13 @@
     }
 
     .section {
-      background: var(--section-bg);
+      background: #ffffff;
       border-radius: 10px;
       padding: 16px;
-      box-shadow: 0 1px 4px var(--section-shadow);
-      border: 1px solid var(--section-border);
-      border-top: 4px solid var(--accent, var(--h2-border));
+      box-shadow: 0 1px 4px rgba(59,130,246,0.10);
+      border: 1px solid #bfdbfe;
       min-width: 0;
     }
-
-    /* 섹션별 포인트 컬러 (라이트/다크 공통으로 톤만 유지) */
-    .accent-ai        { --accent: #a78bfa; }
-    .accent-chromium  { --accent: #fbbf24; }
-    .accent-github    { --accent: #94a3b8; }
-    .accent-obigo     { --accent: #38bdf8; }
-    .accent-dev       { --accent: #34d399; }
-    .accent-branch    { --accent: #fb7185; }
-    .accent-pr        { --accent: #22d3ee; }
-    .accent-memo      { --accent: #fb923c; }
-    .accent-linux     { --accent: #2dd4bf; }
-    .accent-log       { --accent: #818cf8; }
-    .accent-openurl   { --accent: #e879f9; }
-    .accent-useragent { --accent: #a3e635; }
-    .accent-pinned    { --accent: #facc15; }
 
     /* LOG / Branch 섹션은 전체 너비 */
     .section-full {
@@ -240,10 +62,10 @@
     .section h2 {
       margin: 0 0 12px 0;
       padding-bottom: 8px;
-      border-bottom: 2px solid var(--accent, var(--h2-border));
+      border-bottom: 2px solid #93c5fd;
       font-size: 20px;
       font-weight: 700;
-      color: var(--text);
+      color: #1e3a5f;
     }
 
     .bookmark-list {
@@ -256,14 +78,11 @@
       margin: 4px 0;
       padding: 6px 0;
       line-height: 1.4;
-      display: flex;
-      align-items: center;
-      gap: 6px;
     }
 
     .bookmark-list a {
       text-decoration: none;
-      color: var(--link-color);
+      color: #1e40af;
       font-size: 16px;
       font-weight: 600;
       display: inline-block;
@@ -271,38 +90,7 @@
 
     .bookmark-list a:hover {
       text-decoration: underline;
-      color: var(--link-hover);
-    }
-
-    .favicon-img {
-      width: 14px;
-      height: 14px;
-      flex-shrink: 0;
-      border-radius: 3px;
-    }
-
-    .pin-btn {
-      border: none;
-      background: transparent;
-      color: var(--select-border);
-      cursor: pointer;
-      font-size: 14px;
-      line-height: 1;
-      padding: 0 2px;
-      flex-shrink: 0;
-      margin-left: auto;
-    }
-
-    .pin-btn.pinned {
-      color: #f59e0b;
-    }
-
-    #sec-pinned {
-      display: none;
-    }
-
-    #sec-pinned.has-items {
-      display: block;
+      color: #1e3a5f;
     }
 
     /* LOG 항목 3열 그리드 */
@@ -318,9 +106,9 @@
       justify-content: space-between;
       gap: 10px;
       padding: 8px;
-      border: 1px solid var(--section-border);
+      border: 1px solid #bfdbfe;
       border-radius: 6px;
-      background: var(--log-item-bg);
+      background: #dbeafe;
     }
 
     .log-code {
@@ -329,7 +117,7 @@
       font-size: 13px;
       white-space: pre-line;
       word-break: break-word;
-      color: var(--text);
+      color: #1e3a5f;
       line-height: 1.7;
     }
 
@@ -337,75 +125,64 @@
     .log-scroll-box {
       max-height: 200px;
       overflow-y: auto;
-      background: var(--scrollbox-bg);
+      background: #ffffff;
       padding: 8px;
-      border: 1px solid var(--scrollbox-border);
+      border: 1px solid #bfdbfe;
       border-radius: 6px;
     }
 
-    /* diff +/- 라인 색상 강조 */
-    .diff-add  { background: var(--diff-add-bg); color: var(--diff-add-text); display: inline-block; width: 100%; }
-    .diff-del  { background: var(--diff-del-bg); color: var(--diff-del-text); display: inline-block; width: 100%; }
-    .diff-hunk { color: var(--diff-hunk-text); font-weight: 600; }
-    .diff-meta { color: var(--diff-meta-text); font-weight: 600; }
-    .diff-file { color: var(--diff-file-text); font-weight: 600; }
-
     .copy-btn {
       border: none;
-      background: var(--btn-bg);
+      background: #60a5fa;
       color: white;
-      width: 30px;
-      height: 30px;
-      padding: 0;
-      border-radius: 50%;
+      padding: 6px 12px;
+      border-radius: 6px;
       cursor: pointer;
-      font-size: 0;
+      font-size: 13px;
+      min-width: 60px;
       flex-shrink: 0;
       align-self: flex-start;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .copy-btn::before {
-      content: "📋";
-      font-size: 14px;
-    }
-
-    .copy-btn.copied::before {
-      content: "✅";
     }
 
     .copy-btn:hover {
-      background: var(--btn-bg-hover);
+      background: #3b82f6;
     }
 
     .pr-type-select {
-      font-family: inherit;
+      font-family: Arial, sans-serif;
       font-size: 13px;
       font-weight: 600;
-      color: var(--text);
-      background: var(--select-bg);
-      border: 1px solid var(--select-border);
+      color: #1e3a5f;
+      background: #dbeafe;
+      border: 1px solid #93c5fd;
       border-radius: 6px;
       padding: 4px 8px;
       cursor: pointer;
     }
 
     .pr-type-select:hover {
-      background: var(--chip-bg);
+      background: #bfdbfe;
     }
 
     footer {
       text-align: center;
       padding: 16px;
-      color: var(--footer-color);
+      color: #60a5fa;
       font-size: 13px;
     }
 
     @media (max-width: 1100px) {
       .container {
         grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 650px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+      .section-pair {
+        grid-template-columns: 1fr;
       }
     }
 
@@ -418,17 +195,8 @@
       }
     }
 
-    @media (max-width: 650px) {
-      .container {
-        grid-template-columns: 1fr;
-      }
-      .search-input {
-        width: 140px;
-      }
-    }
-
     .memo-item {
-      border: 1px solid var(--section-border);
+      border: 1px solid #bfdbfe;
       border-radius: 8px;
       overflow: hidden;
       margin-top: 10px;
@@ -440,41 +208,20 @@
     }
 
     .memo-title {
-      background: var(--memo-title-bg);
-      color: var(--text);
+      background: #93c5fd;
+      color: #1e3a5f;
       padding: 7px 12px;
       font-weight: 700;
       font-size: 14px;
       letter-spacing: 0.02em;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      user-select: none;
-    }
-
-    .memo-title::after {
-      content: "▸";
-      font-size: 12px;
-      flex-shrink: 0;
-      transition: transform 0.15s;
-    }
-
-    .memo-item.expanded .memo-title::after {
-      transform: rotate(90deg);
     }
 
     .memo-body {
       padding: 10px 12px;
-      background: var(--memo-body-bg);
-      display: none;
+      background: #dbeafe;
+      display: flex;
       flex-direction: column;
       gap: 8px;
-    }
-
-    .memo-item.expanded .memo-body {
-      display: flex;
     }
 
     .memo-row {
@@ -487,7 +234,7 @@
       font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
-      color: var(--memo-label-color);
+      color: #2563eb;
       letter-spacing: 0.08em;
     }
 
@@ -495,9 +242,9 @@
       margin: 0;
       font-family: Consolas, Monaco, monospace;
       font-size: 12.5px;
-      color: var(--text);
-      background: var(--code-bg);
-      border: 1px solid var(--code-border);
+      color: #1e3a5f;
+      background: #ffffff;
+      border: 1px solid #bfdbfe;
       border-radius: 5px;
       padding: 6px 10px;
       line-height: 1.7;
@@ -517,9 +264,9 @@
     .memo-row code {
       font-family: Consolas, Monaco, monospace;
       font-size: 12.5px;
-      color: var(--text);
-      background: var(--code-bg);
-      border: 1px solid var(--code-border);
+      color: #1e3a5f;
+      background: #ffffff;
+      border: 1px solid #bfdbfe;
       border-radius: 5px;
       padding: 4px 10px;
       display: inline-block;
@@ -530,37 +277,11 @@
 <body>
 
 <header>
-  <div class="header-top">
-    <span class="site-title">📌 Roya Bookmark</span>
-    <div class="header-controls">
-      <input type="text" id="global-search" class="search-input" placeholder="🔍 검색 (링크·메모·명령어)" oninput="filterAll()">
-      <button id="dark-toggle" class="icon-btn" title="다크모드 전환" onclick="toggleDarkMode()">🌙</button>
-    </div>
-  </div>
-  <nav class="quick-nav">
-    <a href="#sec-ai" class="nav-chip">AI</a>
-    <a href="#sec-chromium" class="nav-chip">Chromium</a>
-    <a href="#sec-github" class="nav-chip">GitHub</a>
-    <a href="#sec-obigo" class="nav-chip">OBIGO</a>
-    <a href="#sec-dev" class="nav-chip">Dev</a>
-    <a href="#sec-branch" class="nav-chip">Branch</a>
-    <a href="#sec-pr" class="nav-chip">PR</a>
-    <a href="#sec-memo" class="nav-chip">Memo</a>
-    <a href="#sec-linux" class="nav-chip">Linux/Motrex</a>
-    <a href="#sec-log" class="nav-chip">LOG</a>
-    <a href="#sec-openurl" class="nav-chip">openUrl</a>
-    <a href="#sec-useragent" class="nav-chip">UA</a>
-  </nav>
 </header>
 
 <main class="container">
 
-  <section class="section section-full accent-pinned" id="sec-pinned">
-    <h2>⭐ Pinned</h2>
-    <ul class="bookmark-list" id="pinned-list"></ul>
-  </section>
-
-  <section class="section accent-ai" id="sec-ai">
+  <section class="section">
     <h2>AI</h2>
     <ul class="bookmark-list">
       <li><a href="https://chatgpt.com/" target="_blank">ChatGPT</a></li>
@@ -571,7 +292,7 @@
     </ul>
   </section>
 
-  <section class="section accent-chromium" id="sec-chromium">
+  <section class="section">
     <h2>Chromium</h2>
     <ul class="bookmark-list">
       <li><a href="https://source.chromium.org/chromium/chromium/src" target="_blank">Chromium Main Source</a></li>
@@ -584,7 +305,7 @@
     </ul>
   </section>
 
-  <section class="section accent-github" id="sec-github">
+  <section class="section">
     <h2>OBIGO GitHub</h2>
     <ul class="bookmark-list">
       <li><a href="https://github.com/orgs/OBIGOGIT/repositories" target="_blank">GitHub OBIGO Repositories</a></li>
@@ -599,7 +320,7 @@
     </ul>
   </section>
 
-  <section class="section accent-obigo" id="sec-obigo">
+  <section class="section">
     <h2>OBIGO</h2>
     <ul class="bookmark-list">
 	  <li><a href="https://ep.obigo.com/" target="_blank">EP</a></li>
@@ -622,7 +343,7 @@
     </ul>
   </section>
 
-  <section class="section accent-dev" id="sec-dev">
+  <section class="section">
     <h2>Dev</h2>
     <ul class="bookmark-list">
 	  <li><a href="http://192.168.105.1:9222" target="_blank">192.168.105.1:9222</a></li>
@@ -640,7 +361,7 @@
     </ul>
   </section>
 
-  <section class="section accent-branch" id="sec-branch">
+  <section class="section">
     <h2>Branch</h2>
 
     <div class="memo-item">
@@ -726,7 +447,7 @@ repo forall -c 'git checkout $REPO_RREV'</pre>
 
   </section>
 
-  <section class="section accent-pr" id="sec-pr">
+  <section class="section">
     <h2 style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
       <span>PR</span>
       <select id="pr-type-select" class="pr-type-select" onchange="renderPRList()">
@@ -740,7 +461,7 @@ repo forall -c 'git checkout $REPO_RREV'</pre>
   </section>
 
   <div class="section-pair">
-  <section class="section accent-memo" id="sec-memo">
+  <section class="section">
     <h2>Memo</h2>
 
     <div class="memo-item">
@@ -916,7 +637,7 @@ Current Screen is saved at /tmp/front-screen-1920x720@135448.jpeg</pre>
 
   </section>
 
-  <section class="section accent-linux" id="sec-linux">
+  <section class="section">
     <h2>Linux / Motrex</h2>
 
     <div class="memo-item">
@@ -1134,7 +855,7 @@ oem = DEMO를 HMC로 수정</pre>
   </section>
   </div><!-- /section-pair -->
 
-  <section class="section section-full accent-log" id="sec-log">
+  <section class="section section-full">
     <h2>LOG</h2>
 
     <div class="log-grid">
@@ -1546,7 +1267,7 @@ index c27de4f1ae..36c5c40ec5 100644
     </div><!-- /log-grid -->
   </section>
 
-  <section class="section section-full accent-openurl" id="sec-openurl">
+  <section class="section section-full">
     <h2>obj open url</h2>
     <div style="display:flex;gap:8px;align-items:flex-start;">
       <textarea id="bottom-obj-open-url" wrap="off" rows="17"
@@ -1572,7 +1293,7 @@ index c27de4f1ae..36c5c40ec5 100644
     </div>
   </section>
 
-  <section class="section section-full accent-useragent" id="sec-useragent">
+  <section class="section section-full">
     <h2>user agent</h2>
     <div style="display:flex;gap:8px;align-items:flex-start;">
       <textarea id="bottom-user-agent" wrap="off" rows="4"
@@ -1594,10 +1315,14 @@ Mozilla/5.0 (X11; ccNC; Linux aarch64) AppleWebKit/537.36 (KHTML, like Gecko) Ch
 async function copyText(text, button) {
   try {
     await navigator.clipboard.writeText(text);
-    button.classList.add("copied");
+
+    const original = button.innerText;
+    button.innerText = "Copied!";
+
     setTimeout(() => {
-      button.classList.remove("copied");
+      button.innerText = original;
     }, 1200);
+
   } catch (err) {
     alert("Copy failed");
     console.error(err);
@@ -1637,165 +1362,9 @@ function renderPRList() {
   ul.innerHTML = PR_REPOS.map(repo =>
     `<li><a href="https://github.com/OBIGOGIT/${repo}/pulls?q=${query}" target="_blank">${repo} ${label}</a></li>`
   ).join("");
-  initFavicons(ul);
-  initPinButtons(ul);
 }
 
-/* ---------- 다크모드 ---------- */
-function applyTheme(theme) {
-  document.documentElement.setAttribute("data-theme", theme);
-  const btn = document.getElementById("dark-toggle");
-  if (btn) btn.textContent = theme === "dark" ? "☀️" : "🌙";
-  localStorage.setItem("theme", theme);
-}
-function toggleDarkMode() {
-  const current = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
-  applyTheme(current === "dark" ? "light" : "dark");
-}
-
-/* ---------- 메모 아코디언 (접기/펼치기, 상태 기억) ---------- */
-function initAccordion() {
-  document.querySelectorAll(".memo-item").forEach((item, idx) => {
-    const titleEl = item.querySelector(".memo-title");
-    if (!titleEl || titleEl.dataset.bound) return;
-    titleEl.dataset.bound = "1";
-    const key = "memo-open-" + idx;
-    if (localStorage.getItem(key) === "1") item.classList.add("expanded");
-    titleEl.addEventListener("click", () => {
-      item.classList.toggle("expanded");
-      localStorage.setItem(key, item.classList.contains("expanded") ? "1" : "0");
-    });
-  });
-}
-
-/* ---------- 파비콘 ---------- */
-function initFavicons(scope) {
-  const root = scope || document;
-  root.querySelectorAll('.bookmark-list a[href^="http"]').forEach(a => {
-    if (a.dataset.faviconDone) return;
-    a.dataset.faviconDone = "1";
-    try {
-      const host = new URL(a.href).hostname;
-      const img = document.createElement("img");
-      img.src = `https://www.google.com/s2/favicons?domain=${host}&sz=32`;
-      img.alt = "";
-      img.className = "favicon-img";
-      a.parentNode.insertBefore(img, a);
-    } catch (e) { /* 상대경로 등 URL 파싱 실패시 건너뜀 */ }
-  });
-}
-
-/* ---------- 즐겨찾기(고정) ---------- */
-function getPins() {
-  try { return JSON.parse(localStorage.getItem("pinned-links") || "[]"); }
-  catch (e) { return []; }
-}
-function savePins(pins) {
-  localStorage.setItem("pinned-links", JSON.stringify(pins));
-}
-function togglePin(btn) {
-  const href = btn.dataset.href;
-  const text = btn.dataset.text;
-  let pins = getPins();
-  const idx = pins.findIndex(p => p.href === href);
-  if (idx >= 0) pins.splice(idx, 1);
-  else pins.push({ href, text });
-  savePins(pins);
-  const nowPinned = pins.some(p => p.href === href);
-  document.querySelectorAll(`.pin-btn[data-href="${CSS.escape(href)}"]`).forEach(b => {
-    b.classList.toggle("pinned", nowPinned);
-    b.textContent = nowPinned ? "★" : "☆";
-  });
-  renderPinned();
-}
-function initPinButtons(scope) {
-  const root = scope || document;
-  const pins = getPins();
-  root.querySelectorAll(".bookmark-list li").forEach(li => {
-    if (li.dataset.pinDone) return;
-    const a = li.querySelector("a");
-    if (!a) return;
-    li.dataset.pinDone = "1";
-    const isPinned = pins.some(p => p.href === a.href);
-    const btn = document.createElement("button");
-    btn.className = "pin-btn" + (isPinned ? " pinned" : "");
-    btn.textContent = isPinned ? "★" : "☆";
-    btn.title = "고정";
-    btn.dataset.href = a.href;
-    btn.dataset.text = a.textContent;
-    btn.addEventListener("click", (e) => { e.preventDefault(); togglePin(btn); });
-    li.appendChild(btn);
-  });
-}
-function renderPinned() {
-  const pins = getPins();
-  const section = document.getElementById("sec-pinned");
-  const ul = document.getElementById("pinned-list");
-  ul.innerHTML = pins.map(p =>
-    `<li><a href="${p.href}" target="_blank">${p.text}</a></li>`
-  ).join("");
-  section.classList.toggle("has-items", pins.length > 0);
-  initFavicons(ul);
-  initPinButtons(ul);
-}
-
-/* ---------- LOG diff +/- 라인 색상 강조 ---------- */
-function escapeHtml(s) {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-}
-function colorizeDiffs() {
-  document.querySelectorAll(".log-scroll-box").forEach(box => {
-    if (box.dataset.colorized) return;
-    box.dataset.colorized = "1";
-    const lines = box.textContent.split("\n");
-    box.innerHTML = lines.map(line => {
-      const esc = escapeHtml(line);
-      if (/^(\+\+\+|---) /.test(line)) return `<span class="diff-file">${esc}</span>`;
-      if (/^(diff --git|index )/.test(line)) return `<span class="diff-meta">${esc}</span>`;
-      if (/^@@/.test(line)) return `<span class="diff-hunk">${esc}</span>`;
-      if (/^\+/.test(line)) return `<span class="diff-add">${esc}</span>`;
-      if (/^-/.test(line)) return `<span class="diff-del">${esc}</span>`;
-      return esc;
-    }).join("\n");
-  });
-}
-
-/* ---------- 전체 검색/필터 ---------- */
-function filterAll() {
-  const q = document.getElementById("global-search").value.trim().toLowerCase();
-  document.querySelectorAll("main > section, main .section-pair > section").forEach(section => {
-    if (section.id === "sec-pinned") return; // Pinned 영역은 필터 대상 제외
-    const units = section.querySelectorAll(".bookmark-list > li, .memo-item, .log-item");
-    if (!q) {
-      section.style.display = "";
-      units.forEach(u => { u.style.display = ""; });
-      return;
-    }
-    let anyVisible = false;
-    if (units.length) {
-      units.forEach(u => {
-        const match = u.innerText.toLowerCase().includes(q);
-        u.style.display = match ? "" : "none";
-        if (match) {
-          anyVisible = true;
-          if (u.classList.contains("memo-item")) u.classList.add("expanded");
-        }
-      });
-    } else {
-      anyVisible = section.innerText.toLowerCase().includes(q);
-    }
-    section.style.display = anyVisible ? "" : "none";
-  });
-}
-
-/* ---------- 초기화 ---------- */
 renderPRList();
-initFavicons();
-initPinButtons();
-initAccordion();
-colorizeDiffs();
-renderPinned();
-applyTheme(localStorage.getItem("theme") || "light");
 </script>
 
 </body>
