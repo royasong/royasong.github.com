@@ -231,6 +231,7 @@
 
     /* 섹션별 포인트 컬러는 낮은 채도로만 구분 */
     .accent-ai        { --accent: #a99bd8; }
+    .accent-chromium  { --accent: #d7b96a; }
     .accent-github    { --accent: #929aa5; }
     .accent-obigo     { --accent: #74abc9; }
     .accent-dev       { --accent: #75b99c; }
@@ -617,6 +618,7 @@
   </div>
   <nav class="quick-nav">
     <a href="#sec-ai" class="nav-chip">AI</a>
+    <a href="#sec-chromium" class="nav-chip">Chromium</a>
     <a href="#sec-github" class="nav-chip">GitHub</a>
     <a href="#sec-obigo" class="nav-chip">OBIGO</a>
     <a href="#sec-dev" class="nav-chip">Dev</a>
@@ -639,9 +641,8 @@
   </section>
 
   <section class="section accent-ai" id="sec-ai">
-    <h2>AI &amp; Chromium</h2>
-    <div class="memo-label">AI</div>
-    <ul class="bookmark-list" style="margin-top:4px;">
+    <h2>AI</h2>
+    <ul class="bookmark-list">
       <li><a href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">ChatGPT</a></li>
       <li><a href="https://claude.ai/login" target="_blank" rel="noopener noreferrer">Claude</a></li>
       <li><a href="https://gemini.google.com/app" target="_blank" rel="noopener noreferrer">Google Gemini</a></li>
@@ -649,9 +650,11 @@
       <li><a href="https://claude.ai/settings/billing" target="_blank" rel="noopener noreferrer">Claude Billing</a></li>
       <li><a href="https://chatgpt.com/#settings/Account" target="_blank" rel="noopener noreferrer">Codex Billing</a></li>
     </ul>
+  </section>
 
-    <div class="memo-label" style="margin-top:12px;">Chromium</div>
-    <ul class="bookmark-list" style="margin-top:4px;">
+  <section class="section accent-chromium" id="sec-chromium">
+    <h2>Chromium</h2>
+    <ul class="bookmark-list">
       <li><a href="https://source.chromium.org/chromium/chromium/src" target="_blank" rel="noopener noreferrer">Chromium Main Source</a></li>
       <li><a href="https://source.chromium.org/chromium/chromium/src/+/refs/tags/92.0.4515.131" target="_blank" rel="noopener noreferrer">Chromium 92</a></li>
       <li><a href="https://source.chromium.org/chromium/chromium/src/+/refs/tags/122.0.6261.120" target="_blank" rel="noopener noreferrer">Chromium 122</a></li>
@@ -699,13 +702,13 @@
       <li><a href="https://obigoinc.atlassian.net/browse/MF1-1" target="_blank" rel="noopener noreferrer">MF1애매한업무티켓</a></li>
       
       <li><a href="https://im.mobis.com/" target="_blank" rel="noopener noreferrer">(모비스)im.mobis.com</a></li>
+      <li><a href="https://af.obigo.com/launcher/pierre/guider/" target="_blank" rel="noopener noreferrer">guider_tool</a></li>
     </ul>
   </section>
 
   <section class="section accent-dev" id="sec-dev">
     <h2>Dev</h2>
     <ul class="bookmark-list">
-	  <li><a href="https://af.obigo.com/launcher/pierre/guider/" target="_blank" rel="noopener noreferrer">guider_tool</a></li>
 	  <li><a href="http://192.168.105.1:9222" target="_blank" rel="noopener noreferrer">192.168.105.1:9222</a></li>
 	  <li><a href="https://ip.pe.kr/" target="_blank" rel="noopener noreferrer">내 ip및 위치 확인</a></li>
       <li><a href="https://royasong.github.io/game/" target="_blank" rel="noopener noreferrer">Game</a></li>
@@ -716,8 +719,6 @@
       <li><a href="https://www.w3schools.com/html/tryit.asp?filename=tryhtml_input_password" target="_blank" rel="noopener noreferrer">id/password test</a></li>
       <li><a href="https://excelkospi.pages.dev/" target="_blank" rel="noopener noreferrer">excelkospi.pages.dev/</a></li>
       <li><a href="https://top.cafe.daum.net/" target="_blank" rel="noopener noreferrer">top.cafe</a></li>
-      <li><a href="https://obigoinc.atlassian.net/wiki/spaces/~roya.song/pages/1969455183/Non+CCU+Wifi" target="_blank" rel="noopener noreferrer">ccnc 엔지니어링모드</a></li>
-      <li><a href="https://obigoinc.atlassian.net/wiki/spaces/HKMCCCNCMOB/pages/1766981736/Motrex+VPN" target="_blank" rel="noopener noreferrer">Motrex VPN(105/106 check)</a></li>
     </ul>
   </section>
 
@@ -795,35 +796,12 @@ repo forall -c 'git checkout $REPO_RREV'</pre>
     </div>
 
     <div class="memo-item" style="margin-top:10px;">
-      <div class="memo-title">cve branch</div>
-      <div class="memo-body">
-        <div class="memo-row">
-          <div style="display:flex;gap:8px;align-items:flex-start;">
-            <pre id="lm-cve-branch-repo-init" style="flex:1;margin:0;">repo init -u ssh://git@github.com/OBIGOGIT/obigo-af-manifest.git -m hyundai_mobis_ccnc_brs92_01.xml -b mobis_ccnc</pre>
-            <button class="copy-btn" onclick='copyText(document.getElementById("lm-cve-branch-repo-init").innerText, this)'>Copy</button>
-          </div>
-        </div>
-        <div class="memo-row">
-          <span class="memo-label">code branch</span>
-          <code>모두 mobis_ccnc branch (이외) build/adt의 branch만 mobis</code>
-        </div>
-        <div class="memo-row">
-          <span class="memo-label">build</span>
-          <div style="display:flex;gap:8px;align-items:flex-start;">
-            <pre id="lm-cve-branch-build" style="flex:1;margin:0;">source build/oaf-init-build-env
-obigo-build hyundai-mobis-ccnc-target --ccache --j=48</pre>
-            <button class="copy-btn" onclick='copyText(document.getElementById("lm-cve-branch-build").innerText, this)'>Copy</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="memo-item" style="margin-top:10px;">
       <div class="memo-title">etc</div>
       <div class="memo-body">
         <ul class="bookmark-list" style="margin:0;">
           <li><a href="https://obigoinc.atlassian.net/wiki/spaces/~kenith.kim/pages/1763311686/Motrex+92+build+-+mobis_ccnc_picknow_service" target="_blank" rel="noopener noreferrer">Motrex/Ccnc 92 Build &amp; Run Guide</a></li>
           <li><a href="https://obigoinc.atlassian.net/wiki/spaces/YVMJ/pages/1357905935/DLT+or+Journal+log" target="_blank" rel="noopener noreferrer">DLT or Journal log 설정법</a></li>
+          <li><a href="https://obigoinc.atlassian.net/wiki/spaces/HKMCCCNCMOB/pages/1766981736/Motrex+VPN" target="_blank" rel="noopener noreferrer">Motrex VPN(105/106 check)</a></li>
         </ul>
       </div>
     </div>
@@ -1101,7 +1079,7 @@ webappmanager : /ccos/apps/manager/webappmanager
         </div>
         <div class="memo-row">
           <span class="memo-label">ccnc 개발자 설정</span>
-          <pre>설정 - SW 정보 업데이트 - 세부항목 여러번 클릭 - 비번 [삼영15] - 베리언트 - 인도향 설정 IND 포함된 버전으로 선택</pre>
+          <pre>설정 - SW 정보 업데이트 - 세부항목 여러번 클릭 - 비번 [REDACTED] - 베리언트 - 인도향 설정 IND 포함된 버전으로 선택</pre>
         </div>
         <div class="memo-row">
           <span class="memo-label">linux build</span>
