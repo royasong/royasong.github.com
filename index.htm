@@ -1830,10 +1830,15 @@ function renderPRList() {
 
 /* ---------- 리뷰해야 할 PR 알림 배지 ----------
    GitHub Actions(.github/workflows/pr-review-counts.yml)가 15분마다
-   webdata/pr_review_counts.json 을 갱신한다. 브라우저는 이 정적 파일만
-   읽으므로 토큰이 클라이언트에 노출되지 않는다.
+   pr-data 브랜치의 webdata/pr_review_counts.json 을 갱신한다.
+   main 브랜치를 amend/force-push 해도 pr-data 브랜치는 영향을 받지 않도록
+   데이터를 일부러 별도 브랜치에 둔다. 브라우저는 raw.githubusercontent.com
+   에서 이 정적 파일만 읽으므로 토큰이 클라이언트에 노출되지 않는다.
    개수를 숫자로 보여주는 대신, 리뷰 대기 PR이 있으면 반짝이는 "NEW"
    배지만 표시하고 정확한 건수는 title 툴팁으로 노출한다. */
+const PR_REVIEW_COUNTS_URL =
+  "https://raw.githubusercontent.com/royasong/royasong.github.com/pr-data/webdata/pr_review_counts.json";
+
 function setReviewBadge(li, count) {
   let badge = li.querySelector(".review-badge");
   if (count > 0) {
@@ -1855,7 +1860,8 @@ async function updateReviewBadges() {
   const items = Array.from(ul.querySelectorAll("li[data-repo]"));
   if (!items.length) return;
   try {
-    const res = await fetch("./webdata/pr_review_counts.json", { cache: "no-store" });
+    // raw.githubusercontent.com은 CDN 캐시(수 분)가 있어 쿼리스트링으로 캐시버스팅한다.
+    const res = await fetch(`${PR_REVIEW_COUNTS_URL}?t=${Date.now()}`, { cache: "no-store" });
     if (!res.ok) throw new Error(`fetch failed: ${res.status}`);
     const data = await res.json();
     const counts = data.counts || {};

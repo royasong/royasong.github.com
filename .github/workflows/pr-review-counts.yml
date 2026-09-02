@@ -1,5 +1,18 @@
 name: Update PR review counts
 
+# 이 워크플로우는 데이터를 main이 아닌 전용 브랜치(pr-data)에 커밋한다.
+# main 브랜치를 amend/force-push 하는 습관이 있어도, pr-data 브랜치는
+# 그 영향을 받지 않으므로 카운트 데이터가 안전하게 유지된다.
+# pr-data 브랜치가 아직 없다면 아래 명령으로 먼저 만들어야 한다:
+#   git checkout --orphan pr-data
+#   git rm -rf .
+#   mkdir -p webdata
+#   echo '{"updatedAt": null, "counts": {}}' > webdata/pr_review_counts.json
+#   git add webdata/pr_review_counts.json
+#   git commit -m "chore: init pr-data branch"
+#   git push origin pr-data
+#   git checkout main
+
 on:
   schedule:
     - cron: '*/15 * * * *'  # 15분마다 실행 (GitHub 부하 상황에 따라 지연될 수 있음)
@@ -12,8 +25,10 @@ jobs:
   update-counts:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout pr-data branch
         uses: actions/checkout@v4
+        with:
+          ref: pr-data
 
       - name: Fetch review-requested PR counts
         env:
@@ -38,6 +53,7 @@ jobs:
             counts=$(echo "$counts" | jq --arg repo "$repo" --argjson count "$count" '.[$repo] = $count')
           done
 
+          mkdir -p webdata
           jq -n \
             --argjson counts "$counts" \
             --arg updatedAt "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
@@ -53,5 +69,5 @@ jobs:
             echo "변경 없음, 커밋 스킵"
           else
             git commit -m "chore: PR 리뷰 카운트 갱신"
-            git push
+            git push origin pr-data
           fi
