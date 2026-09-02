@@ -712,20 +712,25 @@
       <li><a href="https://obigoinc.atlassian.net/browse/MF1-1" target="_blank" rel="noopener noreferrer">MF1애매한업무티켓</a></li>
       
       <li><a href="https://im.mobis.com/" target="_blank" rel="noopener noreferrer">(모비스)im.mobis.com</a></li>
+      <li><a href="http://172.16.30.66:8787/" target="_blank" rel="noopener noreferrer">cve피에르</a></li>
     </ul>
   </section>
 
-  <section class="section accent-devinfo" id="sec-devinfo">
-    <h2>obigo dev info</h2>
-    <ul class="bookmark-list">
-      <li><a href="http://192.168.105.1:9222" target="_blank" rel="noopener noreferrer">192.168.105.1:9222</a></li>
-      <li><a href="http://192.168.105.61:9222/" target="_blank" rel="noopener noreferrer">192.168.105.61:9222</a></li>
-      <li><a href="https://af.obigo.com/launcher/pierre/guider/" target="_blank" rel="noopener noreferrer">guider_tool</a></li>
-      <li><a href="https://obigoinc.atlassian.net/wiki/spaces/AARD/pages/471007243/06.+CP" target="_blank" rel="noopener noreferrer">CP사 계정 정보</a></li>
-      <li><a href="https://obigoinc.atlassian.net/wiki/spaces/~roya.song/pages/1919549453/ccnc_vpn" target="_blank" rel="noopener noreferrer">ccnc에서 vpn test 하는 법</a></li>
-      <li><a href="https://obigoinc.atlassian.net/wiki/spaces/~roya.song/pages/1969455183/Non+CCU+Wifi" target="_blank" rel="noopener noreferrer">ccnc 엔지니어링모드</a></li>
-      <li><a href="https://obigoinc.atlassian.net/wiki/spaces/HKMCCCNCMOB/pages/1766981736/Motrex+VPN" target="_blank" rel="noopener noreferrer">Motrex VPN(105/106 check)</a></li>
-    </ul>
+  <section class="section accent-pr" id="sec-pr">
+    <h2 style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+      <span>PR</span>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <a href="./pr-review-guide.htm" target="_blank" rel="noopener noreferrer" class="icon-btn" style="width:24px;height:24px;font-size:12px;text-decoration:none;" title="NEW 배지(리뷰 알림) 설정 가이드">❔</a>
+        <button type="button" id="pr-review-reload-btn" class="icon-btn" style="width:24px;height:24px;font-size:12px;" title="리뷰 카운트 새로고침" onclick="reloadReviewBadges(this)">R</button>
+        <select id="pr-type-select" class="pr-type-select" onchange="renderPRList()">
+          <option value="review">review PR</option>
+          <option value="open">open PR</option>
+          <option value="my">my PR</option>
+          <option value="closed">closed PR</option>
+        </select>
+      </div>
+    </h2>
+    <ul class="bookmark-list" id="pr-list"></ul>
   </section>
 
   <section class="section accent-dev" id="sec-dev">
@@ -770,6 +775,21 @@ git pull
 cd ../..
 repo forall -c 'git checkout $REPO_RREV'</pre>
         </div>
+        <div class="memo-row">
+          <span class="memo-label">build</span>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="lm-mobis-143-build" style="flex:1;margin:0;">source build/oaf-init-build-env;obigo-build hyundai-mobis-ccnc-target_brs143</pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("lm-mobis-143-build").innerText, this)'>Copy</button>
+          </div>
+        </div>
+        <div class="memo-row">
+          <span class="memo-label">build local webapp</span>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="lm-mobis-143-build-local-webapp" style="flex:1;margin:0;">build option : --lws-apps-only
+build option : --j=48</pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("lm-mobis-143-build-local-webapp").innerText, this)'>Copy</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -786,9 +806,17 @@ cd ../..
 repo forall -c 'git checkout $REPO_RREV'</pre>
         </div>
         <div class="memo-row">
+          <span class="memo-label">build</span>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="lm-motrex-143-build" style="flex:1;margin:0;">source build/oaf-init-build-env;obigo-build hyundai-motrex-ccnc-target_brs143</pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("lm-motrex-143-build").innerText, this)'>Copy</button>
+          </div>
+        </div>
+        <div class="memo-row">
           <span class="memo-label">build local webapp</span>
           <div style="display:flex;gap:8px;align-items:flex-start;">
-            <pre id="lm-143-build-local-webapp" style="flex:1;margin:0;">build option : --lws-apps-only</pre>
+            <pre id="lm-143-build-local-webapp" style="flex:1;margin:0;">build option : --lws-apps-only
+build option : --j=48</pre>
             <button class="copy-btn" onclick='copyText(document.getElementById("lm-143-build-local-webapp").innerText, this)'>Copy</button>
           </div>
         </div>
@@ -852,20 +880,17 @@ obigo-build hyundai-mobis-ccnc-target --ccache --j=48</pre>
 
   </section>
 
-  <section class="section accent-pr" id="sec-pr">
-    <h2 style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-      <span>PR</span>
-      <div style="display:flex;align-items:center;gap:6px;">
-        <a href="./pr-review-guide.htm" target="_blank" rel="noopener noreferrer" class="icon-btn" style="width:24px;height:24px;font-size:12px;text-decoration:none;" title="NEW 배지(리뷰 알림) 설정 가이드">❔</a>
-        <select id="pr-type-select" class="pr-type-select" onchange="renderPRList()">
-          <option value="review">review PR</option>
-          <option value="open">open PR</option>
-          <option value="my">my PR</option>
-          <option value="closed">closed PR</option>
-        </select>
-      </div>
-    </h2>
-    <ul class="bookmark-list" id="pr-list"></ul>
+  <section class="section accent-devinfo" id="sec-devinfo">
+    <h2>obigo dev info</h2>
+    <ul class="bookmark-list">
+      <li><a href="http://192.168.105.1:9222" target="_blank" rel="noopener noreferrer">192.168.105.1:9222</a></li>
+      <li><a href="http://192.168.105.61:9222/" target="_blank" rel="noopener noreferrer">192.168.105.61:9222</a></li>
+      <li><a href="https://af.obigo.com/launcher/pierre/guider/" target="_blank" rel="noopener noreferrer">guider_tool</a></li>
+      <li><a href="https://obigoinc.atlassian.net/wiki/spaces/AARD/pages/471007243/06.+CP" target="_blank" rel="noopener noreferrer">CP사 계정 정보</a></li>
+      <li><a href="https://obigoinc.atlassian.net/wiki/spaces/~roya.song/pages/1919549453/ccnc_vpn" target="_blank" rel="noopener noreferrer">ccnc에서 vpn test 하는 법</a></li>
+      <li><a href="https://obigoinc.atlassian.net/wiki/spaces/~roya.song/pages/1969455183/Non+CCU+Wifi" target="_blank" rel="noopener noreferrer">ccnc 엔지니어링모드</a></li>
+      <li><a href="https://obigoinc.atlassian.net/wiki/spaces/HKMCCCNCMOB/pages/1766981736/Motrex+VPN" target="_blank" rel="noopener noreferrer">Motrex VPN(105/106 check)</a></li>
+    </ul>
   </section>
 
   <section class="section accent-data" id="sec-data">
@@ -1860,6 +1885,28 @@ async function updateReviewBadges() {
     items.forEach(li => setReviewBadge(li, counts[li.dataset.repo] || 0));
   } catch (e) {
     console.error("리뷰 PR 카운트 로드 실패:", e);
+  }
+}
+
+// "R" 버튼: review 모드로 전환하고 pr-data의 최신 JSON을 다시 읽어온다.
+// (cron이 불안정해서, 그 사이 GitHub Actions를 수동/외부에서 갱신했다면
+//  페이지를 새로고침하지 않고도 바로 반영해서 볼 수 있게 하기 위함)
+async function reloadReviewBadges(btn) {
+  const select = document.getElementById("pr-type-select");
+  if (select && select.value !== "review") {
+    select.value = "review";
+  }
+  renderPRList();
+  if (btn) {
+    btn.disabled = true;
+    const original = btn.textContent;
+    btn.textContent = "…";
+    try {
+      await updateReviewBadges();
+    } finally {
+      btn.textContent = original;
+      btn.disabled = false;
+    }
   }
 }
 
