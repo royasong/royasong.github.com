@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Geolocation alert test</title>
+<style>
+  body { font: 16px/1.6 sans-serif; margin: 24px; }
+  button { display: block; width: 100%; padding: 20px; margin: 12px 0; font-size: 20px; }
+  #log { white-space: pre-wrap; background: #eee; padding: 12px; min-height: 6em; }
+</style>
+</head>
+<body>
+<h2>Geolocation → alert 테스트</h2>
+
+<button onclick="requestLocation()">1. 위치 권한 요청 (실패 시 alert)</button>
+<button onclick="alert('plain alert')">2. 그냥 alert</button>
+<button onclick="log('confirm = ' + confirm('confirm 테스트'))">3. confirm</button>
+<button onclick="log('prompt = ' + prompt('prompt 테스트', 'default'))">4. prompt</button>
+
+<div id="log"></div>
+
+<script>
+function log(msg) {
+  document.getElementById('log').textContent += new Date().toLocaleTimeString() + '  ' + msg + '\n';
+  console.log(msg);
+}
+
+function requestLocation() {
+  log('getCurrentPosition() 호출');
+  if (!navigator.geolocation) {
+    alert('This browser was denied permission to access your location.');
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(
+    function (pos) {
+      log('성공: ' + pos.coords.latitude + ', ' + pos.coords.longitude);
+    },
+    function (err) {
+      log('실패: code=' + err.code + ' (' + err.message + ')');
+      // Tripadvisor 와 동일한 패턴: 거부되면 사이트가 자기 alert 을 띄운다
+      if (err.code === err.PERMISSION_DENIED) {
+        alert('Sample was denied permission to access your location.  '
+            + 'Give your browser and Sample permission to use your current location and try again.');
+      } else {
+        alert('Location error: ' + err.message);
+      }
+    },
+    { enableHighAccuracy: false, timeout: 10000, maximumAge: 0 }
+  );
+}
+
+// permission 상태 표시 (지원 시)
+if (navigator.permissions) {
+  navigator.permissions.query({ name: 'geolocation' })
+    .then(function (s) { log('permissions.state = ' + s.state); })
+    .catch(function (e) { log('permissions.query 실패: ' + e); });
+}
+</script>
+</body>
+</html>

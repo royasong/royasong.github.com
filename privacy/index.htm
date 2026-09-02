@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Private</title>
+<link rel="icon" type="image/png" href="../damgomface.png">
+<style>
+  body {
+    max-width: 640px;
+    margin: 40px auto;
+    padding: 0 20px;
+    font-family: "Segoe UI", "Malgun Gothic", sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #2f343b;
+    background: #f4f5f7;
+  }
+  h1 {
+    font-size: 18px;
+    margin: 0 0 6px;
+  }
+  h1 img { width: 24px; height: 24px; vertical-align: -5px; margin-right: 6px; }
+  .site {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #b8bec7;
+    font-size: 13px;
+  }
+  .site a { color: #315f9f; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border: 1px solid #d6d9de;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  th, td {
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 1px solid #e6e8ec;
+  }
+  thead th {
+    background: #eef4fb;
+    color: #35506f;
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.3px;
+  }
+  tbody tr:last-child td { border-bottom: 0; }
+  tbody td:first-child { width: 90px; font-weight: 600; }
+  code {
+    font-family: Consolas, monospace;
+    font-size: 13px;
+    background: #f1f3f5;
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+  .domain { color: #7a828d; }
+  .cell { display: flex; align-items: center; gap: 6px; }
+  .copy-btn {
+    border: none;
+    background: #5f8fc9;
+    color: #fff;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 0;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .copy-btn::before { content: "📋"; font-size: 12px; }
+  .copy-btn.copied::before { content: "✅"; }
+  .copy-btn:hover { background: #4778b4; }
+  footer { margin-top: 20px; font-size: 12px; color: #7a828d; }
+</style>
+</head>
+<body>
+
+<h1><img src="../damgomface.png" alt="담곰">Mobis Partners 계정</h1>
+<div class="site">
+  <a href="https://im.mobis.com/" target="_blank" rel="noopener">https://im.mobis.com/</a>
+  <button class="copy-btn" title="복사" data-copy="https://im.mobis.com/"></button>
+</div>
+
+<table>
+  <thead>
+    <tr><th>이름</th><th>ID</th><th>이메일</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>차*욱</td>
+      <td><div class="cell"><code>DT110523</code><button class="copy-btn" title="복사" data-copy="DT110523"></button></div></td>
+      <td><div class="cell"><code>DT110523<span class="domain">@mobis-partners.com</span></code><button class="copy-btn" title="복사" data-copy="DT110523@mobis-partners.com"></button></div></td>
+    </tr>
+    <tr>
+      <td>송*희</td>
+      <td><div class="cell"><code>DT110521</code><button class="copy-btn" title="복사" data-copy="DT110521"></button></div></td>
+      <td><div class="cell"><code>DT110521<span class="domain">@mobis-partners.com</span></code><button class="copy-btn" title="복사" data-copy="DT110521@mobis-partners.com"></button></div></td>
+    </tr>
+    <tr>
+      <td>전*영</td>
+      <td><div class="cell"><code>DT110522</code><button class="copy-btn" title="복사" data-copy="DT110522"></button></div></td>
+      <td><div class="cell"><code>DT110522<span class="domain">@mobis-partners.com</span></code><button class="copy-btn" title="복사" data-copy="DT110522@mobis-partners.com"></button></div></td>
+    </tr>
+  </tbody>
+</table>
+
+<footer><a href="../index.htm">← Dashboard</a></footer>
+
+<script>
+document.addEventListener("click", async (e) => {
+  const btn = e.target.closest(".copy-btn");
+  if (!btn) return;
+  try {
+    await navigator.clipboard.writeText(btn.dataset.copy);
+    btn.classList.add("copied");
+    setTimeout(() => btn.classList.remove("copied"), 1200);
+  } catch (err) {
+    alert("Copy failed");
+  }
+});
+</script>
+
+</body>
+</html>

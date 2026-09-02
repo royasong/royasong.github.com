@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>접속 정보 확인</title>
+<style>
+  :root {
+    --bg: #f7f6f4; --card: #fff; --ink: #1b1b1b; --dim: #6a6a6a;
+    --line: #e3dfd9; --accent: #a3421c; --mono-bg: #f1eee9; --ok: #2f6b3f; --bad: #9b2c2c;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #17161a; --card: #201f24; --ink: #eceae6; --dim: #a09b95;
+      --line: #33313a; --accent: #e08a5f; --mono-bg: #282730; --ok: #8fcf9f; --bad: #e79a9a;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 15px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR", sans-serif;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 28px 20px 60px; }
+  h1 { font-size: 22px; margin: 0 0 4px; letter-spacing: -.01em; }
+  .sub { color: var(--dim); font-size: 13px; margin-bottom: 24px; }
+  .ip-hero {
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    padding: 20px 24px; margin-bottom: 20px;
+  }
+  .ip-label { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+  .ip-value {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 30px; font-weight: 600; margin-top: 6px; word-break: break-all;
+  }
+  .geo-value { font-size: 20px; font-weight: 600; margin-top: 10px; }
+  .geo-value .flag { font-size: 26px; vertical-align: -3px; margin-right: 6px; }
+  .geo-value .cc {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 15px; color: var(--dim); font-weight: 400; margin-left: 6px;
+  }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; }
+  .card h2 {
+    font-size: 12px; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--dim); margin: 0 0 12px; font-weight: 700;
+  }
+  dl { margin: 0; display: grid; grid-template-columns: minmax(110px, auto) 1fr; gap: 7px 14px; }
+  dt { color: var(--dim); font-size: 13px; }
+  dd {
+    margin: 0; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 13px; word-break: break-all;
+  }
+  .ua {
+    grid-column: 1 / -1; background: var(--mono-bg); border-radius: 6px; padding: 10px 12px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12px; line-height: 1.55; word-break: break-all; margin-top: 4px;
+  }
+  .yes { color: var(--ok); } .no { color: var(--bad); }
+  .live { display: inline-block; font-size: 11px; color: var(--accent); font-weight: 700; }
+  footer { margin-top: 24px; color: var(--dim); font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="ip-hero">
+    <div class="ip-label">공인 IP</div>
+    <div class="ip-value" id="ip">확인 중…</div>
+    <div class="geo-value" id="geo">위치 확인 중…</div>
+    <div class="sub" id="ip-note" style="margin:8px 0 0"></div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>위치 (IP 기반)</h2>
+      <dl>
+        <dt>국가</dt><dd id="g-country"></dd>
+        <dt>국가 코드</dt><dd id="g-code"></dd>
+        <dt>지역</dt><dd id="g-region"></dd>
+        <dt>도시</dt><dd id="g-city"></dd>
+        <dt>ISP</dt><dd id="g-isp"></dd>
+        <dt>타임존</dt><dd id="g-tz"></dd>
+        <dt>좌표</dt><dd id="g-loc"></dd>
+      </dl>
+    </div>
+
+    <div class="card">
+      <h2>화면 / 디스플레이</h2>
+      <dl>
+        <dt>screen</dt><dd id="screen"></dd>
+        <dt>avail</dt><dd id="avail"></dd>
+        <dt>devicePixelRatio</dt><dd id="dpr"></dd>
+        <dt>colorDepth</dt><dd id="depth"></dd>
+        <dt>orientation</dt><dd id="orient"></dd>
+      </dl>
+    </div>
+
+    <div class="card">
+      <h2>뷰포트 <span class="live" id="vp-live"></span></h2>
+      <dl>
+        <dt>inner</dt><dd id="inner"></dd>
+        <dt>outer</dt><dd id="outer"></dd>
+        <dt>visualViewport</dt><dd id="vv"></dd>
+        <dt>vv.scale</dt><dd id="vvscale"></dd>
+        <dt>CSS px / 물리 px</dt><dd id="physical"></dd>
+      </dl>
+    </div>
+
+    <div class="card">
+      <h2>브라우저</h2>
+      <dl>
+        <dt>platform</dt><dd id="platform"></dd>
+        <dt>language</dt><dd id="lang"></dd>
+        <dt>languages</dt><dd id="langs"></dd>
+        <dt>timezone</dt><dd id="tz"></dd>
+        <dt>현재 시각</dt><dd id="now"></dd>
+        <dt>cookieEnabled</dt><dd id="cookie"></dd>
+        <dt>touch points</dt><dd id="touch"></dd>
+        <dt>hardwareConcurrency</dt><dd id="cores"></dd>
+        <dt>deviceMemory</dt><dd id="mem"></dd>
+      </dl>
+      <div class="ua" id="ua"></div>
+    </div>
+
+    <div class="card">
+      <h2>네트워크</h2>
+      <dl>
+        <dt>onLine</dt><dd id="online"></dd>
+        <dt>effectiveType</dt><dd id="nettype"></dd>
+        <dt>downlink</dt><dd id="downlink"></dd>
+        <dt>rtt</dt><dd id="rtt"></dd>
+        <dt>saveData</dt><dd id="savedata"></dd>
+      </dl>
+    </div>
+
+    <div class="card">
+      <h2>미디어 코덱</h2>
+      <dl id="codecs"></dl>
+    </div>
+
+    <div class="card">
+      <h2>기능 지원</h2>
+      <dl id="features"></dl>
+    </div>
+  </div>
+
+  <footer id="footer"></footer>
+</div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var set = function (id, v) { var e = $(id); if (e) { e.textContent = String(v); } };
+  var flag = function (id, ok, yes, no) {
+    var e = $(id); if (!e) { return; }
+    e.textContent = ok ? (yes || '지원') : (no || '미지원');
+    e.className = ok ? 'yes' : 'no';
+  };
+
+  // ---- 공인 IP ----------------------------------------------------------
+  // 브라우저만으로는 알 수 없으므로 외부 조회 서비스를 쓴다. 폐쇄망이거나
+  // 서비스가 막혀 있으면 실패하며, 그때는 서버 로그(X-Forwarded-For 등)를
+  // 봐야 한다.
+  // 국가 코드(ISO 3166-1 alpha-2) -> 국기 이모지
+  function flagEmoji(cc) {
+    if (!cc || cc.length !== 2) { return ''; }
+    var up = cc.toUpperCase();
+    return String.fromCodePoint(
+      0x1F1E6 + up.charCodeAt(0) - 65,
+      0x1F1E6 + up.charCodeAt(1) - 65
+    );
+  }
+
+  // 국가 코드를 브라우저 언어의 국가명으로. 실패하면 API가 준 영문명을 쓴다.
+  function localizedCountry(cc, fallback) {
+    try {
+      var dn = new Intl.DisplayNames([navigator.language || 'ko'], { type: 'region' });
+      return dn.of(cc.toUpperCase()) || fallback;
+    } catch (e) { return fallback; }
+  }
+
+  function fetchIp() {
+    var endpoints = [
+      {
+        url: 'https://ipwho.is/',
+        map: function (j) {
+          if (j.success === false) { throw new Error(j.message || 'failed'); }
+          return {
+            ip: j.ip, country: j.country, code: j.country_code,
+            region: j.region, city: j.city,
+            isp: j.connection && j.connection.isp,
+            tz: j.timezone && (j.timezone.id || j.timezone),
+            lat: j.latitude, lon: j.longitude
+          };
+        }
+      },
+      {
+        url: 'https://ipapi.co/json/',
+        map: function (j) {
+          if (j.error) { throw new Error(j.reason || 'failed'); }
+          return {
+            ip: j.ip, country: j.country_name, code: j.country_code,
+            region: j.region, city: j.city, isp: j.org, tz: j.timezone,
+            lat: j.latitude, lon: j.longitude
+          };
+        }
+      },
+      {
+        url: 'https://freeipapi.com/api/json',
+        map: function (j) {
+          return {
+            ip: j.ipAddress, country: j.countryName, code: j.countryCode,
+            region: j.regionName, city: j.cityName, isp: null,
+            tz: j.timeZone, lat: j.latitude, lon: j.longitude
+          };
+        }
+      },
+      {
+        // 마지막 폴백: IP만. 위치는 못 얻는다.
+        url: 'https://api.ipify.org?format=json',
+        map: function (j) { return { ip: j.ip }; }
+      }
+    ];
+
+    var i = 0;
+    function render(d, src) {
+      set('ip', d.ip || '확인 불가');
+
+      var geo = $('geo');
+      geo.textContent = '';
+      if (d.code) {
+        var name = localizedCountry(d.code, d.country);
+        var f = document.createElement('span');
+        f.className = 'flag';
+        f.textContent = flagEmoji(d.code);
+        geo.appendChild(f);
+        geo.appendChild(document.createTextNode(
+          name + (d.city ? ' · ' + d.city : '')
+        ));
+        var cc = document.createElement('span');
+        cc.className = 'cc';
+        cc.textContent = d.code.toUpperCase();
+        geo.appendChild(cc);
+      } else {
+        geo.textContent = '위치 정보 없음';
+      }
+
+      set('g-country', d.code ? localizedCountry(d.code, d.country) +
+          (d.country && d.country !== localizedCountry(d.code, d.country)
+             ? ' (' + d.country + ')' : '') : '-');
+      set('g-code', d.code ? d.code.toUpperCase() : '-');
+      set('g-region', d.region || '-');
+      set('g-city', d.city || '-');
+      set('g-isp', d.isp || '-');
+      set('g-tz', d.tz || '-');
+      set('g-loc', (d.lat != null && d.lon != null) ? d.lat + ', ' + d.lon : '-');
+      set('ip-note', src.replace(/^https:\/\//, '') + ' 응답');
+    }
+
+    function next() {
+      if (i >= endpoints.length) {
+        set('ip', '확인 불가');
+        $('geo').textContent = '위치 확인 불가';
+        set('ip-note', '외부 조회에 모두 실패했습니다. 폐쇄망이거나 조회 서비스가 차단된 환경입니다.');
+        ['g-country', 'g-code', 'g-region', 'g-city', 'g-isp', 'g-tz', 'g-loc']
+          .forEach(function (id) { set(id, '-'); });
+        return;
+      }
+      var ep = endpoints[i++];
+      fetch(ep.url, { cache: 'no-store' })
+        .then(function (r) { if (!r.ok) { throw new Error(r.status); } return r.json(); })
+        .then(function (j) {
+          var d = ep.map(j);
+          if (!d.ip) { throw new Error('no ip'); }
+          render(d, ep.url);
+        })
+        .catch(next);
+    }
+    next();
+  }
+
+  // ---- 화면 ------------------------------------------------------------
+  function renderScreen() {
+    set('screen', screen.width + ' x ' + screen.height);
+    set('avail', screen.availWidth + ' x ' + screen.availHeight);
+    set('dpr', window.devicePixelRatio);
+    set('depth', screen.colorDepth + ' bit');
+    set('orient', (screen.orientation && screen.orientation.type) || '(없음)');
+  }
+
+  // ---- 뷰포트 (리사이즈/줌에 따라 갱신) --------------------------------
+  function renderViewport() {
+    set('inner', window.innerWidth + ' x ' + window.innerHeight);
+    set('outer', window.outerWidth + ' x ' + window.outerHeight);
+    var vv = window.visualViewport;
+    set('vv', vv ? Math.round(vv.width) + ' x ' + Math.round(vv.height) : '(미지원)');
+    set('vvscale', vv ? vv.scale : '(미지원)');
+    var dpr = window.devicePixelRatio || 1;
+    set('physical', Math.round(window.innerWidth * dpr) + ' x ' +
+                    Math.round(window.innerHeight * dpr) + ' px');
+    var live = $('vp-live');
+    live.textContent = '갱신 ' + new Date().toLocaleTimeString();
+  }
+
+  // ---- 브라우저 --------------------------------------------------------
+  function renderBrowser() {
+    set('platform', navigator.platform || '(없음)');
+    set('lang', navigator.language || '(없음)');
+    set('langs', (navigator.languages || []).join(', ') || '(없음)');
+    var tz = '(없음)';
+    try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone; } catch (e) {}
+    set('tz', tz);
+    set('now', new Date().toString());
+    flag('cookie', navigator.cookieEnabled);
+    set('touch', navigator.maxTouchPoints);
+    set('cores', navigator.hardwareConcurrency || '(없음)');
+    set('mem', navigator.deviceMemory ? navigator.deviceMemory + ' GB' : '(없음)');
+    set('ua', navigator.userAgent);
+  }
+
+  // ---- 네트워크 --------------------------------------------------------
+  function renderNetwork() {
+    flag('online', navigator.onLine, '온라인', '오프라인');
+    var c = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    set('nettype', c ? (c.effectiveType || '(없음)') : '(미지원)');
+    set('downlink', c && c.downlink != null ? c.downlink + ' Mbps' : '(미지원)');
+    set('rtt', c && c.rtt != null ? c.rtt + ' ms' : '(미지원)');
+    set('savedata', c ? String(!!c.saveData) : '(미지원)');
+  }
+
+  // ---- 코덱 ------------------------------------------------------------
+  function renderCodecs() {
+    var v = document.createElement('video');
+    var a = document.createElement('audio');
+    var list = [
+      ['H.264', v, 'video/mp4; codecs="avc1.42E01E"'],
+      ['HEVC', v, 'video/mp4; codecs="hvc1.1.6.L93.B0"'],
+      ['VP9', v, 'video/webm; codecs="vp9"'],
+      ['AV1', v, 'video/mp4; codecs="av01.0.05M.08"'],
+      ['AAC', a, 'audio/mp4; codecs="mp4a.40.2"'],
+      ['Opus', a, 'audio/webm; codecs="opus"'],
+      ['MP3', a, 'audio/mpeg'],
+      ['WAV', a, 'audio/wav']
+    ];
+    var dl = $('codecs');
+    list.forEach(function (row) {
+      var r = row[1].canPlayType(row[2]) || 'no';
+      var dt = document.createElement('dt');
+      dt.textContent = row[0];
+      var dd = document.createElement('dd');
+      dd.textContent = r === 'no' ? '불가' : r;
+      dd.className = r === 'probably' ? 'yes' : (r === 'no' ? 'no' : '');
+      dl.appendChild(dt);
+      dl.appendChild(dd);
+    });
+  }
+
+  // ---- 기능 ------------------------------------------------------------
+  function renderFeatures() {
+    var list = [
+      ['WebGL', function () {
+        try { return !!document.createElement('canvas').getContext('webgl'); }
+        catch (e) { return false; }
+      }],
+      ['WebGL2', function () {
+        try { return !!document.createElement('canvas').getContext('webgl2'); }
+        catch (e) { return false; }
+      }],
+      ['localStorage', function () {
+        try { localStorage.setItem('__t', '1'); localStorage.removeItem('__t'); return true; }
+        catch (e) { return false; }
+      }],
+      ['IndexedDB', function () { return !!window.indexedDB; }],
+      ['ServiceWorker', function () { return 'serviceWorker' in navigator; }],
+      ['MediaSession', function () { return 'mediaSession' in navigator; }],
+      ['Gamepad', function () { return 'getGamepads' in navigator; }],
+      ['Geolocation', function () { return 'geolocation' in navigator; }],
+      ['WebSocket', function () { return !!window.WebSocket; }],
+      ['Notification', function () { return !!window.Notification; }],
+      ['secureContext', function () { return window.isSecureContext === true; }]
+    ];
+    var dl = $('features');
+    list.forEach(function (row) {
+      var ok = false;
+      try { ok = !!row[1](); } catch (e) { ok = false; }
+      var dt = document.createElement('dt');
+      dt.textContent = row[0];
+      var dd = document.createElement('dd');
+      dd.textContent = ok ? '지원' : '미지원';
+      dd.className = ok ? 'yes' : 'no';
+      dl.appendChild(dt);
+      dl.appendChild(dd);
+    });
+  }
+
+  renderScreen();
+  renderViewport();
+  renderBrowser();
+  renderNetwork();
+  renderCodecs();
+  renderFeatures();
+  fetchIp();
+
+  window.addEventListener('resize', renderViewport);
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', renderViewport);
+    window.visualViewport.addEventListener('scroll', renderViewport);
+  }
+  setInterval(function () { set('now', new Date().toString()); }, 1000);
+
+  $('footer').textContent = 'location: ' + location.href +
+    ' · protocol: ' + location.protocol + ' · referrer: ' + (document.referrer || '(없음)');
+})();
+</script>
+</body>
+</html>
