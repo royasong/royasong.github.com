@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PR 리뷰 알림 설정 가이드</title>
+<link rel="icon" type="image/png" href="/damgomface.png" />
+<style>
+  :root {
+    --bg: #f4f5f7;
+    --text: #2f343b;
+    --card-bg: #ffffff;
+    --card-border: #d6d9de;
+    --heading: #2f343b;
+    --accent: #70b8c6;
+    --code-bg: #fbfbfc;
+    --code-border: #d6d9de;
+    --muted: #7a828d;
+    --warn-bg: #fbf3e7;
+    --warn-border: #e6cfa0;
+    --warn-text: #6b4f1e;
+    --table-border: #d6d9de;
+    --link: #315f9f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #181a1d;
+      --text: #d7d9dd;
+      --card-bg: #202327;
+      --card-border: #3a3f46;
+      --heading: #e7e9ec;
+      --accent: #74abc9;
+      --code-bg: #191b1f;
+      --code-border: #3a3f46;
+      --muted: #9aa1ab;
+      --warn-bg: #2e2818;
+      --warn-border: #6b5a2e;
+      --warn-text: #e3c98a;
+      --table-border: #3a3f46;
+      --link: #b8d2f0;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Pretendard", "Malgun Gothic", Arial, sans-serif;
+    line-height: 1.65;
+  }
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 32px 20px 64px;
+  }
+  a { color: var(--link); }
+  .back-link {
+    display: inline-block;
+    margin-bottom: 16px;
+    font-size: 13px;
+    text-decoration: none;
+    color: var(--muted);
+  }
+  .back-link:hover { color: var(--link); }
+  h1 {
+    font-size: 22px;
+    color: var(--heading);
+    border-bottom: 3px solid var(--accent);
+    padding-bottom: 10px;
+    margin-bottom: 8px;
+  }
+  .subtitle { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
+  h2 {
+    font-size: 17px;
+    color: var(--heading);
+    margin-top: 32px;
+    margin-bottom: 10px;
+    padding-left: 10px;
+    border-left: 4px solid var(--accent);
+  }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 16px;
+  }
+  .diagram {
+    font-family: Consolas, Monaco, monospace;
+    font-size: 13px;
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    border-radius: 8px;
+    padding: 14px;
+    overflow-x: auto;
+    white-space: pre;
+  }
+  ol, ul { padding-left: 22px; }
+  li { margin: 6px 0; }
+  code {
+    font-family: Consolas, Monaco, monospace;
+    font-size: 13px;
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    border-radius: 4px;
+    padding: 1px 6px;
+  }
+  pre {
+    font-family: Consolas, Monaco, monospace;
+    font-size: 13px;
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .warn {
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-border);
+    color: var(--warn-text);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 13.5px;
+    margin: 12px 0;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    margin-top: 8px;
+  }
+  th, td {
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--table-border);
+    vertical-align: top;
+  }
+  th { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+  footer {
+    margin-top: 40px;
+    color: var(--muted);
+    font-size: 12px;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <a class="back-link" href="./index.htm">← Bookmark으로 돌아가기</a>
+
+  <h1>📌 PR 리뷰 알림(NEW 배지) 설정 가이드</h1>
+  <p class="subtitle">
+    Bookmark 페이지의 PR 섹션에서, 내가 리뷰해야 할 PR이 있는 저장소 링크 옆에
+    <b>NEW</b> 배지를 띄우는 기능의 설정 방법입니다. 각자 자신의 GitHub 계정
+    기준으로 설정해야 자신에게 온 리뷰 요청을 볼 수 있습니다.
+  </p>
+
+  <h2>동작 원리</h2>
+  <div class="diagram">GitHub Actions (15분마다, cron)
+  └─ 내 GitHub 토큰으로 Search API 호출
+       "OBIGOGIT의 각 저장소에서 내가 리뷰 요청받은 open PR 개수"
+  └─ 결과를 pr-data 브랜치의 webdata/pr_review_counts.json 에 커밋
+
+Bookmark 페이지 (브라우저)
+  └─ 그 정적 JSON만 읽음 (GitHub API 직접 호출 안 함)
+  └─ 개수 &gt; 0 인 저장소 링크 옆에 NEW 배지 표시</div>
+  <p>
+    토큰은 <b>GitHub 저장소의 Actions secret</b>에만 저장되고, 브라우저에는
+    절대 전달되지 않습니다.
+  </p>
+
+  <div class="warn">
+    ⚠️ secret은 저장소당 1개(<code>PR_REVIEW_PAT</code>)만 등록되므로, 이 배지는
+    <b>그 secret을 등록한 사람 1명 기준</b>으로만 갱신됩니다. 팀원 각자 자신
+    기준의 배지를 보려면, 각자 이 저장소를 자신의 계정으로 fork(또는 별도
+    사본)해서 그 fork에 자신의 토큰을 등록해야 합니다.
+  </div>
+
+  <h2>1. GitHub Personal Access Token 발급</h2>
+  <div class="card">
+    <ol>
+      <li><a href="https://github.com/settings/tokens" target="_blank" rel="noopener noreferrer">github.com/settings/tokens</a> 접속</li>
+      <li><b>Generate new token → Generate new token (classic)</b> 클릭</li>
+      <li>Note(이름)에 알아보기 쉬운 이름 입력 (예: <code>pr-review-badge</code>)</li>
+      <li>Expiration(만료일)은 원하는 대로 설정</li>
+      <li>Scopes에서 <b><code>repo</code></b> 최상위 체크박스 체크 (private repo 접근에 필요)</li>
+      <li><b>Generate token</b> 클릭 → <code>ghp_...</code> 문자열이 <b>딱 한 번만</b> 표시되니 반드시 복사</li>
+    </ol>
+    <div class="warn">
+      ⚠️ <b>Fine-grained token은 사용하지 마세요.</b> GitHub Search API
+      (<code>/search/issues</code>)를 아직 완전히 지원하지 않아서
+      <code>422 Unprocessable Entity</code> 오류가 발생합니다. 반드시
+      <b>classic</b> 토큰을 사용하세요.
+    </div>
+    <p style="margin-bottom:0;">
+      OBIGOGIT 조직이 SSO(SAML)를 강제하는 경우, 토큰 생성 직후 목록 화면에서
+      토큰 옆에 <b>"Configure SSO"</b> 버튼이 보이면 클릭 후 <b>OBIGOGIT</b> 옆의
+      <b>Authorize</b>를 눌러야 조직 저장소에 접근할 수 있습니다.
+    </p>
+  </div>
+
+  <h2>2. 저장소 Secret 등록</h2>
+  <div class="card">
+    <ol>
+      <li>자신의 저장소(fork 또는 이 저장소) 접속</li>
+      <li><b>Settings → Secrets and variables → Actions</b> 이동</li>
+      <li><b>Repository secrets</b> 섹션의 <b>New repository secret</b> 클릭</li>
+      <li>
+        입력:
+        <ul>
+          <li><b>Name</b>: <code>PR_REVIEW_PAT</code> (워크플로우 파일의 이름과 정확히 일치해야 함)</li>
+          <li><b>Secret</b>: 1단계에서 복사한 <code>ghp_...</code> 값</li>
+        </ul>
+      </li>
+      <li><b>Add secret</b> 클릭</li>
+    </ol>
+    <p style="margin-bottom:0;">
+      등록 후에는 값이 다시 표시되지 않고, Actions 로그에도 자동으로 마스킹되어
+      노출되지 않습니다.
+    </p>
+  </div>
+
+  <h2>3. 대상 저장소 목록 확인 (선택)</h2>
+  <div class="card">
+    <p>
+      <code>.github/workflows/pr-review-counts.yml</code> 안의 <code>repos=(...)</code>
+      배열이 카운트를 조회할 저장소 목록입니다. <code>index.htm</code>의
+      <code>PR_REPOS</code> 배열과 항상 같은 목록을 유지해야 배지가 정확히
+      매칭됩니다.
+    </p>
+  </div>
+
+  <h2>4. 동작 확인</h2>
+  <div class="card">
+    <ol>
+      <li>GitHub 저장소의 <b>Actions</b> 탭 → <b>Update PR review counts</b> 워크플로우 선택</li>
+      <li>우측 <b>Run workflow</b> 버튼으로 수동 실행</li>
+      <li>실행이 성공(초록 체크)하면 <code>pr-data</code> 브랜치의 <code>webdata/pr_review_counts.json</code>이 자동으로 갱신·커밋됨</li>
+      <li>GitHub Pages 배포(수 분 소요) 후 사이트에서 NEW 배지 확인</li>
+    </ol>
+    <p style="margin-bottom:0;">
+      이후에는 15분마다 자동 갱신됩니다. (스케줄 트리거는 GitHub 부하 상황에
+      따라 다소 지연될 수 있습니다.)
+    </p>
+  </div>
+
+  <h2>문제 해결</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>증상</th><th>원인</th><th>해결</th></tr></thead>
+      <tbody>
+        <tr><td><code>422</code></td><td>Fine-grained 토큰 사용 중</td><td>Classic 토큰으로 재발급 후 secret 값 교체</td></tr>
+        <tr><td><code>403</code></td><td>조직 SSO 미인가 / secondary rate limit</td><td>SSO Authorize, 또는 몇 분 뒤 재시도</td></tr>
+        <tr><td><code>404</code> (<code>gh: Not Found</code>)</td><td><code>gh api</code>가 <code>-f</code> 사용 시 기본 POST로 요청</td><td>워크플로우가 <code>--method GET</code>을 명시하는지 확인</td></tr>
+        <tr><td>배지가 계속 안 뜸</td><td>secret 이름 오타, 저장소 목록 불일치</td><td>secret 이름이 <code>PR_REVIEW_PAT</code>인지, 두 목록이 일치하는지 확인</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <footer>Roya Bookmark · PR 리뷰 알림 설정 가이드</footer>
+</div>
+</body>
+</html>

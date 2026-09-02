@@ -314,11 +314,6 @@
       color: #f59e0b;
     }
 
-    @keyframes review-blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.25; }
-    }
-
     .review-badge {
       font-size: 10px;
       font-weight: 800;
@@ -329,13 +324,6 @@
       padding: 1px 7px;
       line-height: 1.5;
       flex-shrink: 0;
-      animation: review-blink 1.1s ease-in-out infinite;
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .review-badge {
-        animation: none;
-      }
     }
 
     #sec-pinned {
@@ -867,12 +855,15 @@ obigo-build hyundai-mobis-ccnc-target --ccache --j=48</pre>
   <section class="section accent-pr" id="sec-pr">
     <h2 style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
       <span>PR</span>
-      <select id="pr-type-select" class="pr-type-select" onchange="renderPRList()">
-        <option value="review">review PR</option>
-        <option value="open">open PR</option>
-        <option value="my">my PR</option>
-        <option value="closed">closed PR</option>
-      </select>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <a href="./pr-review-guide.htm" target="_blank" rel="noopener noreferrer" class="icon-btn" style="width:24px;height:24px;font-size:12px;text-decoration:none;" title="NEW 배지(리뷰 알림) 설정 가이드">❔</a>
+        <select id="pr-type-select" class="pr-type-select" onchange="renderPRList()">
+          <option value="review">review PR</option>
+          <option value="open">open PR</option>
+          <option value="my">my PR</option>
+          <option value="closed">closed PR</option>
+        </select>
+      </div>
     </h2>
     <ul class="bookmark-list" id="pr-list"></ul>
   </section>
