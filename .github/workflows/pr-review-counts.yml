@@ -1,0 +1,57 @@
+name: Update PR review counts
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'  # 15분마다 실행 (GitHub 부하 상황에 따라 지연될 수 있음)
+  workflow_dispatch: {}      # Actions 탭에서 수동 실행 가능
+
+permissions:
+  contents: write
+
+jobs:
+  update-counts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Fetch review-requested PR counts
+        env:
+          GH_TOKEN: ${{ secrets.PR_REVIEW_PAT }}
+        run: |
+          set -euo pipefail
+
+          repos=(
+            obigo-af-agb-92
+            obigo-af-agb-143
+            obigo-ccos-qml-application
+            webappmanager-plugin-pal
+            obigo-local-webserver-apps
+            obigo-linux-af
+            obigo-common-build-suite
+            mf1_dev_tools
+          )
+
+          counts='{}'
+          for repo in "${repos[@]}"; do
+            count=$(gh api --method GET /search/issues -f q="is:pr is:open review-requested:@me repo:OBIGOGIT/${repo}" --jq '.total_count')
+            counts=$(echo "$counts" | jq --arg repo "$repo" --argjson count "$count" '.[$repo] = $count')
+          done
+
+          jq -n \
+            --argjson counts "$counts" \
+            --arg updatedAt "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            '{updatedAt: $updatedAt, counts: $counts}' \
+            > webdata/pr_review_counts.json
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add webdata/pr_review_counts.json
+          if git diff --cached --quiet; then
+            echo "변경 없음, 커밋 스킵"
+          else
+            git commit -m "chore: PR 리뷰 카운트 갱신"
+            git push
+          fi
