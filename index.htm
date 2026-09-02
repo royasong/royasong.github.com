@@ -1851,8 +1851,9 @@ async function updateReviewBadges() {
   const items = Array.from(ul.querySelectorAll("li[data-repo]"));
   if (!items.length) return;
   try {
-    // raw.githubusercontent.com은 CDN 캐시(수 분)가 있어 쿼리스트링으로 캐시버스팅한다.
-    const res = await fetch(`${PR_REVIEW_COUNTS_URL}?t=${Date.now()}`, { cache: "no-store" });
+    // 주의: raw.githubusercontent.com은 쿼리스트링과 무관하게 경로 기준으로
+    // 최대 5분(max-age=300) 캐시하므로, 데이터 반영까지 5분 정도 지연될 수 있다.
+    const res = await fetch(PR_REVIEW_COUNTS_URL, { cache: "no-store" });
     if (!res.ok) throw new Error(`fetch failed: ${res.status}`);
     const data = await res.json();
     const counts = data.counts || {};

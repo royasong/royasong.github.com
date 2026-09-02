@@ -15,7 +15,9 @@ name: Update PR review counts
 
 on:
   schedule:
-    - cron: '*/15 * * * *'  # 15분마다 실행 (GitHub 부하 상황에 따라 지연될 수 있음)
+    # 매시 07/27/47분에 실행 (20분 간격). GitHub 문서상 0/15/30/45분처럼 정각에
+    # 걸린 스케줄은 부하가 몰려 지연되기 쉬우므로 일부러 7분 오프셋을 둠.
+    - cron: '7,27,47 * * * *'
   workflow_dispatch: {}      # Actions 탭에서 수동 실행 가능
 
 permissions:
