@@ -1,8 +1,8 @@
 {
-  "updatedAt": "2026-09-04T06:16:30Z",
+  "updatedAt": "2026-09-04T09:17:53Z",
   "counts": {
-    "obigo-af-agb-92": 1,
-    "obigo-af-agb-143": 0,
+    "obigo-af-agb-92": 0,
+    "obigo-af-agb-143": 1,
     "obigo-ccos-qml-application": 0,
     "webappmanager-plugin-pal": 0,
     "obigo-local-webserver-apps": 0,
