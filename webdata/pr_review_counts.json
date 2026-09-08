@@ -1,13 +1,13 @@
 {
-  "updatedAt": "2026-09-08T09:08:48Z",
+  "updatedAt": "2026-09-08T13:46:21Z",
   "counts": {
     "obigo-af-agb-92": 0,
-    "obigo-af-agb-143": 0,
-    "obigo-ccos-qml-application": 0,
-    "webappmanager-plugin-pal": 0,
+    "obigo-af-agb-143": 1,
+    "obigo-ccos-qml-application": 1,
+    "webappmanager-plugin-pal": 1,
     "obigo-local-webserver-apps": 0,
     "obigo-linux-af": 0,
-    "obigo-common-build-suite": 0,
+    "obigo-common-build-suite": 1,
     "mf1_dev_tools": 0
   }
 }
