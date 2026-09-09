@@ -1,0 +1,889 @@
+<title>crash stack trace 코드 리뷰</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&display=swap">
+<style>
+  :root {
+    --bg:        #F3F5F7;
+    --surface:   #FFFFFF;
+    --surface-2: #E9EDF2;
+    --ink:       #141922;
+    --ink-2:     #38424F;
+    --muted:     #5C6773;
+    --line:      #D5DBE3;
+    --line-2:    #BEC7D2;
+    --accent:    #1F5F8B;
+    --accent-bg: #E2EDF5;
+    --ok:        #2E7D63;
+    --ok-bg:     #E0EFE9;
+    --warn:      #9A6B1E;
+    --warn-bg:   #F6EDDC;
+    --fault:     #B4442E;
+    --fault-bg:  #F7E5E0;
+
+    --sans: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:        #12151A;
+      --surface:   #191D24;
+      --surface-2: #212630;
+      --ink:       #E6EAF0;
+      --ink-2:     #C3CBD5;
+      --muted:     #929DAB;
+      --line:      #2A303A;
+      --line-2:    #3A4250;
+      --accent:    #6BA8D6;
+      --accent-bg: #1B2B38;
+      --ok:        #5FBF9C;
+      --ok-bg:     #16302A;
+      --warn:      #D6A343;
+      --warn-bg:   #332A17;
+      --fault:     #E0806A;
+      --fault-bg:  #331F1A;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg:        #12151A;
+    --surface:   #191D24;
+    --surface-2: #212630;
+    --ink:       #E6EAF0;
+    --ink-2:     #C3CBD5;
+    --muted:     #929DAB;
+    --line:      #2A303A;
+    --line-2:    #3A4250;
+    --accent:    #6BA8D6;
+    --accent-bg: #1B2B38;
+    --ok:        #5FBF9C;
+    --ok-bg:     #16302A;
+    --warn:      #D6A343;
+    --warn-bg:   #332A17;
+    --fault:     #E0806A;
+    --fault-bg:  #331F1A;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.72;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 940px;
+    margin: 0 auto;
+    padding-inline: 20px;
+    padding-block: 56px 96px;
+  }
+
+  /* ---------- masthead ---------- */
+  .masthead { display: flex; flex-direction: column; gap: 18px; }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  h1 {
+    font-size: clamp(30px, 5.2vw, 44px);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .standfirst {
+    font-size: 17px;
+    line-height: 1.7;
+    color: var(--ink-2);
+    max-width: 64ch;
+    margin: 0;
+  }
+
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    margin: 14px 0 0;
+  }
+  .fact { background: var(--surface); padding: 14px 16px; display: flex; flex-direction: column; gap: 3px; }
+  .fact dt {
+    font-family: var(--mono); font-size: 10.5px; font-weight: 500;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
+  }
+  .fact dd { margin: 0; font-size: 15px; font-weight: 600; line-height: 1.4; }
+  .fact dd.mono { font-family: var(--mono); font-size: 13.5px; }
+
+  /* ---------- sections ---------- */
+  section { margin-top: 64px; }
+
+  h2 {
+    font-size: 23px;
+    font-weight: 600;
+    letter-spacing: -0.012em;
+    margin: 0 0 6px;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    text-wrap: balance;
+  }
+  h2 .n {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.06em;
+    flex: none;
+  }
+  h2 + .lede { color: var(--muted); font-size: 15px; margin: 0 0 22px; max-width: 64ch; }
+
+  h3 { font-size: 15px; font-weight: 600; margin: 30px 0 10px; }
+
+  p { margin: 0 0 14px; }
+  p:last-child { margin-bottom: 0; }
+
+  a { color: var(--accent); }
+
+  code {
+    font-family: var(--mono);
+    font-size: 0.875em;
+    background: var(--surface-2);
+    padding: 0.1em 0.36em;
+    border-radius: 2px;
+    word-break: break-word;
+  }
+
+  strong { font-weight: 600; }
+
+  ul { margin: 0 0 14px; padding-left: 1.15em; }
+  li { margin-bottom: 7px; }
+  li:last-child { margin-bottom: 0; }
+
+  /* ---------- verdict callout ---------- */
+  .verdict-box {
+    border: 1px solid var(--line-2);
+    border-left: 3px solid var(--ok);
+    background: var(--surface);
+    padding: 18px 20px;
+  }
+  .verdict-box .tag {
+    font-family: var(--mono); font-size: 10.5px; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--ok);
+    display: block; margin-bottom: 8px;
+  }
+  .verdict-box p { font-size: 15.5px; }
+  .verdict-box.caution { border-left-color: var(--warn); }
+  .verdict-box.caution .tag { color: var(--warn); }
+
+  /* ---------- pipeline ---------- */
+  .pipe { border: 1px solid var(--line); background: var(--surface); }
+  .pipe-row {
+    display: grid;
+    grid-template-columns: 132px 1fr;
+    gap: 16px;
+    padding: 13px 16px;
+    align-items: baseline;
+    border-top: 1px solid var(--line);
+  }
+  .pipe-row:first-child { border-top: 0; }
+  .pipe-row .who {
+    font-family: var(--mono); font-size: 10.5px; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
+  }
+  .pipe-row .what { font-size: 14.5px; line-height: 1.6; }
+  .pipe-row.obigo { background: var(--accent-bg); }
+  .pipe-row.obigo .who { color: var(--accent); }
+  .pipe-row.risk { background: var(--fault-bg); }
+  .pipe-row.risk .who { color: var(--fault); }
+
+  /* ---------- findings ---------- */
+  .finding {
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--line-2);
+    background: var(--surface);
+    padding: 18px 20px 20px;
+    margin-bottom: 16px;
+  }
+  .finding.blocker { border-top-color: var(--fault); }
+  .finding.major   { border-top-color: var(--warn); }
+  .finding.minor   { border-top-color: var(--accent); }
+
+  .finding .fhead {
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px;
+    margin-bottom: 10px;
+  }
+  .finding .idx {
+    font-family: var(--mono); font-size: 13px; font-weight: 700;
+    color: var(--muted); font-variant-numeric: tabular-nums;
+  }
+  .sev {
+    font-family: var(--mono); font-size: 10px; font-weight: 700;
+    letter-spacing: 0.09em; text-transform: uppercase;
+    padding: 3px 8px; white-space: nowrap; border: 1px solid currentColor;
+  }
+  .sev.blocker { color: var(--fault); background: var(--fault-bg); }
+  .sev.major   { color: var(--warn);  background: var(--warn-bg); }
+  .sev.minor   { color: var(--accent); background: var(--accent-bg); }
+
+  .finding h3 { margin: 0; font-size: 16.5px; font-weight: 600; flex: 1 1 260px; }
+  .finding p { font-size: 14.8px; }
+  .finding ul { font-size: 14.8px; }
+
+  .fix {
+    margin-top: 12px; padding: 11px 14px;
+    background: var(--surface-2); border-left: 2px solid var(--accent);
+    font-size: 14.2px;
+  }
+  .fix b {
+    font-family: var(--mono); font-size: 10.5px; font-weight: 700;
+    letter-spacing: 0.09em; text-transform: uppercase; color: var(--accent);
+    display: block; margin-bottom: 4px;
+  }
+
+  .ref {
+    display: block; margin-top: 9px;
+    font-family: var(--mono); font-size: 11.5px; color: var(--muted);
+    word-break: break-all;
+  }
+
+  /* ---------- code ---------- */
+  .codewrap { overflow-x: auto; border: 1px solid var(--line); background: var(--surface); margin: 4px 0 0; }
+  pre {
+    margin: 0; padding: 15px 16px;
+    font-family: var(--mono); font-size: 12.5px; line-height: 1.72;
+    white-space: pre; color: var(--ink-2);
+  }
+  pre .hl   { color: var(--fault); font-weight: 600; }
+  pre .good { color: var(--ok); font-weight: 600; }
+  pre .dim  { color: var(--muted); }
+  .caption {
+    font-family: var(--mono); font-size: 11px; color: var(--muted);
+    letter-spacing: 0.04em; margin-top: 7px;
+  }
+
+  /* ---------- tables ---------- */
+  .tablewrap { overflow-x: auto; border: 1px solid var(--line); }
+  table { border-collapse: collapse; width: 100%; background: var(--surface); font-size: 14px; }
+  th, td { padding: 10px 14px; text-align: left; border-top: 1px solid var(--line); vertical-align: top; }
+  thead th {
+    border-top: 0; background: var(--surface-2);
+    font-family: var(--mono); font-size: 10.5px; font-weight: 600;
+    letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted);
+    white-space: nowrap;
+  }
+  td.mono { font-family: var(--mono); font-size: 12.5px; word-break: break-all; }
+  td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; text-align: center; }
+  .v-ok    { color: var(--ok);    font-weight: 600; }
+  .v-fault { color: var(--fault); font-weight: 600; }
+  .v-warn  { color: var(--warn);  font-weight: 600; }
+
+  footer {
+    margin-top: 76px; padding-top: 20px; border-top: 1px solid var(--line);
+    font-family: var(--mono); font-size: 11.5px; color: var(--muted);
+    display: flex; flex-wrap: wrap; gap: 6px 20px;
+  }
+
+  @media (max-width: 560px) {
+    .pipe-row { grid-template-columns: 1fr; gap: 4px; }
+    .finding { padding: 16px 15px 18px; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="eyebrow">MF1-15 · brs_143 · 코드 리뷰</div>
+    <h1>CCOS sig handler를 유지하면서 webappmanager에서도 crash stack trace 받기</h1>
+    <p class="standfirst">
+      크래시 시그널을 DLT에게서 되찾아 백트레이스를 찍고, 원래 주인에게 시그널을 다시 넘겨주는
+      체이닝 구현에 대한 리뷰입니다. "둘 다 동작 가능한가"라는 질문에 답하기 위해
+      MOBIS_CCNC와 MOTREX_CCNC의 SIG/DLT 경로를 분리해서 재분석했습니다.
+    </p>
+
+    <dl class="facts">
+      <div class="fact"><dt>브랜치</dt><dd class="mono">dev_roya_MF1-15_02</dd></div>
+      <div class="fact"><dt>커밋</dt><dd class="mono">e5d9eaba</dd></div>
+      <div class="fact"><dt>대상 빌드</dt><dd class="mono">mobis-ccnc / motrex-ccnc</dd></div>
+      <div class="fact"><dt>구조적 성립</dt><dd>플랫폼별 조건부 가능</dd></div>
+      <div class="fact"><dt>발견</dt><dd>블로커 2 · 심각 3 · 중간 6</dd></div>
+    </dl>
+  </header>
+
+  <!-- 00 -->
+  <section>
+    <h2><span class="n">00</span> 플랫폼별 SIG/DLT 경로 분류</h2>
+    <p class="lede">두 타깃은 같은 <code>MOBIS_CCNC || MOTREX_CCNC</code> 가드로 묶기에는 signal handler 주인이 다릅니다.</p>
+
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>MOBIS_CCNC</th>
+            <th>MOTREX_CCNC</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>webapp extension의 명시적 crash handler 등록</td>
+            <td>
+              <span class="v-ok">있음</span>.
+              <code>WebAppExtensionCore::Initialize()</code>에서
+              <code>port::DebugHandler::getInst()-&gt;registryDebugHandler()</code> 호출.
+            </td>
+            <td>
+              <span class="v-fault">없음</span>.
+              해당 코드는 <code>#if defined(MOBIS_CCNC)</code>로만 감싸져 있어 MOTREX에서는 컴파일되지 않음.
+            </td>
+          </tr>
+          <tr>
+            <td>handler 구현/라이브러리 성격</td>
+            <td>
+              <code>WebAppDebugHandler</code> → <code>HDebugHandler</code> 계열로 보임.
+              CMake도 mobis-ccnc에서만 <code>htrace</code>를 찾고, sysroot include에 <code>ccos/include/htrace</code>가 포함됨.
+            </td>
+            <td>
+              webappmanager PAL의 <code>WebAppDebugHandler/HDebugHandler</code> 경로가 아님.
+              crash signal을 잡는 주체가 있다면 <code>obigo-logger</code>/<code>libdlt</code> 또는 하위 플랫폼 DLT 경로로 봐야 함.
+            </td>
+          </tr>
+          <tr>
+            <td>DLT/log define</td>
+            <td colspan="2">
+              <code>OBIGO_USE_LOG_SYSTEM</code>은 공통으로 켜질 수 있고,
+              빌드 옵션에 따라 <code>OBIGO_USE_HYUNDAI_LOG_SYSTEM</code> 또는 <code>OBIGO_USE_DLT_LOG_SYSTEM</code>이 추가됨.
+              따라서 "DLT로 출력" 경로와 "CCOS crash handler" 경로를 동일한 것으로 보면 안 됨.
+            </td>
+          </tr>
+          <tr>
+            <td>현재 패치의 체이닝 대상</td>
+            <td>
+              의도상 <code>registryDebugHandler()</code>가 설치한 이전 handler.
+              단, <code>HDebugHandler</code>가 return하는지, 내부에서 re-raise/exit하는지 확인 필요.
+            </td>
+            <td>
+              <code>EnableInProcessStackDumping()</code> 호출 직전 이미 설치되어 있던 handler.
+              로컬 근거상 webappmanager DebugHandler는 아니며, 대부분의 리스크는 DLT/logging handler와의 상호작용으로 분류해야 함.
+            </td>
+          </tr>
+          <tr>
+            <td>리스크 분류</td>
+            <td>
+              <span class="v-warn">handler semantics 불명</span>.
+              직접 호출 방식이 <code>sa_mask</code>/<code>SA_RESETHAND</code>를 보존하지 못하는 문제가 더 큼.
+            </td>
+            <td>
+              <span class="v-warn">crash 이후 DLT 재진입 hang 리스크</span>.
+              정상 실행 중 일반 기능 deadlock이라기보다, crash signal handler 안의
+              <code>WriteLog()</code>가 crash stack trace/platform crash report/프로세스 종료를 지연시킬 수 있는지가 핵심.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="caption">
+      근거: src/obigo/web_application_extension_core.cc:31, src/obigo/port/utils/ccnc/trace.cc:26,
+      src/obigo/CMakeLists.txt:238-294, 436-445, src/build/config/obigo.gni:590-619
+    </p>
+
+    <div class="verdict-box caution" style="margin-top:22px">
+      <span class="tag">재분석 결론</span>
+      <p>
+        <strong>MOBIS_CCNC와 MOTREX_CCNC를 같은 이전 handler로 가정하면 안 됩니다.</strong>
+        MOBIS는 WebAppDebugHandler/HDebugHandler 쪽을 보존해야 하는 문제이고,
+        MOTREX는 현재 코드상 webappmanager DebugHandler가 없으므로 obigo-logger/libdlt 쪽과의 충돌 문제로 봐야 합니다.
+      </p>
+      <p>
+        따라서 공통 코드는 유지하더라도 진단/체이닝 정책은 플랫폼별로 나누는 게 안전합니다.
+        특히 <code>ChainToPreviousHandler()</code> 앞뒤 순서와 <code>WriteLog()</code> 사용 여부는 MOBIS와 MOTREX에서 같은 결론이 아닐 수 있습니다.
+      </p>
+    </div>
+  </section>
+
+  <!-- 01 -->
+  <section>
+    <h2><span class="n">01</span> 결론</h2>
+    <p class="lede">체이닝 방식 자체는 필요합니다. 다만 "무엇을 체이닝하는지"가 MOBIS와 MOTREX에서 다릅니다.</p>
+
+    <div class="verdict-box">
+      <span class="tag">플랫폼별 조건부 가능</span>
+      <p>
+        MOTREX 계열에서 확인한 libdlt 경로는 <code>sigaction()</code>의 oldact 인자에 <code>NULL</code>을 넘깁니다.
+        즉 <strong>이전 핸들러를 저장하지도 체이닝하지도 않습니다.</strong>
+        구조가 "나중에 설치한 쪽이 무조건 이긴다"라면,
+        나중에 설치하는 쪽이 이전 핸들러를 명시적으로 보존/호출해야 webappmanager stack trace와 플랫폼 crash report를 같이 얻을 수 있습니다.
+      </p>
+      <p>
+        반면 MOBIS는 <code>WebAppDebugHandler</code>/<code>HDebugHandler</code> 경로가 따로 있으므로
+        libdlt와 같은 return/re-raise semantics라고 단정하면 안 됩니다.
+        MOBIS에서는 실제 이전 handler 심볼과 return 여부를 먼저 찍어야 "둘 다 동작"을 말할 수 있습니다.
+      </p>
+    </div>
+
+    <h3>MOTREX/libdlt 경로에서 역어셈블로 확인한 사실</h3>
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr><th>확인 항목</th><th>실제 값</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>등록 시그널</td>
+            <td class="mono">SIGILL(4) · SIGABRT(6) · SIGBUS(7) · SIGFPE(8) · SIGSEGV(11)</td>
+          </tr>
+          <tr>
+            <td><code>sa_flags</code></td>
+            <td class="mono">0x10000004 = SA_RESTART | SA_SIGINFO<br><span class="v-warn">SA_RESETHAND / SA_NODEFER 없음</span></td>
+          </tr>
+          <tr>
+            <td><code>sigaction()</code> oldact</td>
+            <td class="mono"><span class="v-fault">NULL</span> — 이전 핸들러 미보존 · 미체이닝</td>
+          </tr>
+          <tr>
+            <td><code>dlt_sig_handler</code> 동작</td>
+            <td>gettid → dlt_vlog → dlt_serialize_msg →<br>
+                <code>dlt_lpd_crash_report_client_sock()</code> (플랫폼 리포트 전송) →<br>
+                disposition을 SIG_DFL로 리셋 → <code>raise(sig)</code> → <span class="v-ok">return</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="caption">MOTREX/libdlt 기준: libdlt.so.2.17.0 · dlt_signal_handler_registration @ 0xd720 · dlt_sig_handler @ 0xd4a0</p>
+
+    <h3>oldact=NULL 판단 근거</h3>
+    <p>
+      libdlt 소스가 아니라 MOTREX sysroot의 실제 바이너리
+      <code>libdlt.so.2.17.0</code>을 역어셈블해서 판단했습니다.
+      AArch64 호출 규약에서 <code>sigaction(signum, act, oldact)</code>의 세 번째 인자
+      <code>oldact</code>는 <code>x2</code> 레지스터로 전달됩니다.
+      아래 호출부들은 <code>sigaction@plt</code> 직전에 모두 <code>mov x2, #0x0</code>을 수행하므로
+      <code>oldact == NULL</code>입니다.
+    </p>
+    <div class="codewrap"><pre><span class="dim">$ aarch64-linux-gnu-objdump -d --start-address=0xd720 --stop-address=0xda50 \
+  /home/obigo/obigo-sdk/target/hyundai/motrex-ccnc/aarch64-telechips-linux/sysroots/aarch64-telechips-linux/usr/lib/libdlt.so.2.17.0</span>
+
+000000000000d720 &lt;dlt_signal_handler_registration@@Base&gt;:
+  d7a4: aa1403e1  mov x1, x20        <span class="dim">// act</span>
+  d7a8: d2800002  mov x2, #0x0       <span class="hl">// oldact = NULL</span>
+  d7ac: 528000c0  mov w0, #0x6       <span class="dim">// SIGABRT</span>
+  d7b0: 97ffe810  bl  77f0 &lt;sigaction@plt&gt;
+
+  d7bc: d2800002  mov x2, #0x0       <span class="hl">// oldact = NULL</span>
+  d7c0: aa1403e1  mov x1, x20
+  d7c4: 528000e0  mov w0, #0x7       <span class="dim">// SIGBUS</span>
+  d7c8: 97ffe80a  bl  77f0 &lt;sigaction@plt&gt;
+
+  d7d8: d2800002  mov x2, #0x0       <span class="hl">// oldact = NULL</span>
+  d7e0: 52800100  mov w0, #0x8       <span class="dim">// SIGFPE</span>
+  d7e4: 97ffe803  bl  77f0 &lt;sigaction@plt&gt;
+
+  d7f4: d2800002  mov x2, #0x0       <span class="hl">// oldact = NULL</span>
+  d7fc: 52800080  mov w0, #0x4       <span class="dim">// SIGILL</span>
+  d800: 97ffe7fc  bl  77f0 &lt;sigaction@plt&gt;
+
+  d80c: aa1403e1  mov x1, x20
+  d810: d2800002  mov x2, #0x0       <span class="hl">// oldact = NULL</span>
+  d814: 52800160  mov w0, #0xb       <span class="dim">// SIGSEGV</span>
+  d818: 97ffe7f6  bl  77f0 &lt;sigaction@plt&gt;</pre></div>
+    <p class="caption">
+      따라서 "oldact에 NULL을 넘긴다"는 표현은 C 소스 확인이 아니라
+      MOTREX sysroot 바이너리의 호출 규약/레지스터 값 기반 판단입니다.
+    </p>
+
+    <div class="verdict-box caution" style="margin-top:22px">
+      <span class="tag">성립 조건</span>
+      <ul style="margin-bottom:0">
+        <li><code>EnableInProcessStackDumping()</code>이 해당 플랫폼의 crash handler 등록보다 <strong>반드시 나중에</strong> 호출될 것</li>
+        <li>그 사이에 아무도 다시 뺏어가지 않을 것</li>
+        <li>MOTREX/libdlt는 return semantics가 확인됐지만, MOBIS/HDebugHandler는 별도 확인할 것</li>
+        <li>백트레이스 출력 도중 hang/deadlock이 안 날 것 — <strong>현재 크래시 테스트에서는 정상 출력 확인됨</strong>. 단, 이 리스크는 정상 실행 중 일반 기능 deadlock이 아니라, 이미 crash signal이 발생한 뒤 handler가 DLT 경로를 재진입하면서 stack trace/platform report/종료가 지연될 수 있는 리스크임 (#3, #4)</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 02 -->
+  <section>
+    <h2><span class="n">02</span> 크래시 발생 시 실행 순서</h2>
+    <p class="lede">현재 구현 기준. 아래 순서는 MOTREX/libdlt에서 확인된 handler semantics를 기준으로 쓴 것입니다. MOBIS/HDebugHandler는 별도 검증이 필요합니다.</p>
+
+    <div class="pipe">
+      <div class="pipe-row"><div class="who">Kernel</div><div class="what">SIGSEGV 전달 → <code>StackDumpSignalHandler</code> 진입 (SA_RESETHAND로 disposition은 SIG_DFL로 리셋됨)</div></div>
+      <div class="pipe-row"><div class="who">base</div><div class="what"><code>in_signal_handler = 1</code> · "Received signal 11 SEGV_MAPERR ..." 출력</div></div>
+      <div class="pipe-row obigo"><div class="who">패치</div><div class="what"><code>PrintToStderr()</code>이 매 줄을 <code>MirrorToDlt()</code>로 복사 → <code>WriteLog()</code>로 DLT 전송</div></div>
+      <div class="pipe-row risk"><div class="who">관찰/리스크</div><div class="what"><code>StackTrace().Print()</code> — 현재 테스트에서는 크래시 코드와 백트레이스 출력 확인. 다만 이미 crash handler에 들어온 뒤 수십 줄 × WriteLog() 구조라 DLT 세마포어/락 재진입 상황에서는 crash 처리 완료가 지연될 가능성이 남음.</div></div>
+      <div class="pipe-row obigo"><div class="who">패치</div><div class="what"><code>ChainToPreviousHandler()</code> → MOTREX에서는 <code>dlt_sig_handler()</code> → 플랫폼 크래시 리포트 전송 · raise() pending · return</div></div>
+      <div class="pipe-row obigo"><div class="who">패치</div><div class="what"><code>FinalizeLogger()</code> — 이후 모든 WriteLog가 early return</div></div>
+      <div class="pipe-row"><div class="who">base</div><div class="what"><code>"[end of stack trace]"</code> 출력 — <span class="v-fault">DLT에는 남지 않음</span></div></div>
+      <div class="pipe-row"><div class="who">base</div><div class="what"><code>alarm(5)</code> 설정 · <code>rt_tgsigqueueinfo()</code> → return → pending 시그널이 SIG_DFL로 처리되어 프로세스 종료</div></div>
+    </div>
+  </section>
+
+  <!-- 03 -->
+  <section>
+    <h2><span class="n">03</span> 블로커</h2>
+    <p class="lede">이 두 건은 검증 자체를 막습니다.</p>
+
+    <div class="finding blocker">
+      <div class="fhead">
+        <span class="idx">01</span>
+        <span class="sev blocker">Blocker</span>
+        <h3>검증용으로 켠 config가 이 빌드에서 쓰이지 않는 파일입니다</h3>
+      </div>
+      <p>
+        <code>args.gn</code>은 <code>motrex_ccnc = true</code>이고 <code>mobis_ccnc</code>는 없습니다.
+        빌드 스크립트의 <code>brs_build_install_config()</code>는 motrex-ccnc에 대해
+        <code>configuration/motrex-ccnc/</code>만 복사합니다(release 분기도 없음).
+      </p>
+      <p>
+        그런데 워킹트리에서 <code>on</code>으로 바꾼 건 <code>mobis-ccnc/webappmanager.config</code>입니다.
+        <code>motrex-ccnc/webappmanager.config</code>는 아직 <code>off</code>입니다.
+      </p>
+      <p><strong>현재 상태로 빌드/탑재하면 기능이 꺼진 채로 돕니다.</strong> 지금까지 검증이 안 된 원인일 가능성이 큽니다.</p>
+      <span class="ref">linux-af/build/buildscripts/OAF/brs/BRSBuild_Browser_for_143.sh:554-563</span>
+      <span class="ref">src/obigo/configuration/motrex-ccnc/webappmanager.config</span>
+    </div>
+
+    <div class="finding blocker">
+      <div class="fhead">
+        <span class="idx">02</span>
+        <span class="sev blocker">Blocker</span>
+        <h3>이 빌드에서는 CCOS DebugHandler가 아예 등록되지 않습니다</h3>
+      </div>
+      <div class="codewrap"><pre><span class="dim">// src/obigo/web_application_extension_core.cc:31</span>
+#if defined(MOBIS_CCNC)          <span class="hl">// ← MOTREX_CCNC 없음</span>
+  port::DebugHandler::getInst()->registryDebugHandler();
+#endif</pre></div>
+      <p style="margin-top:14px">추가로 SDK sysroot를 전수 스캔한 결과:</p>
+      <ul>
+        <li><code>dlt_signal_handler_registration</code>을 undefined로 참조하는 <code>.so</code>가 sysroot 전체에 <strong>하나도 없음</strong></li>
+        <li><code>libwebappmanager-plugin-pal.so.3.0.0</code>에 <code>WebAppDebugHandler</code> / <code>HDebugHandler</code> 심볼 없음</li>
+        <li><code>libobigo_logger.a</code>는 <code>WebAppLog::{registerContext, unregisterContext, printLog}</code>만 참조 (시그널 관련 없음)</li>
+      </ul>
+      <p>
+        <strong>MOTREX 타깃에서 "CCOS DebugHandler가 crash sig event를 가져간다"는 전제는 성립하지 않습니다.</strong>
+        적어도 이 코드베이스 기준으로 MOTREX에서는 <code>WebAppDebugHandler/HDebugHandler</code> 등록 코드가 빠져 있습니다.
+        이전 handler가 잡힌다면 그 주체는 webappmanager DebugHandler가 아니라 obigo-logger/libdlt 또는 하위 플랫폼 DLT 경로로 분류해야 합니다.
+      </p>
+      <p>
+        체이닝 코드 자체는 이전 핸들러가 없으면 no-op이므로 <span class="v-ok">해가 되지는 않습니다.</span>
+        다만 MOBIS와 MOTREX가 서로 다른 SIG/DLT library를 쓰는 구조이므로, 무엇을 상대로 체이닝하는지 모른 채 공통 정책을 적용하는 건 리스크입니다.
+      </p>
+      <div class="fix"><b>조치</b>08장의 진단 로그로 각 프로세스에서 실제 이전 핸들러가 무엇인지 먼저 확정. 로그에는 플랫폼명, signal 번호, 이전 handler 심볼, so 이름을 함께 남겨 MOBIS/HDebugHandler와 MOTREX/libdlt를 분리해 판단</div>
+    </div>
+  </section>
+
+  <!-- 04 -->
+  <section>
+    <h2><span class="n">04</span> 심각 — 기존 동작 후퇴</h2>
+
+    <div class="finding major">
+      <div class="fhead">
+        <span class="idx">03</span>
+        <span class="sev major">Major</span>
+        <h3>체이닝 순서 때문에 플랫폼 크래시 리포트가 뒤로 밀립니다</h3>
+      </div>
+      <p>
+        기존에는 크래시 즉시 첫 동작이 플랫폼 리포트 전송이었습니다. 지금은 <strong>수십 번의 DLT 왕복이 끝나야</strong> 리포트가 나갑니다.
+        현재 테스트에서는 크래시 코드와 백트레이스가 잘 출력되는 것을 확인했습니다.
+        따라서 이 항목은 즉시 재현되는 장애라기보다, DLT 지연/락 경합/워치독 개입 시 플랫폼 리포트가 뒤로 밀릴 수 있는 구조적 리스크입니다.
+      </p>
+      <p>
+        다만 이 구간을 지켜줄 <code>alarm(5)</code> 워치독은 <strong>한참 뒤에서야</strong> 설정됩니다.
+        정상 크래시 테스트는 통과했지만, 이미 crash signal이 발생한 뒤 백트레이스 출력 중 DLT 내부 대기에서 멈추는 재진입 케이스까지 커버하지는 못합니다.
+      </p>
+      <div class="fix">
+        <b>조치</b>
+        <strong>최소</strong> — <code>alarm()</code> + SIGALRM 핸들러 설치를 <code>in_signal_handler = 1;</code> 직후로 앞당깁니다. 무슨 일이 있어도 5초 안에 <code>exit_group</code> 보장.<br>
+        <strong>MOTREX 권장</strong> — <code>ChainToPreviousHandler()</code>를 <code>StackTrace().Print()</code> 앞으로 이동. 확인된 <code>dlt_sig_handler</code>는 return 하므로 백트레이스는 그대로 찍힙니다.<br>
+        <strong>MOBIS 보류</strong> — <code>HDebugHandler</code>가 return 하는지 미확인이므로 같은 순서 변경을 바로 적용하지 말고, 실제 심볼/동작 확인 뒤 별도 정책으로 결정해야 합니다.
+      </div>
+      <span class="ref">src/base/debug/stack_trace_posix.cc:565-576, 647-654</span>
+    </div>
+
+    <div class="finding major">
+      <div class="fhead">
+        <span class="idx">04</span>
+        <span class="sev major">Major</span>
+        <h3>시그널 핸들러 안의 <code>WriteLog()</code> — crash 이후 처리 지연 가능</h3>
+      </div>
+      <p>
+        <code>WriteLog</code> → <code>ImplHLogDelegate::WriteLog</code> →
+        <code>WebAppLog::printLog(std::shared_ptr&lt;DltContext&gt;, ...)</code>.
+        일반 크래시 테스트에서는 크래시 코드와 백트레이스가 정상 출력되었습니다.
+        하지만 현재 코드만 놓고 보면 <strong>crash 이후 handler 처리 중 hang/deadlock 가능성은 남습니다.</strong>
+        이유는 signal handler가 async-signal-safe 함수만 호출해야 하는 구간에서
+        <code>WriteLog()</code>를 통해 일반 로깅 스택 전체를 다시 호출하기 때문입니다.
+      </p>
+      <p>
+        여기서 말하는 deadlock은 <strong>정상 실행 중 webappmanager 기능이 멈추는 일반 deadlock이 아닙니다.</strong>
+        이미 SIGSEGV/SIGABRT 같은 crash signal이 발생한 뒤,
+        stack trace를 남기기 위해 들어간 crash handler 내부에서 DLT logging 경로를 다시 타면서
+        stack trace 출력, platform crash report 전달, 최종 프로세스 종료가 지연되거나 유실될 수 있는 리스크입니다.
+      </p>
+      <p>
+        재검토 결과, 리스크는 두 갈래입니다.
+        첫째, <code>ImplHLogDelegate</code>에는 <code>std::mutex m_log_mutex</code>가 있고
+        <code>RegisterContext()</code> 경로에서 <code>pthread_mutex_lock()</code>이 확인됩니다.
+        <code>EnableInProcessStackDumping()</code>의 warm-up 로그는 이 최초 컨텍스트 등록 경로를 미리 태워
+        크래시 시점의 lazy register를 피하려는 완화책입니다.
+        따라서 warm-up이 성공하고 컨텍스트가 유지되는 정상 경로에서는 이 mutex 쪽 self-deadlock 확률은 낮아집니다.
+      </p>
+      <p>
+        둘째, warm-up 이후에도 매 로그 라인은
+        <code>WebAppLog::printLog()</code> → <code>HLog::e2()</code> →
+        <code>HLog::logMessage()</code> → <code>dlt_user_log_write_start()</code> /
+        <code>dlt_user_log_write_string()</code> / <code>dlt_user_log_write_finish()</code>로 내려갑니다.
+        실제 MOTREX <code>libdlt.so.2.17.0</code> 역어셈블에서
+        <code>dlt_user_log_write_finish()</code>는 <code>dlt_forward_msg()</code>로 진입하고,
+        실패/버퍼링 경로에서 <code>sem_wait()</code> 후 <code>dlt_buffer_push3()</code>를 호출합니다.
+        또한 libdlt에는 <code>dlt_lock_mutex()</code> → <code>pthread_mutex_lock()</code> 경로도 존재합니다.
+        이 함수들은 signal handler에서 안전하다고 볼 수 없습니다.
+      </p>
+      <div class="codewrap"><pre><span class="dim">signal handler</span>
+StackDumpSignalHandler
+  → PrintToStderr
+    → MirrorToDlt
+      → FlushDltLine
+        → WriteLog
+          → ImplHLogDelegate::WriteLog
+            → WebAppLog::printLog
+              → HLog::e2
+                → HLog::logMessage
+                  → dlt_user_log_write_finish
+                    → dlt_forward_msg
+                      → sem_wait / dlt_buffer_push3   <span class="hl">// signal-safe 아님</span></pre></div>
+      <p style="margin-top:14px">
+        따라서 테스트에서 잘 찍힌 결과와 코드상 리스크는 모순이 아닙니다.
+        현재 테스트는 "crash handler가 DLT 내부 세마포어/락 보유 상태와 충돌하지 않은 케이스"를 확인한 것입니다.
+        반대로 crash가 같은 스레드에서 DLT critical section 안에서 발생하면 자기 자신이 가진 세마포어/락을 다시 기다릴 수 있고,
+        다른 스레드가 해당 락을 가진 상태에서 process-wide crash가 진행되면 signal handler가 그 락 해제를 기다리며 멈출 수 있습니다.
+      </p>
+      <p>
+        기존 코드가 핸들러 맨 앞에서 <code>FinalizeLogger()</code>를 부르던 게 정확히 이 위험 회피였을 수 있다는 점도 고려해 주세요.
+        (git 이력상 92→143 병합 때 들어온 코드라 의도는 불분명합니다.)
+      </p>
+      <div class="fix"><b>조치</b>현재 테스트 결과상 일반 크래시 출력은 확인됐지만, 코드상 crash 이후 처리 지연/hang 가능성은 남습니다. 최소 조치는 #3의 <code>alarm()</code> 선행 이동입니다. 더 안전한 구조는 signal handler에서는 <code>write()</code>만 수행하고, DLT 전송은 미리 열린 fd/별도 프로세스/사후 수집 경로로 넘기는 것입니다. 현재 구조를 유지한다면 "crash handler에서 DLT 재진입 시 stack trace/platform report/종료가 지연될 수 있음"을 알려진 잔여 리스크로 문서화해야 합니다.</div>
+      <span class="ref">src/base/debug/stack_trace_posix.cc:341-348, 400-405, 565-575, 1121-1125</span>
+      <span class="ref">libobigo_logger.a: ImplHLogDelegate::RegisterContext() → pthread_mutex_lock(), ImplHLogDelegate::WriteLog() → WebAppLog::printLog()</span>
+      <span class="ref">libhlog.so.1.0.0: HLog::logMessage() → dlt_user_log_write_start/string/finish</span>
+      <span class="ref">libdlt.so.2.17.0: dlt_forward_msg() → sem_wait(), dlt_lock_mutex() → pthread_mutex_lock()</span>
+    </div>
+
+    <div class="finding major">
+      <div class="fhead">
+        <span class="idx">05</span>
+        <span class="sev major">Major</span>
+        <h3><code>MirrorToDlt</code>가 스위치와 무관하게 항상 동작합니다</h3>
+      </div>
+      <p>
+        <code>PrintToStderr()</code>의 가드는 <code>OBIGO_USE_LOG_SYSTEM &amp;&amp; ARCH_CPU_ARM64</code>뿐이고
+        <code>kEnableCrashStackTrace</code>와 무관합니다. 따라서 <strong>스위치가 off여도</strong>
+        DCHECK 실패, <code>DumpWithoutCrashing()</code>, 각종 <code>StackTrace().Print()</code> 출력이 전부 DLT로 나갑니다.
+        로그 폭주 + 성능 영향.
+      </p>
+      <p>
+        여기에 더해 <code>is_official_build = false</code>라서
+        <code>content_main_runner_impl.cc:996-999</code>가 <strong>이미 모든 프로세스에서</strong>
+        <code>EnableInProcessStackDumping()</code>을 호출하고 있습니다. 즉 이 스위치가 실제로 제어하는 건
+        "스택 덤프 활성화"가 아니라 <strong>"DLT에게서 시그널을 되찾아오기"</strong>입니다.
+        스위치 이름·주석과 실제 의미가 어긋납니다.
+      </p>
+      <div class="fix"><b>조치</b>전역 <code>bool g_mirror_to_dlt = false;</code>를 두고 <code>EnableInProcessStackDumping()</code>에서 스위치 값으로 세팅, <code>MirrorToDlt()</code> 진입부에서 early return. config 설명도 실제 의미로 수정.</div>
+      <span class="ref">src/base/debug/stack_trace_posix.cc:399-407 · src/content/app/content_main_runner_impl.cc:996-999</span>
+    </div>
+  </section>
+
+  <!-- 05 -->
+  <section>
+    <h2><span class="n">05</span> 중간</h2>
+
+    <div class="finding minor">
+      <div class="fhead">
+        <span class="idx">06</span><span class="sev minor">Medium</span>
+        <h3><code>FinalizeLogger()</code> 위치 때문에 <code>[end of stack trace]</code>가 DLT에 안 남습니다</h3>
+      </div>
+      <div class="codewrap"><pre>StackTrace().Print()  →  FlushDltLine()  →  Chain  →  <span class="hl">FinalizeLogger()</span>
+   →  (x86 전용 레지스터 덤프, ARM64에선 skip)
+   →  PrintToStderr("[end of stack trace]\n")   <span class="dim">← WriteLog는 이미 early return</span></pre></div>
+      <p style="margin-top:14px">
+        종료 마커가 DLT에 없으면 <strong>로그가 잘린 건지 정상 종료한 건지 구분이 안 됩니다.</strong>
+        크래시 로그에서 가장 중요한 정보입니다. 또한 체인된 핸들러가 return 하지 않는 구현이면
+        <code>FinalizeLogger()</code> 자체가 실행되지 않습니다.
+      </p>
+      <div class="fix"><b>조치</b><code>FinalizeLogger()</code>를 <code>"[end of stack trace]"</code> 출력 + <code>FlushDltLine()</code> 뒤, re-raise 직전으로 이동</div>
+    </div>
+
+    <div class="finding minor">
+      <div class="fhead">
+        <span class="idx">07</span><span class="sev minor">Medium</span>
+        <h3><code>g_dlt_line</code> 전역 버퍼에 동기화가 없습니다</h3>
+      </div>
+      <p>
+        <code>PrintToStderr()</code>는 시그널 컨텍스트 <strong>밖</strong>에서도 쓰입니다(임의 스레드의 <code>StackTrace().Print()</code>).
+        <code>g_dlt_line</code> / <code>g_dlt_line_len</code>에 락이 없어서 두 스레드 출력이 한 줄로 섞이고,
+        크래시 첫 줄의 <code>[WMP][##CRASH##]</code> 프리픽스가 누락될 수 있습니다.
+      </p>
+      <p>
+        경계는 확인해 봤고 <span class="v-ok">오버플로는 나지 않습니다</span>
+        (<code>FlushDltLine</code>의 <code>g_dlt_line[511]='\0'</code>까지 안전).
+        다만 프리픽스 복사 루프에는 경계 검사가 아예 없습니다 — 지금은 17바이트라 안전하지만
+        <code>kDltCrashPrefix</code>가 길어지면 바로 깨집니다.
+      </p>
+    </div>
+
+    <div class="finding minor">
+      <div class="fhead">
+        <span class="idx">08</span><span class="sev minor">Medium</span>
+        <h3>512바이트 라인 잘림</h3>
+      </div>
+      <p>
+        C++ 심볼(템플릿 · 람다 · Blink 네임스페이스)은 512자를 쉽게 넘습니다.
+        DLT 자체 한계는 1390(<code>0x56e</code>, libdlt 내부 상수로 확인)이므로 <strong>1024 정도로 올리는 걸 권장</strong>합니다.
+      </p>
+    </div>
+
+    <div class="finding minor">
+      <div class="fhead">
+        <span class="idx">09</span><span class="sev minor">Medium</span>
+        <h3>GPU 프로세스는 샌드박스 engage 이후에 호출합니다</h3>
+      </div>
+      <p>
+        <code>obigo_sandbox = true</code>인데 호출 지점은
+        <code>// Start the HangWatcher now that the sandbox is engaged</code> 주석 뒤입니다.
+        <code>EnableInProcessStackDumping()</code> 내부의 <code>WarmUpBacktrace()</code>와
+        <code>SandboxSymbolizeHelper::GetInstance()</code>는 원래 pre-sandbox에서 돌아야 하는 코드입니다.
+      </p>
+      <p>
+        지금은 content_main_runner의 선행 호출 덕에 워밍업이 끝나 있어 문제가 안 납니다. 그런데
+        <strong><code>is_official_build=true</code>로 릴리스 빌드하면 그 선행 호출이
+        <code>#if !defined(OFFICIAL_BUILD)</code>로 사라집니다.</strong>
+        그러면 이 호출이 첫 호출이 되고, 샌드박스 안에서 <code>/proc/self/maps</code> open → 실패 또는 SIGSYS 위험.
+        <code>mobis-ccnc/release/webappmanager.config</code>에 키를 추가해 둔 만큼 릴리스 경로 검증이 필요합니다.
+      </p>
+      <span class="ref">src/content/gpu/gpu_main.cc:444-455</span>
+    </div>
+
+    <div class="finding minor">
+      <div class="fhead">
+        <span class="idx">10</span><span class="sev minor">Medium</span>
+        <h3><code>symbol_level = 0</code></h3>
+      </div>
+      <p>
+        이 <code>args.gn</code> 기준으로는 백트레이스가 주소만 찍힐 가능성이 높습니다.
+        DLT에 찍힌 주소를 오프라인에서 심볼라이즈하는 절차(비스트립 바이너리 보관 + <code>addr2line</code>)가 세트로 필요합니다.
+        <strong>이 부분이 없으면 기능을 켜도 실사용이 어렵습니다.</strong>
+      </p>
+    </div>
+
+    <div class="finding minor">
+      <div class="fhead">
+        <span class="idx">11</span><span class="sev minor">Medium</span>
+        <h3>utility만 <code>OBIGO_USE_LOG_SYSTEM</code> 가드 안쪽</h3>
+      </div>
+      <p>
+        <code>utility_main.cc:503-514</code>는 <code>#if defined(OBIGO_USE_LOG_SYSTEM)</code> 블록
+        (그것도 주석 처리된 <code>/* if ... */</code> 안쪽) 내부에 있는데 renderer/gpu는 그 가드 밖입니다.
+        일관성이 없고, 로그 시스템을 끄면 utility만 조용히 빠집니다.
+      </p>
+    </div>
+  </section>
+
+  <!-- 06 -->
+  <section>
+    <h2><span class="n">06</span> 사소</h2>
+    <ul>
+      <li><code>#define ObigoEnableCrashStackTrace</code> 정렬이 한 칸 어긋남 — <code>command_line_obigo.c.h:80</code></li>
+      <li>config 파서에 <code>off</code> → <code>RemoveOption()</code> 분기가 없음. <code>finishload-on-fcp</code> 등 인접 키들은 모두 있음</li>
+      <li><code>command_line_obigo.c.h</code>의 파싱은 <code>MOBIS_CCNC || MOTREX_CCNC</code> 가드 밖인데 스위치 선언은 가드 안. 타 플랫폼에서 미지의 스위치가 커맨드라인에 붙음(무해하지만 정리 필요)</li>
+      <li><code>ChainToPreviousHandler</code>의 <code>previous.sa_sigaction != &amp;StackDumpSignalHandler</code> 비교는 union 레이아웃 의존. <code>sa_flags &amp; SA_SIGINFO</code>를 먼저 확인하고 해당 멤버로 비교하는 게 정확</li>
+      <li><strong><code>[RLOG]</code> 디버그 로그 5개 제거 필요</strong> — chrome_browser_main / gpu_main / renderer_main / utility_main의 <code>LOG(ERROR)</code> 4개 + <code>command_line_obigo.c.h</code>의 <code>printf</code> 1개</li>
+      <li><code>ccos-qemu</code>, <code>lge-ccic</code>, <code>lge-rse-gen6</code>, <code>pclinux</code>, 최상위 <code>webappmanager.config</code>에는 키가 없음. 의도면 OK</li>
+    </ul>
+  </section>
+
+  <!-- 07 -->
+  <section>
+    <h2><span class="n">07</span> 크래시 없이 검증하는 방법</h2>
+    <p class="lede">"CCOS sig handler가 잘 동작 중인지 테스트 불가"가 가장 큰 리스크인데, 아래 두 가지로 크래시를 일으키지 않고 판별 가능합니다. 둘 다 시그널 컨텍스트 밖이라 async-signal safety 제약이 없습니다.</p>
+
+    <h3>A. 무엇을 뺏어왔는지 확인</h3>
+    <p><code>EnableInProcessStackDumping()</code>의 캡처 루프 안에서:</p>
+    <div class="codewrap"><pre>Dl_info dli;
+const void* prev = (previous.sa_flags &amp; SA_SIGINFO)
+    ? reinterpret_cast&lt;void*&gt;(previous.sa_sigaction)
+    : reinterpret_cast&lt;void*&gt;(previous.sa_handler);
+LOG(ERROR) &lt;&lt; "[RLOG] sig=" &lt;&lt; crash_signal &lt;&lt; " prev=" &lt;&lt; prev
+           &lt;&lt; " name=" &lt;&lt; (prev &amp;&amp; dladdr(prev, &amp;dli) &amp;&amp; dli.dli_sname
+                           ? dli.dli_sname : "(none/SIG_DFL)");</pre></div>
+    <p class="caption">프로세스마다 다르게 나오므로 browser / renderer / gpu / utility 4개 모두 확인</p>
+    <p style="margin-top:14px">
+      <code class="mono">dlt_sig_handler</code>가 찍히면 전제 확인 완료,
+      <code>(none/SIG_DFL)</code>이면 애초에 아무도 안 잡고 있었다는 뜻입니다.
+    </p>
+
+    <h3>B. 나중에 다시 뺏기는지 확인</h3>
+    <p>기동 후 10초 / 60초 타이머에서:</p>
+    <div class="codewrap"><pre>struct sigaction cur = {};
+sigaction(SIGSEGV, nullptr, &amp;cur);
+LOG(ERROR) &lt;&lt; "[RLOG] SIGSEGV owner still ours? "
+           &lt;&lt; (cur.sa_sigaction == &amp;StackDumpSignalHandler);</pre></div>
+    <p style="margin-top:14px">
+      CCOS/PAL이 lazy하게 나중에 등록하는 구조라면 <code>false</code>가 찍히고,
+      그 경우 <code>EnableInProcessStackDumping()</code> 호출 지점을 더 뒤로 옮겨야 한다는 결론이 바로 나옵니다.
+    </p>
+    <p>
+      A / B를 붙이면 지금의 <code>[RLOG]</code> 4줄(스위치 값 확인)보다 훨씬 답에 가까운 정보를 얻습니다.
+    </p>
+  </section>
+
+  <!-- 08 -->
+  <section>
+    <h2><span class="n">08</span> 우선순위</h2>
+
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr><th class="num">#</th><th>항목</th><th>조치</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="num">1</td><td>motrex-ccnc config가 여전히 <code>off</code></td><td class="v-fault">검증 전 필수</td></tr>
+          <tr><td class="num">2</td><td><code>alarm()</code>을 핸들러 선두로 이동</td><td>DLT hang 방지 · 1줄 이동</td></tr>
+          <tr><td class="num">3</td><td><code>ChainToPreviousHandler()</code>를 백트레이스 앞으로</td><td>플랫폼 리포트 유실 방지</td></tr>
+          <tr><td class="num">4</td><td><code>MirrorToDlt</code>를 스위치로 게이팅</td><td>off일 때 로그 폭주 방지</td></tr>
+          <tr><td class="num">5</td><td><code>FinalizeLogger()</code>를 <code>[end of stack trace]</code> 뒤로</td><td>로그 완결성</td></tr>
+          <tr><td class="num">6</td><td><code>[RLOG]</code> 제거 + A/B 진단 로그로 교체</td><td>검증</td></tr>
+          <tr><td class="num">7</td><td>버퍼 1024 확대 · 경계 체크 · 릴리스 빌드 샌드박스 검증</td><td>후속</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p style="margin-top:20px">
+      빌드는 실행하지 않았습니다. 수정 후 확인이 필요한 타깃은
+      <code>base</code>(stack_trace_posix.cc), <code>content</code>(gpu / renderer / utility / browser main),
+      <code>chrome</code>입니다.
+    </p>
+  </section>
+
+  <footer>
+    <span>MF1-15 · crash stack trace 코드 리뷰</span>
+    <span>dev_roya_MF1-15_02 @ e5d9eaba</span>
+    <span>2026-09-16</span>
+  </footer>
+
+</div>

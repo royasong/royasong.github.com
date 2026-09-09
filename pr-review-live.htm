@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>리뷰 대기 PR</title>
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --card: #ffffff;
+    --text: #1a1a1a;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --accent: #2563eb;
+    --badge-bg: #dc2626;
+    --badge-text: #ffffff;
+    --ok: #16a34a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #16181d; --card: #1f2229; --text: #e8e8ea; --muted: #9ca3af;
+      --border: #333842; --accent: #60a5fa; --badge-bg: #ef4444; --ok: #4ade80;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #16181d; --card: #1f2229; --text: #e8e8ea; --muted: #9ca3af;
+    --border: #333842; --accent: #60a5fa; --badge-bg: #ef4444; --ok: #4ade80;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 0 16px 24px;
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif;
+    font-size: 14px; line-height: 1.5;
+  }
+  header {
+    position: sticky; top: 0; z-index: 10;
+    background: var(--bg);
+    padding: 12px 0 10px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  }
+  h1 { font-size: 15px; margin: 0; font-weight: 700; }
+  .total {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 26px; height: 26px; padding: 0 8px;
+    border-radius: 13px; font-weight: 700; font-size: 14px;
+    background: var(--badge-bg); color: var(--badge-text);
+  }
+  .total.zero { background: var(--ok); }
+  .spacer { flex: 1 1 auto; }
+  button {
+    font: inherit; cursor: pointer; color: var(--text);
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 6px; padding: 4px 9px;
+  }
+  button:hover { border-color: var(--accent); }
+  .meta { color: var(--muted); font-size: 12px; }
+  #status { margin: 12px 0; color: var(--muted); }
+  #status.error { color: var(--badge-bg); }
+  .repo { margin-top: 14px; }
+  .repo-name {
+    font-size: 12px; font-weight: 700; color: var(--muted);
+    text-transform: none; letter-spacing: .2px;
+    display: flex; align-items: center; gap: 6px; margin-bottom: 6px;
+  }
+  .repo-count {
+    background: var(--badge-bg); color: var(--badge-text);
+    border-radius: 9px; padding: 0 6px; font-size: 11px; line-height: 18px;
+  }
+  ul { list-style: none; margin: 0; padding: 0; }
+  li.pr {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 10px; margin-bottom: 6px;
+  }
+  li.pr a { color: var(--text); text-decoration: none; font-weight: 600; }
+  li.pr a:hover { color: var(--accent); text-decoration: underline; }
+  li.pr .sub { color: var(--muted); font-size: 12px; margin-top: 2px; }
+  .draft { color: var(--muted); font-weight: 400; }
+  .empty {
+    text-align: center; padding: 40px 0; color: var(--ok);
+    font-size: 16px; font-weight: 600;
+  }
+  #token-panel {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px; margin-top: 12px;
+  }
+  #token-panel[hidden] { display: none; }
+  #token-panel input {
+    width: 100%; font: inherit; padding: 6px 8px; margin: 6px 0;
+    border: 1px solid var(--border); border-radius: 6px;
+    background: var(--bg); color: var(--text);
+  }
+  #token-panel ol { padding-left: 18px; color: var(--muted); font-size: 12px; }
+  code { background: var(--bg); padding: 1px 4px; border-radius: 4px; font-size: 12px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>리뷰 대기 PR</h1>
+  <span class="total zero" id="total">–</span>
+  <span class="spacer"></span>
+  <span class="meta" id="updated"></span>
+  <button id="refresh-btn" title="지금 새로고침">↻</button>
+  <button id="token-btn" title="토큰 설정">⚙</button>
+</header>
+
+<div id="token-panel" hidden>
+  <div><strong>GitHub 토큰</strong> (이 브라우저의 localStorage에만 저장, 서버로 전송되지 않음)</div>
+  <input type="password" id="token-input" placeholder="github_pat_... 또는 ghp_..." autocomplete="off">
+  <button id="token-save">저장</button>
+  <button id="token-clear">삭제</button>
+  <ol>
+    <li>github.com → Settings → Developer settings → Personal access tokens</li>
+    <li>Fine-grained token 생성 / Resource owner: <code>OBIGOGIT</code></li>
+    <li>Repository permissions → <code>Pull requests: Read-only</code>, <code>Metadata: Read-only</code></li>
+    <li>(Classic 토큰이면 <code>repo</code> 스코프 하나면 충분)</li>
+  </ol>
+</div>
+
+<div id="status"></div>
+<div id="list"></div>
+
+<script>
+/* 리뷰 대기 PR 실시간 대시보드 -------------------------------------------
+   index.htm의 NEW 배지는 GitHub Actions(20분 cron) → pr-data 브랜치 →
+   Contents API 캐시를 거치기 때문에 늦게 반영된다. 이 페이지는 그 경로를
+   건너뛰고 브라우저에서 Search API를 직접 호출한다(= GitHub 화면과 동일 시점).
+   github.com은 X-Frame-Options: deny라서 iframe으로는 띄울 수 없으므로
+   API 응답을 직접 렌더링하는 방식만 가능하다.
+   토큰은 localStorage에만 두고 저장소에는 절대 커밋하지 않는다. */
+
+const QUERY = "is:pr is:open review-requested:@me archived:false";
+const SEARCH_URL = "https://api.github.com/search/issues?per_page=100&sort=updated&order=desc&q=" + encodeURIComponent(QUERY);
+const TOKEN_KEY = "gh_pr_review_token";
+const POLL_MS = 60000;
+
+const $ = id => document.getElementById(id);
+const getToken = () => localStorage.getItem(TOKEN_KEY) || "";
+
+/* 탭 제목과 파비콘에 건수를 찍는다. 창을 작게 띄워두면 탭만 봐도 판단 가능. */
+function setCountIndicator(n) {
+  document.title = n > 0 ? `(${n}) 리뷰 대기 PR` : "리뷰 없음 · PR";
+  const c = document.createElement("canvas");
+  c.width = c.height = 32;
+  const g = c.getContext("2d");
+  g.fillStyle = n > 0 ? "#dc2626" : "#16a34a";
+  g.beginPath(); g.arc(16, 16, 16, 0, Math.PI * 2); g.fill();
+  g.fillStyle = "#fff";
+  g.font = "bold 22px sans-serif";
+  g.textAlign = "center"; g.textBaseline = "middle";
+  g.fillText(n > 99 ? "!" : String(n), 16, 17);
+  let link = document.querySelector("link[rel='icon']");
+  if (!link) {
+    link = document.createElement("link");
+    link.rel = "icon";
+    document.head.appendChild(link);
+  }
+  link.href = c.toDataURL("image/png");
+}
+
+function repoOf(item) {
+  // repository_url: https://api.github.com/repos/OBIGOGIT/obigo-af-agb-143
+  return item.repository_url.split("/repos/")[1] || "unknown";
+}
+
+function timeAgo(iso) {
+  const min = Math.floor((Date.now() - new Date(iso)) / 60000);
+  if (min < 1) return "방금";
+  if (min < 60) return `${min}분 전`;
+  const h = Math.floor(min / 60);
+  if (h < 24) return `${h}시간 전`;
+  return `${Math.floor(h / 24)}일 전`;
+}
+
+function render(items) {
+  const list = $("list");
+  list.replaceChildren();
+  if (!items.length) {
+    list.innerHTML = '<div class="empty">✅ 리뷰할 PR 없음</div>';
+    return;
+  }
+  const byRepo = new Map();
+  items.forEach(it => {
+    const r = repoOf(it);
+    if (!byRepo.has(r)) byRepo.set(r, []);
+    byRepo.get(r).push(it);
+  });
+  for (const [repo, prs] of byRepo) {
+    const sec = document.createElement("section");
+    sec.className = "repo";
+    const head = document.createElement("div");
+    head.className = "repo-name";
+    head.innerHTML = `<span>${repo}</span><span class="repo-count">${prs.length}</span>`;
+    sec.appendChild(head);
+    const ul = document.createElement("ul");
+    prs.forEach(pr => {
+      const li = document.createElement("li");
+      li.className = "pr";
+      const a = document.createElement("a");
+      a.href = pr.html_url;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.textContent = pr.title;
+      const sub = document.createElement("div");
+      sub.className = "sub";
+      sub.textContent = `#${pr.number} · ${pr.user.login} · ${timeAgo(pr.updated_at)} 갱신`;
+      if (pr.draft) {
+        const d = document.createElement("span");
+        d.className = "draft";
+        d.textContent = " (draft)";
+        a.appendChild(d);
+      }
+      li.append(a, sub);
+      ul.appendChild(li);
+    });
+    sec.appendChild(ul);
+    list.appendChild(sec);
+  }
+}
+
+async function load() {
+  const token = getToken();
+  if (!token) {
+    $("status").className = "error";
+    $("status").textContent = "토큰이 필요합니다. 우측 상단 ⚙ 에서 등록하세요.";
+    $("token-panel").hidden = false;
+    $("total").textContent = "–";
+    return;
+  }
+  $("status").className = "";
+  $("status").textContent = "불러오는 중…";
+  try {
+    const res = await fetch(SEARCH_URL, {
+      cache: "no-store",
+      headers: { Accept: "application/vnd.github+json", Authorization: `Bearer ${token}` }
+    });
+    if (res.status === 401) throw new Error("토큰이 잘못됐거나 만료됐습니다 (401)");
+    if (res.status === 403) throw new Error("요청 한도 초과 또는 권한 부족 (403)");
+    if (!res.ok) throw new Error(`요청 실패 (${res.status})`);
+    const data = await res.json();
+    const items = data.items || [];
+    render(items);
+    $("total").textContent = items.length;
+    $("total").className = items.length ? "total" : "total zero";
+    setCountIndicator(items.length);
+    $("updated").textContent = new Date().toLocaleTimeString("ko-KR", { hour12: false });
+    $("status").textContent = "";
+  } catch (e) {
+    $("status").className = "error";
+    $("status").textContent = e.message;
+  }
+}
+
+$("refresh-btn").onclick = load;
+$("token-btn").onclick = () => {
+  const p = $("token-panel");
+  p.hidden = !p.hidden;
+  if (!p.hidden) $("token-input").value = getToken();
+};
+$("token-save").onclick = () => {
+  const v = $("token-input").value.trim();
+  if (!v) return;
+  localStorage.setItem(TOKEN_KEY, v);
+  $("token-panel").hidden = true;
+  load();
+};
+$("token-clear").onclick = () => {
+  localStorage.removeItem(TOKEN_KEY);
+  $("token-input").value = "";
+  load();
+};
+
+// index.htm의 다크모드 설정을 같은 origin이면 그대로 따른다.
+const savedTheme = localStorage.getItem("theme");
+if (savedTheme === "dark" || savedTheme === "light") {
+  document.documentElement.setAttribute("data-theme", savedTheme);
+} else {
+  document.documentElement.removeAttribute("data-theme");
+}
+
+load();
+setInterval(() => { if (!document.hidden) load(); }, POLL_MS);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) load(); });
+</script>
+</body>
+</html>
