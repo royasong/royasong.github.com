@@ -1,0 +1,1097 @@
+<title>팝업 플레이어 미표시 버그</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&display=swap">
+<style>
+  :root {
+    --bg:        #F3F5F7;
+    --surface:   #FFFFFF;
+    --surface-2: #E9EDF2;
+    --ink:       #141922;
+    --ink-2:     #38424F;
+    --muted:     #5C6773;
+    --line:      #D5DBE3;
+    --line-2:    #BEC7D2;
+    --accent:    #1F5F8B;
+    --accent-bg: #E2EDF5;
+    --ok:        #2E7D63;
+    --ok-bg:     #E0EFE9;
+    --fault:     #B4442E;
+    --fault-bg:  #F7E5E0;
+
+    --sans: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:        #12151A;
+      --surface:   #191D24;
+      --surface-2: #212630;
+      --ink:       #E6EAF0;
+      --ink-2:     #C3CBD5;
+      --muted:     #929DAB;
+      --line:      #2A303A;
+      --line-2:    #3A4250;
+      --accent:    #6BA8D6;
+      --accent-bg: #1B2B38;
+      --ok:        #5FBF9C;
+      --ok-bg:     #16302A;
+      --fault:     #E0806A;
+      --fault-bg:  #331F1A;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg:        #12151A;
+    --surface:   #191D24;
+    --surface-2: #212630;
+    --ink:       #E6EAF0;
+    --ink-2:     #C3CBD5;
+    --muted:     #929DAB;
+    --line:      #2A303A;
+    --line-2:    #3A4250;
+    --accent:    #6BA8D6;
+    --accent-bg: #1B2B38;
+    --ok:        #5FBF9C;
+    --ok-bg:     #16302A;
+    --fault:     #E0806A;
+    --fault-bg:  #331F1A;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.72;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 940px;
+    margin: 0 auto;
+    padding-inline: 20px;
+    padding-block: 56px 96px;
+  }
+
+  .measure { max-width: 68ch; }
+
+  /* ---------- masthead ---------- */
+  .masthead { display: flex; flex-direction: column; gap: 18px; }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  h1 {
+    font-size: clamp(30px, 5.2vw, 44px);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .standfirst {
+    font-size: 17px;
+    line-height: 1.7;
+    color: var(--ink-2);
+    max-width: 62ch;
+    margin: 0;
+  }
+
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(168px, 1fr));
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    margin-top: 14px;
+  }
+  .fact { background: var(--surface); padding: 14px 16px; display: flex; flex-direction: column; gap: 3px; }
+  .fact dt {
+    font-family: var(--mono); font-size: 10.5px; font-weight: 500;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
+  }
+  .fact dd { margin: 0; font-size: 15px; font-weight: 600; line-height: 1.4; }
+
+  /* ---------- sections ---------- */
+  section { margin-top: 64px; }
+
+  h2 {
+    font-size: 23px;
+    font-weight: 600;
+    letter-spacing: -0.012em;
+    margin: 0 0 6px;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    text-wrap: balance;
+  }
+  h2 .n {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.06em;
+    flex: none;
+  }
+  h2 + .lede { color: var(--muted); font-size: 15px; margin: 0 0 22px; max-width: 62ch; }
+
+  h3 {
+    font-size: 15px; font-weight: 600; margin: 30px 0 10px;
+    letter-spacing: 0.005em;
+  }
+
+  p { margin: 0 0 14px; }
+  p:last-child { margin-bottom: 0; }
+
+  a { color: var(--accent); }
+
+  code {
+    font-family: var(--mono);
+    font-size: 0.875em;
+    background: var(--surface-2);
+    padding: 0.1em 0.36em;
+    border-radius: 2px;
+    word-break: break-word;
+  }
+
+  strong { font-weight: 600; }
+
+  /* ---------- pipeline ---------- */
+  .pipe {
+    display: flex; flex-direction: column; gap: 0;
+    border: 1px solid var(--line);
+    background: var(--surface);
+  }
+  .pipe-row {
+    display: grid;
+    grid-template-columns: 104px 1fr;
+    gap: 16px;
+    padding: 13px 16px;
+    align-items: baseline;
+    border-top: 1px solid var(--line);
+  }
+  .pipe-row:first-child { border-top: 0; }
+  .pipe-row .who {
+    font-family: var(--mono); font-size: 10.5px; font-weight: 500;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
+  }
+  .pipe-row .what { font-size: 14.5px; line-height: 1.6; }
+  .pipe-row.obigo { background: var(--accent-bg); }
+  .pipe-row.obigo .who { color: var(--accent); }
+
+  /* ---------- causal chain rail ---------- */
+  .chain { display: flex; flex-direction: column; gap: 0; margin-top: 4px; }
+  .step {
+    display: grid;
+    grid-template-columns: 28px 96px 1fr;
+    gap: 14px;
+    padding: 15px 0;
+    border-top: 1px solid var(--line);
+    align-items: start;
+  }
+  .step:first-child { border-top: 1px solid var(--line-2); }
+  .step:last-child { border-bottom: 1px solid var(--line-2); }
+  .step .idx {
+    font-family: var(--mono); font-size: 12px; font-weight: 600;
+    color: var(--muted); padding-top: 2px; font-variant-numeric: tabular-nums;
+  }
+  .layer {
+    font-family: var(--mono); font-size: 10px; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 3px 7px; border: 1px solid var(--line-2); color: var(--muted);
+    justify-self: start; margin-top: 3px; white-space: nowrap;
+  }
+  .layer[data-l="설정"]   { color: var(--accent); border-color: var(--accent); }
+  .layer[data-l="오비고"] { color: var(--fault); border-color: var(--fault); }
+  .step .body { font-size: 15px; }
+  .step .body b { font-weight: 600; }
+  .step .ref {
+    display: block; margin-top: 5px;
+    font-family: var(--mono); font-size: 11.5px; color: var(--muted);
+    word-break: break-all;
+  }
+
+  /* ---------- player split ---------- */
+  .split { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+  .pcard {
+    border: 1px solid var(--line); background: var(--surface);
+    display: flex; flex-direction: column;
+  }
+  .pcard.good { border-top: 3px solid var(--ok); }
+  .pcard.bad  { border-top: 3px solid var(--fault); }
+  .pcard .head { padding: 15px 17px 13px; border-bottom: 1px solid var(--line); }
+  .pcard .dev {
+    font-family: var(--mono); font-size: 10.5px; font-weight: 600;
+    letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted);
+    display: block; margin-bottom: 5px;
+  }
+  .pcard.good .dev { color: var(--ok); }
+  .pcard.bad  .dev { color: var(--fault); }
+  .pcard .cls {
+    font-family: var(--mono); font-size: 16px; font-weight: 600;
+    letter-spacing: -0.01em; word-break: break-all;
+  }
+  .pcard .path {
+    font-family: var(--mono); font-size: 11px; color: var(--muted);
+    margin-top: 5px; word-break: break-all; line-height: 1.5;
+  }
+  .prow {
+    display: grid; grid-template-columns: 84px 1fr; gap: 12px;
+    padding: 10px 17px; border-top: 1px solid var(--line); align-items: baseline;
+  }
+  .prow:first-of-type { border-top: 0; }
+  .prow .k {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.07em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .prow .v { font-size: 14px; line-height: 1.55; }
+  .prow .v .out { font-family: var(--mono); font-weight: 600; }
+  .pcard.good .prow .v .out { color: var(--ok); }
+  .pcard.bad  .prow .v .out { color: var(--fault); }
+
+  /* ---------- code / log ---------- */
+  .codewrap { overflow-x: auto; border: 1px solid var(--line); background: var(--surface); }
+  pre {
+    margin: 0; padding: 15px 16px;
+    font-family: var(--mono); font-size: 12.5px; line-height: 1.72;
+    white-space: pre; color: var(--ink-2);
+  }
+  pre .hl { color: var(--fault); font-weight: 500; }
+  pre .dim { color: var(--muted); }
+  pre .good { color: var(--ok); font-weight: 500; }
+  .caption {
+    font-family: var(--mono); font-size: 11px; color: var(--muted);
+    letter-spacing: 0.04em; margin-top: 7px;
+  }
+
+  /* ---------- tables ---------- */
+  .tablewrap { overflow-x: auto; border: 1px solid var(--line); }
+  table { border-collapse: collapse; width: 100%; background: var(--surface); font-size: 14px; }
+  th, td { padding: 10px 14px; text-align: left; border-top: 1px solid var(--line); vertical-align: top; }
+  thead th {
+    border-top: 0; background: var(--surface-2);
+    font-family: var(--mono); font-size: 10.5px; font-weight: 600;
+    letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted);
+    white-space: nowrap;
+  }
+  td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td.file { font-family: var(--mono); font-size: 12.5px; word-break: break-all; }
+  .v-ok    { color: var(--ok);    font-weight: 600; }
+  .v-fault { color: var(--fault); font-weight: 600; }
+
+  /* ---------- transition chips ---------- */
+  .trans { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 6px 0 4px; }
+  .chip {
+    font-family: var(--mono); font-size: 12.5px; font-weight: 500;
+    padding: 5px 10px; border: 1px solid var(--line-2); background: var(--surface);
+    white-space: nowrap;
+  }
+  .chip.bad { border-color: var(--fault); color: var(--fault); background: var(--fault-bg); }
+  .chip.good { border-color: var(--ok); color: var(--ok); background: var(--ok-bg); }
+  .arrow { color: var(--muted); font-family: var(--mono); font-size: 13px; }
+
+  /* ---------- callout ---------- */
+  .callout {
+    border: 1px solid var(--line-2);
+    border-left: 3px solid var(--accent);
+    background: var(--surface);
+    padding: 15px 18px;
+    font-size: 15px;
+  }
+  .callout.fault { border-left-color: var(--fault); }
+  .callout p { margin-bottom: 10px; }
+
+  /* ---------- verdict cards ---------- */
+  .verdicts { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+  .verdict { border: 1px solid var(--line); background: var(--surface); padding: 16px 17px; display: flex; flex-direction: column; gap: 7px; }
+  .verdict .tag {
+    font-family: var(--mono); font-size: 10.5px; font-weight: 600;
+    letter-spacing: 0.09em; text-transform: uppercase;
+  }
+  .verdict.up   .tag { color: var(--fault); }
+  .verdict.oba  .tag { color: var(--fault); }
+  .verdict.none .tag { color: var(--ok); }
+  .verdict h4 { margin: 0; font-size: 15.5px; font-weight: 600; }
+  .verdict p { font-size: 14px; color: var(--ink-2); margin: 0; line-height: 1.62; }
+
+  /* ---------- upstream status ---------- */
+  .status {
+    border: 1px solid var(--line);
+    background: var(--surface);
+  }
+  .status-row {
+    display: grid; grid-template-columns: 1fr auto; gap: 14px;
+    padding: 13px 17px; border-top: 1px solid var(--line); align-items: baseline;
+  }
+  .status-row:first-child { border-top: 0; }
+  .status-row .item { font-size: 14.5px; }
+  .status-row .item .sub {
+    display: block; font-family: var(--mono); font-size: 11px;
+    color: var(--muted); margin-top: 3px; word-break: break-all;
+  }
+  .badge {
+    font-family: var(--mono); font-size: 10.5px; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 4px 9px; white-space: nowrap;
+    border: 1px solid var(--fault); color: var(--fault); background: var(--fault-bg);
+  }
+
+  /* ---------- config blocks ---------- */
+  .cfg { margin-bottom: 20px; }
+  .cfg-head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 14px; border: 1px solid var(--line); border-bottom: 0;
+    background: var(--surface-2);
+  }
+  .cfg-head .dot { width: 8px; height: 8px; flex: none; }
+  .cfg.bad  .cfg-head .dot { background: var(--fault); }
+  .cfg.good .cfg-head .dot { background: var(--ok); }
+  .cfg-head .lbl {
+    font-family: var(--mono); font-size: 11px; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .cfg.bad  .cfg-head .lbl { color: var(--fault); }
+  .cfg.good .cfg-head .lbl { color: var(--ok); }
+  .cfg-head .note { font-size: 12.5px; color: var(--muted); margin-left: auto; }
+
+  /* ---------- side effect severity ---------- */
+  .sev {
+    font-family: var(--mono); font-size: 10px; font-weight: 700;
+    letter-spacing: 0.08em; padding: 3px 8px; white-space: nowrap;
+    border: 1px solid currentColor;
+  }
+  .sev.hi  { color: var(--fault); }
+  .sev.mid { color: var(--accent); }
+  .sev.lo  { color: var(--ok); }
+
+  ul { margin: 0 0 14px; padding-left: 1.15em; }
+  li { margin-bottom: 7px; }
+  li:last-child { margin-bottom: 0; }
+
+  footer {
+    margin-top: 76px; padding-top: 20px; border-top: 1px solid var(--line);
+    font-family: var(--mono); font-size: 11.5px; color: var(--muted);
+    display: flex; flex-wrap: wrap; gap: 6px 20px;
+  }
+
+  @media (max-width: 560px) {
+    .step { grid-template-columns: 24px 1fr; }
+    .step .layer { grid-column: 2; margin-top: 0; margin-bottom: 6px; }
+    .step .body { grid-column: 2; }
+    .pipe-row { grid-template-columns: 1fr; gap: 4px; }
+    .prow { grid-template-columns: 1fr; gap: 3px; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="eyebrow">PickNow · brs_143 · 근본 원인 분석</div>
+    <h1>백그라운드 재생 중인데 홈에서 팝업 플레이어가 뜨지 않는다</h1>
+    <p class="standfirst">
+      TikTok 라이브를 재생하고 홈으로 돌아오면 재생은 계속되는데 팝업 플레이어가 표시되지 않습니다.
+      SE10 헤드유닛에서만 발생하고 삼성 태블릿에서는 정상이었습니다. 두 단말의 계측 로그를 비교해
+      원인을 사이트 설정의 User-Agent 한 줄까지 좁혔습니다.
+    </p>
+
+    <dl class="facts">
+      <div class="fact"><dt>발생 단말</dt><dd>SE10 헤드유닛</dd></div>
+      <div class="fact"><dt>정상 단말</dt><dd>삼성 SM-P610</dd></div>
+      <div class="fact"><dt>발단</dt><dd>데스크톱 UA 강제</dd></div>
+      <div class="fact"><dt>업스트림</dt><dd>main 미수정</dd></div>
+      <div class="fact"><dt>수정 범위</dt><dd>오비고 파일 1개 · 61줄</dd></div>
+    </dl>
+  </header>
+
+  <!-- 1 -->
+  <section>
+    <h2><span class="n">01</span> 증상</h2>
+    <p class="lede">기능의 목적과 실제 동작이 어긋나는 지점.</p>
+    <div class="measure">
+      <p>
+        팝업 플레이어는 <strong>백그라운드 탭에서 미디어가 재생 중일 때 홈 화면에 재생 정보를 띄워주는</strong>
+        기능입니다. 사용자가 다른 탭에서 영상을 틀어두고 홈으로 돌아와도 무엇이 재생 중인지 알 수 있게 합니다.
+      </p>
+      <p>
+        SE10에서는 TikTok 라이브가 <strong>실제로 재생되고 있는데도</strong> 홈에서 팝업이 뜨지 않았습니다.
+        같은 시나리오를 삼성 태블릿에서 돌리면 정상적으로 표시됩니다.
+      </p>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section>
+    <h2><span class="n">02</span> 재현 방법</h2>
+    <p class="lede">홈 웹앱 콘솔에서 아래 호출로 TikTok을 엽니다. 두 설정은 <code>userAgent</code>와 <code>mobilePage</code>만 다릅니다. 라이브 방송을 재생한 뒤 홈으로 돌아오면 결과가 갈립니다.</p>
+
+    <div class="cfg bad">
+      <div class="cfg-head">
+        <span class="dot"></span>
+        <span class="lbl">재현됨 — 팝업 미표시</span>
+        <span class="note">데스크톱 UA</span>
+      </div>
+      <div class="codewrap">
+<pre>obaJs.openUrl(
+    "https://www.tiktok.com",
+    1,
+    JSON.stringify({
+        "hostUrl": "https://www.tiktok.com",
+        "serviceName": "TikTok",
+        "userAgent": <span class="hl">"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"</span>,
+        "mobilePage": true,
+        "browserVersion": "default",
+        "pinchZoom": false,
+        "mouseOnlyPage": false,
+        "sendStringOnEnter": false,
+        "supportNewTab": false,
+        "forceScale": null,
+        "zoomFactor": "2.0",
+        "whiteList": [],
+        "blackList": {
+        },
+        "unSupportedDomainList": {
+            "https://seller-kr.tiktok.com": ["/account/register"]
+        }
+    }),
+    "SOCIAL",
+    2099
+);</pre>
+      </div>
+    </div>
+
+    <div class="cfg good">
+      <div class="cfg-head">
+        <span class="dot"></span>
+        <span class="lbl">재현 안 됨 — 정상 표시</span>
+        <span class="note">Android UA</span>
+      </div>
+      <div class="codewrap">
+<pre>obaJs.openUrl(
+    "https://www.tiktok.com",
+    1,
+    JSON.stringify({
+        "hostUrl": "https://www.tiktok.com",
+        "serviceName": "TikTok",
+        "userAgent": <span class="good">"Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36"</span>,
+        "mobilePage": false,
+        "browserVersion": "default",
+        "pinchZoom": false,
+        "mouseOnlyPage": false,
+        "sendStringOnEnter": false,
+        "supportNewTab": false,
+        "forceScale": null,
+        "zoomFactor": "2.0",
+        "whiteList": [],
+        "blackList": {
+        },
+        "unSupportedDomainList": {
+            "https://seller-kr.tiktok.com": ["/account/register"]
+        }
+    }),
+    "SOCIAL",
+    2099
+);</pre>
+      </div>
+    </div>
+
+    <p class="caption">삼성 태블릿에서 위 설정으로 재현, 아래 설정으로 정상 동작을 모두 확인했다. 단말이 아니라 UA가 가른다.</p>
+
+    <h3>확인 지점</h3>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>로그</th><th>재현됨</th><th>재현 안 됨</th></tr></thead>
+        <tbody>
+          <tr><td><code>webapp-desktop</code> 리소스</td><td class="num v-fault">로드됨</td><td class="num v-ok">0회</td></tr>
+          <tr><td><code>Controller::SetMetadata contentType</code></td><td class="num v-fault">kOneShot</td><td class="num v-ok">kPersistent</td></tr>
+          <tr><td>홈 복귀 <code>show()</code></td><td class="num v-fault">BLOCKED</td><td class="num v-ok">표시</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section>
+    <h2><span class="n">03</span> 전달 경로</h2>
+    <p class="lede">재생 상태가 Chromium 코어에서 팝업 플레이어까지 도달하는 구조. 파란 줄이 오비고가 추가한 계층입니다.</p>
+
+    <div class="pipe">
+      <div class="pipe-row">
+        <div class="who">C++ 코어</div>
+        <div class="what"><code>MediaSessionImpl</code> 이 재생 상태를 판정</div>
+      </div>
+      <div class="pipe-row">
+        <div class="who">C++ → Java</div>
+        <div class="what"><code>MediaSessionAndroid</code> 가 <code>(isControllable, isPaused)</code> 두 값을 Java로 통지</div>
+      </div>
+      <div class="pipe-row">
+        <div class="who">Java 원본</div>
+        <div class="what"><code>MediaSessionHelper</code> 가 OS 미디어 알림을 표시·숨김</div>
+      </div>
+      <div class="pipe-row obigo">
+        <div class="who">오비고 추가</div>
+        <div class="what">같은 이벤트를 <code>OBADelegate</code> 목록으로 미러링</div>
+      </div>
+      <div class="pipe-row obigo">
+        <div class="who">오비고</div>
+        <div class="what"><code>OBAPopupPlayer.show()</code> — 표시 조건 <code>!mIsHiddenByJS &amp;&amp; mIsControllable</code></div>
+      </div>
+    </div>
+    <p class="caption">홈 진입 시 OBAMainController.adjustControllerVisibility() 가 show() 를 호출한다.</p>
+  </section>
+
+  <!-- 3 -->
+  <section>
+    <h2><span class="n">04</span> 원인 사슬</h2>
+    <p class="lede">설정에서 시작해 렌더러와 코어를 거쳐 팝업 플레이어까지 이어지는 6단계. 각 단계가 일어나는 계층을 태그로 표시했습니다.</p>
+
+    <div class="chain">
+      <div class="step">
+        <div class="idx">1</div>
+        <div class="layer" data-l="설정">설정</div>
+        <div class="body">
+          SE10의 TikTok 사이트 설정이 <b>Windows 데스크톱 User-Agent를 강제</b>합니다. 삼성은 <code>null</code>(오버라이드 없음)입니다.
+          <span class="ref">PickNow 서버 사이트 설정 · userAgent</span>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="idx">2</div>
+        <div class="layer" data-l="사이트">사이트</div>
+        <div class="body">
+          TikTok이 <b>데스크톱 웹앱 번들</b>을 내려줍니다. <code>webapp-desktop</code> 리소스가 SE10에서 46회, 삼성에서 0회 로드됐습니다.
+          <span class="ref">https://www.tiktok.com/webapp-desktop/static/worker/vodsr-worker-*.js</span>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="idx">3</div>
+        <div class="layer" data-l="사이트">사이트</div>
+        <div class="body">
+          데스크톱 라이브 플레이어는 저지연을 위해 <b>WebRTC / MediaStream</b>으로 재생합니다. 표준적인 구현이며 규격 위반이 아닙니다.
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="idx">4</div>
+        <div class="layer" data-l="렌더러">렌더러</div>
+        <div class="body">
+          미디어 소스가 MediaStream이므로 Blink가 <code>WebMediaPlayerImpl</code> 대신 <b><code>WebMediaPlayerMS</code></b>를 생성합니다.
+          이 재생기는 스트림 길이·성격과 무관하게 <b>조건 없이 <code>MediaContentType::kOneShot</code>을 보고</b>합니다.
+          <span class="ref">content/renderer/media/media_factory.cc:363 · web_media_player_ms.cc:599</span>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="idx">5</div>
+        <div class="layer" data-l="코어">코어</div>
+        <div class="body">
+          <code>AddPlayer()</code>가 <code>kOneShot</code>을 <code>AddOneShotPlayer()</code>로 라우팅 →
+          <code>one_shot_players_</code>에만 들어가 <code>HasOnlyOneShotPlayers()</code>가 참이 됩니다. 그 결과
+          <b><code>IsControllable()</code>이 즉시 false</b>를 반환하는데, <code>playback_state</code>는 <code>kPlaying</code>으로 남습니다.
+          <span class="ref">content/browser/media/session/media_session_impl.cc:788 · 1113</span>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="idx">6</div>
+        <div class="layer" data-l="오비고">오비고</div>
+        <div class="body">
+          <code>OBAPopupPlayer</code>가 <code>isControllable=false</code>를 그대로 받아 <code>mIsControllable</code>을 내립니다.
+          이어서 Chromium이 2.5초 뒤 거는 지연 hide가 <b>재생 중인데도 팝업을 내리고 상태를 리셋</b>합니다.
+          홈 복귀 시 <code>show()</code>가 막힙니다.
+          <span class="ref">OBAPopupPlayer.mediaSessionStateChanged() · hidePlayController()</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout fault" style="margin-top:26px">
+      <p style="margin-bottom:0">
+        <strong>핵심 모순</strong> — <code>IsControllable()</code>과 <code>playback_state</code>가 서로 다른 기준을 씁니다.
+        전자는 <code>HasOnlyOneShotPlayers()</code>에서 단락되고, 후자는 오디오 포커스 상태만 봅니다.
+        그래서 <b>“재생 중인데 controllable=false”</b> 라는 조합이 만들어집니다.
+      </p>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section>
+    <h2><span class="n">05</span> 갈림길은 재생기다</h2>
+    <p class="lede">단말 성능이나 OS 버전이 아니라, 미디어 소스가 URL인지 MediaStream인지가 재생기를 가르고 그 재생기가 분류를 정합니다.</p>
+
+    <h3>선택 분기</h3>
+    <div class="codewrap">
+<pre><span class="dim">// content/renderer/media/media_factory.cc:363</span>
+std::unique_ptr&lt;blink::WebMediaPlayer&gt; MediaFactory::CreateMediaPlayer(...) {
+  ...
+  if (<span class="hl">source.IsMediaStream()</span>) {
+    return CreateWebMediaPlayerForMediaStream(...);   <span class="dim">// → WebMediaPlayerMS</span>
+  }
+
+  <span class="dim">// If |source| was not a MediaStream, it must be a URL.</span>
+  DCHECK(source.IsURL());
+  ...                                                  <span class="dim">// → WebMediaPlayerImpl</span>
+}</pre>
+    </div>
+    <p class="caption">&lt;video src&gt; 는 URL, srcObject 에 물린 MediaStream 은 MS. 단말과 무관하게 소스 타입만 본다.</p>
+
+    <div class="split" style="margin-top:26px">
+      <div class="pcard good">
+        <div class="head">
+          <span class="dev">삼성 SM-P610 · 정상</span>
+          <div class="cls">WebMediaPlayerImpl</div>
+          <div class="path">third_party/blink/renderer/platform/media/web_media_player_impl.cc</div>
+        </div>
+        <div class="prow"><div class="k">번들</div><div class="v">모바일</div></div>
+        <div class="prow"><div class="k">소스</div><div class="v">URL (HLS/MSE) → <code>&lt;video src&gt;</code></div></div>
+        <div class="prow"><div class="k">분류 방식</div><div class="v"><code>DurationToMediaContentType(길이)</code><br>라이브는 길이 미상 → 0</div></div>
+        <div class="prow"><div class="k">보고값</div><div class="v"><span class="out">kPersistent</span></div></div>
+        <div class="prow"><div class="k">결과</div><div class="v"><code>IsControllable()</code> = <span class="out">true</span> · 팝업 표시</div></div>
+      </div>
+
+      <div class="pcard bad">
+        <div class="head">
+          <span class="dev">SE10 헤드유닛 · 결함</span>
+          <div class="cls">WebMediaPlayerMS</div>
+          <div class="path">third_party/blink/renderer/modules/mediastream/web_media_player_ms.cc</div>
+        </div>
+        <div class="prow"><div class="k">번들</div><div class="v"><code>webapp-desktop</code></div></div>
+        <div class="prow"><div class="k">소스</div><div class="v">MediaStream (WebRTC) → <code>srcObject</code></div></div>
+        <div class="prow"><div class="k">분류 방식</div><div class="v">계산하지 않음<br>고정값 하드코딩</div></div>
+        <div class="prow"><div class="k">보고값</div><div class="v"><span class="out">kOneShot</span></div></div>
+        <div class="prow"><div class="k">결과</div><div class="v"><code>IsControllable()</code> = <span class="out">false</span> · 팝업 미표시</div></div>
+      </div>
+    </div>
+
+    <h3>각 재생기의 분류 코드</h3>
+    <div class="codewrap">
+<pre><span class="dim">// web_media_player_impl.cc:3900 — 길이로 계산한다</span>
+media::MediaContentType WebMediaPlayerImpl::GetMediaContentType() const {
+  return media::DurationToMediaContentType(GetPipelineMediaDuration());
+}
+
+<span class="dim">// media/base/media_content_type.cc</span>
+MediaContentType DurationToMediaContentType(base::TimeDelta duration) {
+  return (<span class="good">duration.is_zero()</span> || duration &gt; base::Seconds(5))
+             ? MediaContentType::<span class="good">kPersistent</span>
+             : MediaContentType::kTransient;
+}
+
+<span class="dim">// web_media_player_ms.cc:599 — 아무것도 보지 않는다</span>
+delegate_-&gt;DidMediaMetadataChange(delegate_id_, HasAudio(), HasVideo(),
+                                  media::MediaContentType::<span class="hl">kOneShot</span>);</pre>
+    </div>
+
+    <h3>코어의 판정</h3>
+    <div class="codewrap">
+<pre><span class="dim">// content/browser/media/session/media_session_impl.cc:788</span>
+bool MediaSessionImpl::IsControllable() const {
+  if (audio_focus_state_ == State::INACTIVE || <span class="hl">HasOnlyOneShotPlayers()</span>) {
+    return false;                              <span class="dim">// ← 여기서 단락</span>
+  }
+  ...
+}
+
+<span class="dim">// 같은 파일 1113행 — playback_state 는 다른 기준을 쓴다</span>
+info-&gt;playback_state = IsActive() ? kPlaying : kPaused;   <span class="dim">// IsActive() = (afState == ACTIVE)</span></pre>
+    </div>
+
+    <div class="callout" style="margin-top:24px">
+      <p style="margin-bottom:0">
+        <code>kOneShot</code>은 <code>media/base/media_content_type.h</code>에 <b>“제어할 수 없는 플레이어”</b>로 정의되어 있습니다
+        (<i>“Type indicating that a player cannot be controlled.”</i>). 그 분류가 붙는 순간 <code>IsControllable()</code>이
+        false를 반환하는 건 <b>설계대로</b>입니다. 결함은 판정 로직이 아니라, 몇 시간짜리 라이브 방송에까지
+        그 분류를 붙이는 <b><code>WebMediaPlayerMS</code>의 분류 한 곳</b>입니다.
+      </p>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section>
+    <h2><span class="n">06</span> 근거 — 두 단말 비교</h2>
+    <p class="lede">동일 시나리오(TikTok 라이브 재생 → 홈 복귀)를 두 단말에서 계측한 결과.</p>
+
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr>
+            <th>측정 항목</th>
+            <th>삼성 SM-P610<br>Android 13 · SDK 33</th>
+            <th>SE10 헤드유닛<br>Android 11 · SDK 30</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>webapp-desktop</code> 리소스 로드</td>
+            <td class="num v-ok">0회</td>
+            <td class="num v-fault">46회</td>
+          </tr>
+          <tr>
+            <td><code>contentType=kOneShot</code> 보고</td>
+            <td class="num v-ok">0회</td>
+            <td class="num v-fault">9회</td>
+          </tr>
+          <tr>
+            <td><code>AddOneShotPlayer()</code> 호출</td>
+            <td class="num v-ok">0회</td>
+            <td class="num v-fault">2회</td>
+          </tr>
+          <tr>
+            <td><code>onlyOneShot=1</code> 관측</td>
+            <td class="num v-ok">0회</td>
+            <td class="num v-fault">7회</td>
+          </tr>
+          <tr>
+            <td>상태 전이 <code>(1,0) → (0,0)</code></td>
+            <td class="num v-ok">0회</td>
+            <td class="num v-fault">2회 · 18ms, 10ms</td>
+          </tr>
+          <tr>
+            <td>홈 복귀 시 <code>show()</code></td>
+            <td class="num v-ok">표시됨</td>
+            <td class="num v-fault">BLOCKED</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="caption">괄호 표기는 (isControllable, isPaused). 오디오 포커스 경로는 양쪽 모두 순정 AudioManager 사용.</p>
+
+    <h3>렌더러가 보고한 contentType — 같은 성격의 플레이어가 다르게 분류된다</h3>
+    <div class="codewrap">
+<pre><span class="good">삼성</span>  14:18:20.093  player0  audio=0 video=1  → kPersistent
+      14:18:31.247  player1  audio=1 video=0  → kTransient   <span class="dim">(UI 효과음, 0.3초)</span>
+      14:18:40.066  player2  audio=1 video=1  → <span class="good">kPersistent</span>   <span class="dim">← 라이브 본편</span>
+
+<span class="hl">SE10</span>  14:20:00.749  player0  audio=0 video=1  → kPersistent
+      14:20:08.066  player2  audio=1 video=0  → kTransient   <span class="dim">(UI 효과음, 0.3초)</span>
+      14:20:13.320  player3  audio=1 video=1  → <span class="hl">kOneShot</span>      <span class="dim">← 라이브 본편</span>
+      14:20:23.029  player5  audio=1 video=1  → <span class="hl">kOneShot</span>      <span class="dim">← 라이브 본편</span></pre>
+    </div>
+    <p class="caption">세션 등록 기준 — 삼성: kPersistent 5 / kTransient 3 / kOneShot 0. SE10: kOneShot 2 / kTransient 1 / kPersistent 0.</p>
+
+    <h3>Java로 통지된 상태 전이</h3>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:8px">삼성 — 재생 중 controllable이 내려가는 전이가 없음</p>
+    <div class="trans">
+      <span class="chip">(0,1)</span><span class="arrow">→</span>
+      <span class="chip good">(1,0)</span><span class="arrow">→</span>
+      <span class="chip">(1,1)</span>
+    </div>
+    <p style="font-size:14px;color:var(--muted);margin:18px 0 8px">SE10 — 재생 중 <code>(1,0)</code>에서 <code>(0,0)</code>으로 뒤집힘</p>
+    <div class="trans">
+      <span class="chip">(0,1)</span><span class="arrow">→</span>
+      <span class="chip good">(1,0)</span><span class="arrow">→</span>
+      <span class="chip bad">(0,0)</span><span class="arrow">→</span>
+      <span class="chip bad">show BLOCKED</span>
+    </div>
+
+    <h3>SE10 결정적 구간</h3>
+    <div class="codewrap">
+<pre>14:20:23.281  SessionInfoChanged: is_controllable=<span class="good">1</span>, playback_state=kPlaying   <span class="dim">| oneShot=0</span>
+14:20:23.282  SessionInfoChanged: is_controllable=<span class="hl">0</span>, playback_state=kPlaying   <span class="hl">| oneShot=1, onlyOneShot=1</span>
+14:20:23.296  -&gt; Java mediaSessionStateChanged: isControllable=1 -&gt; <span class="hl">0</span>, isPaused=0 -&gt; 0
+14:20:23.297  hideNotificationDelayed: 2.5초 뒤 hide 예약
+14:20:25.798  hidePlayController: <span class="hl">hide 실행. controllable=false, paused=false</span>
+14:20:29.666  show: controllable=false, paused=true -&gt; <span class="hl">BLOCKED</span></pre>
+    </div>
+    <p class="caption">14:20:23.281 → .282 는 1ms. 오디오 포커스 획득 통지와 one_shot_players_ 삽입 통지 사이의 과도 상태다.</p>
+
+    <h3>사이트 설정 차이</h3>
+    <p style="font-size:15px">14개 키 중 <code>userAgent</code>와 <code>zoomFactor</code>만 달랐고, 나머지 12개는 완전히 동일했습니다.</p>
+    <div class="codewrap">
+<pre><span class="good">삼성</span>  "userAgent": null
+<span class="hl">SE10</span>  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
+               (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"</pre>
+    </div>
+    <p class="caption">삼성 실제 적용 UA: Mozilla/5.0 (Linux; Android 10; K) … Chrome/133.0.0.0 Safari/537.36</p>
+
+    <div class="callout" style="margin-top:24px">
+      <p style="margin-bottom:0">
+        <strong>역방향 검증 완료</strong> — 삼성 태블릿에서 SE10과 동일한 데스크톱 UA로 TikTok을 열자
+        동일하게 재현되었습니다. UA만 되돌리면 증상이 사라집니다. 인과가 양방향으로 닫혔습니다.
+      </p>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section>
+    <h2><span class="n">07</span> 책임 소재</h2>
+    <p class="lede">원본 Chromium 트리(origin_133)와 파일 단위로 대조한 결과.</p>
+
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr><th>파일</th><th>원본 대비</th><th>성격</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="file">media_session_impl.cc</td><td class="num v-ok">0줄</td><td>원본 그대로</td></tr>
+          <tr><td class="file">media_session_controller.cc</td><td class="num v-ok">0줄</td><td>원본 그대로</td></tr>
+          <tr><td class="file">media_session_android.cc</td><td class="num v-ok">0줄</td><td>원본 그대로</td></tr>
+          <tr><td class="file">audio_focus_delegate_android.cc</td><td class="num v-ok">0줄</td><td>원본 그대로</td></tr>
+          <tr><td class="file">web_media_player_ms.cc</td><td class="num v-ok">0줄</td><td>원본 그대로</td></tr>
+          <tr><td class="file">media_content_type.cc</td><td class="num v-ok">0줄</td><td>원본 그대로</td></tr>
+          <tr><td class="file">MediaSessionHelper.java</td><td class="num">85줄</td><td>OBADelegate 미러링 — <b>순수 추가</b>, 판단 로직 무변경</td></tr>
+          <tr><td class="file">OBAPopupPlayer.java</td><td class="num">신규</td><td>오비고 전용 파일</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="caption">2.5초 지연 hide(HIDE_NOTIFICATION_DELAY_MILLIS = 2500)도 원본 로직이다.</p>
+
+    <div class="verdicts" style="margin-top:26px">
+      <div class="verdict up">
+        <div class="tag">Chromium 원본</div>
+        <h4>MediaStream을 “제어 불가”로 싸잡는 분류</h4>
+        <p><code>WebMediaPlayerMS</code>가 스트림 길이·성격을 보지 않고 <code>kOneShot</code>을 보고합니다. <code>IsControllable()</code>의 단락은 그 분류에 충실한 정상 동작이므로, 결함은 분류 한 곳입니다.</p>
+      </div>
+      <div class="verdict oba">
+        <div class="tag">오비고 코드</div>
+        <h4>의미가 다른 값을 게이트로 사용</h4>
+        <p><code>isControllable</code>은 “OS 미디어 컨트롤을 붙일 자격이 있는가”입니다. 팝업 플레이어가 알아야 할 것은 “재생 중인가”이고, 그 값은 같은 이벤트의 <code>isPaused</code>에 있었습니다.</p>
+      </div>
+      <div class="verdict none">
+        <div class="tag">TikTok</div>
+        <h4>책임 없음</h4>
+        <p>WebRTC 라이브는 표준 기법입니다. <code>navigator.mediaSession</code>을 채워도 <code>HasOnlyOneShotPlayers()</code>가 먼저 단락되어 해결되지 않습니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 -->
+  <section>
+    <h2><span class="n">08</span> 업스트림 현황</h2>
+    <p class="lede">Chromium main 브랜치 소스를 직접 확인한 결과. 우리 133 브랜치와 동일합니다.</p>
+
+    <div class="status">
+      <div class="status-row">
+        <div class="item">
+          <code>kOneShot</code> 무조건 보고 — main에 4곳, 모두 조건 없음
+          <span class="sub">third_party/blink/renderer/modules/mediastream/web_media_player_ms.cc</span>
+        </div>
+        <span class="badge">미수정</span>
+      </div>
+      <div class="status-row">
+        <div class="item">
+          <code>IsControllable()</code>의 <code>HasOnlyOneShotPlayers()</code> 단락 유지
+          <span class="sub">content/browser/media/session/media_session_impl.cc</span>
+        </div>
+        <span class="badge">미수정</span>
+      </div>
+      <div class="status-row">
+        <div class="item">
+          <code>routed_service_</code> 예외의 <code>#if !BUILDFLAG(IS_ANDROID)</code> 가드 유지
+          <span class="sub">content/browser/media/session/media_session_impl.cc</span>
+        </div>
+        <span class="badge">미수정</span>
+      </div>
+    </div>
+    <p class="caption">확인일 2026-09-10 · chromium.googlesource.com/chromium/src refs/heads/main</p>
+
+    <div class="measure" style="margin-top:22px">
+      <p>
+        공개 이슈 트래커에서 이 건을 다루는 이슈는 웹 검색으로 찾지 못했습니다. 다만 검색만으로
+        전수 확인이 되지는 않으므로 <strong>“없다”고 단정할 수는 없습니다.</strong>
+      </p>
+      <p>
+        업스트림이 고칠 기미가 없으므로 <strong>오비고 측 방어 수정을 유지하는 것이 맞습니다.</strong>
+        Chromium 버전을 올려도 이 동작은 그대로 따라옵니다.
+      </p>
+      <p>
+        업스트림에 제기한다면 <code>WebMediaPlayerMS</code>가 스트림 특성에 따라 <code>kPersistent</code>를
+        보고하도록 하는 제안이, <code>IsControllable()</code> 수정보다 받아들여질 가능성이 높습니다.
+        후자는 <code>kOneShot</code>의 정의 자체를 바꾸는 일이라 파급이 큽니다.
+      </p>
+    </div>
+  </section>
+
+  <!-- 8 -->
+  <section>
+    <h2><span class="n">09</span> 수정</h2>
+    <p class="lede">Chromium 원본 파일은 건드리지 않고 <code>OBAPopupPlayer.java</code> 한 파일 61줄만 변경. 4번은 아래 사이드 이펙트 완화입니다.</p>
+
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr><th style="width:1%">#</th><th>위치</th><th>내용</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="num">1</td>
+            <td class="file">mediaSessionStateChanged()</td>
+            <td>재생 중(<code>!isPaused</code>)이고 <b>직전이 controllable이었다면</b> <code>isControllable=false</code>를 무시</td>
+          </tr>
+          <tr>
+            <td class="num">2</td>
+            <td class="file">hidePlayController()</td>
+            <td>재생 중이면 2.5초 지연 hide를 무시 — 상태 리셋을 막음</td>
+          </tr>
+          <tr>
+            <td class="num">3</td>
+            <td class="file">show()</td>
+            <td>대상 탭이 닫혔으면 표시하지 않고 상태 정리 — 2번이 만드는 “재생 중 탭 종료” 케이스 대응</td>
+          </tr>
+          <tr>
+            <td class="num">4</td>
+            <td class="file">mIsTransportEnabled</td>
+            <td>표시 가능 여부와 전송 제어 가능 여부를 분리 — 동작하지 않는 버튼이 활성으로 보이지 않게</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout" style="margin-top:22px">
+      <p style="margin-bottom:0">
+        1번의 <b>“직전이 controllable이었을 때만”</b>이 핵심입니다. <code>AddOneShotPlayer()</code>는 항상
+        <code>(controllable=1)</code> → <code>(controllable=0)</code> 순서로 통지하므로 WebRTC 라이브는 걸리고,
+        처음부터 controllable이 아닌 <b>짧은 효과음</b>(<code>kTransient</code>, 5초 이하)에는 팝업이 뜨지 않습니다.
+      </p>
+    </div>
+
+    <h3>수정 후 동작</h3>
+    <div class="codewrap">
+<pre>14:20:23.296  (1,0) → (0,0)          <span class="good">controllable 유지</span>
+14:20:25.798  지연 hide               <span class="good">무시</span>
+14:20:29.666  홈 복귀 show()          <span class="good">표시</span></pre>
+    </div>
+  </section>
+
+  <!-- 10 -->
+  <section>
+    <h2><span class="n">10</span> 수정의 사이드 이펙트</h2>
+    <p class="lede">값이 바뀌는 소비처를 전수 추적한 결과. 하나는 완화 조치를 함께 적용했습니다.</p>
+
+    <div class="callout fault">
+      <p><strong>버튼 무반응은 기존 버그이지만, 드러낸 것은 우리 수정입니다.</strong></p>
+      <p style="margin-bottom:0">
+        one-shot 플레이어는 <code>OnSuspendInternal()</code>이 <code>HasOnlyOneShotPlayers()</code>에서 즉시 반환하므로
+        <b>원래부터 suspend/resume이 먹지 않습니다.</b> 이건 Chromium 원본 동작입니다. 다만 수정 전에는
+        팝업 자체가 뜨지 않아 사용자가 그 버튼에 닿을 수 없었습니다. 수정으로 팝업이 뜨면서
+        <b>이미 존재하던 한계가 사용자에게 노출</b>된 것입니다. 참고로 OS 미디어 알림 경로에서는
+        지금도 <code>(controllable=1)</code>인 1ms 동안 알림이 떴다가 2.5초 뒤 사라지므로,
+        그 사이 같은 무반응이 이미 존재합니다.
+      </p>
+    </div>
+
+    <div class="tablewrap" style="margin-top:22px">
+      <table>
+        <thead>
+          <tr><th style="width:1%">심각도</th><th>항목</th><th>내용</th><th>조치</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="sev hi">HIGH</span></td>
+            <td>재생/일시정지 버튼 무반응</td>
+            <td>기존 Chromium 한계가 노출됨. <code>resume()</code>은 재생 없이 오디오 포커스만 탈취</td>
+            <td><b>완화 적용</b></td>
+          </tr>
+          <tr>
+            <td><span class="sev mid">MID</span></td>
+            <td>사용시간 통계 변화</td>
+            <td><code>isPlaying()</code>이 true가 되어 <code>TabImpl.hide()</code>·<code>ChromeActivity.onStop()</code>의 <code>sendUsageTime</code>이 전송되지 않고 누적</td>
+            <td>정책 판단 필요</td>
+          </tr>
+          <tr>
+            <td><span class="sev mid">MID</span></td>
+            <td>정지된 팝업 잔존</td>
+            <td>렌더러 크래시·OOM 탭 폐기 시. 홈에 머무는 동안 재평가 트리거 없음</td>
+            <td><code>show()</code>에서 부분 정리</td>
+          </tr>
+          <tr>
+            <td><span class="sev lo">LOW</span></td>
+            <td>홈 배너 레이아웃</td>
+            <td><code>isPopupPlayerVisible()</code>로 홈 웹앱이 배너를 조정. 팝업이 늘면 배너가 숨는 경우도 늘어남</td>
+            <td>의도된 변화 · 공유</td>
+          </tr>
+          <tr>
+            <td><span class="sev lo">LOW</span></td>
+            <td>기존 정상 사이트</td>
+            <td>삼성 로그 전이 17건 전수 확인 결과 <b>분기 진입 0회</b>. <code>kPersistent</code> 경로는 이 코드를 지나가지 않음</td>
+            <td>영향 없음</td>
+          </tr>
+          <tr>
+            <td><span class="sev lo">LOW</span></td>
+            <td>짧은 효과음</td>
+            <td><code>&amp;&amp; mIsControllable</code> 가드가 <code>kTransient</code>를 걸러냄</td>
+            <td>영향 없음</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>완화 — 표시와 제어의 분리</h3>
+    <p style="font-size:15px">“팝업을 띄울 수 있는가”와 “버튼이 실제로 먹는가”를 다른 값으로 관리합니다.</p>
+    <div class="codewrap">
+<pre><span class="dim">// 표시용 — 재생 중이면 유지된다</span>
+private boolean mIsControllable = false;
+<span class="dim">// 제어용 — 코어가 준 원본 값을 그대로 쓴다</span>
+private boolean <span class="good">mIsTransportEnabled</span> = false;
+
+<span class="dim">// mediaSessionStateChanged()</span>
+mIsTransportEnabled = isControllable;              <span class="dim">// 보정 전 원본</span>
+if (!isControllable &amp;&amp; !isPaused &amp;&amp; mIsControllable) {
+    effectiveControllable = true;
+    <span class="good">disabledButton();</span>                          <span class="dim">// 표시는 유지, 전송 제어는 차단</span>
+}
+
+<span class="dim">// updatePlayController() — 다음 갱신이 버튼을 다시 켜지 않도록</span>
+playPauseBtn.setEnabled(<span class="good">mIsTransportEnabled</span>);      <span class="dim">// 기존: setEnabled(true)</span></pre>
+    </div>
+
+    <div class="tablewrap" style="margin-top:18px">
+      <table>
+        <thead><tr><th>동작</th><th>완화 전</th><th>완화 후</th></tr></thead>
+        <tbody>
+          <tr><td>팝업 표시 · 제목 · 앨범아트</td><td class="v-ok">정상</td><td class="v-ok">정상</td></tr>
+          <tr><td>재생/일시정지 버튼</td><td class="v-fault">활성인데 무반응</td><td class="v-ok">비활성 (눌리지 않음)</td></tr>
+          <tr><td>재생 버튼의 오디오 포커스 탈취</td><td class="v-fault">발생</td><td class="v-ok">차단</td></tr>
+          <tr><td>팝업 탭 → 탭 전환</td><td class="v-ok">동작</td><td class="v-ok">동작</td></tr>
+          <tr><td>닫기(X) 버튼</td><td class="v-ok">동작</td><td class="v-ok">동작</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="caption">일반 사이트는 mIsTransportEnabled == isControllable == true 이므로 이전과 완전히 동일하게 동작한다.</p>
+  </section>
+
+  <!-- 11 -->
+  <section>
+    <h2><span class="n">11</span> 남은 과제</h2>
+    <div class="measure">
+      <h3>갱신 정지</h3>
+      <p>
+        <code>is_controllable=0</code>이 되면 Chromium이 <code>mNotificationInfoBuilder</code>를 null로 만들어
+        이후 <code>updatePlayController</code>가 오지 않습니다. 초기 표시는 정상이지만 방송 전환 시
+        제목·아트워크 갱신이 안 될 수 있습니다. 해결하려면 <code>MediaSessionHelper.java</code>(원본)를
+        수정해야 해서 이번 범위에서 제외했습니다.
+      </p>
+
+      <h3>UA 설정</h3>
+      <p>
+        서버 설정에서 SE10의 <code>userAgent</code> 오버라이드를 제거하면 이번 케이스 자체가 사라집니다.
+        코드 수정과 배타적이지 않습니다. 코드 수정은 <strong>다른 사이트가 WebRTC 라이브를 쓸 때도</strong>
+        동작하게 하므로 둘 다 적용을 권합니다.
+      </p>
+
+      <h3>업스트림 제기</h3>
+      <p>
+        <code>WebMediaPlayerMS</code>의 <code>kOneShot</code> 하드코딩은 Chromium 버그로 별도 제기할 사안입니다.
+        제품 일정과 분리해 진행하는 것이 맞습니다.
+      </p>
+    </div>
+  </section>
+
+  <footer>
+    <span>PickNow / brs_143 · Chromium 133</span>
+    <span>계측 로그 2건 · 삼성 SM-P610, SE10</span>
+    <span>업스트림 확인 2026-09-10</span>
+  </footer>
+
+</div>
