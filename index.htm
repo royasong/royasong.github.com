@@ -18,7 +18,7 @@
       --h2-border: #b8bec7;
       --link-color: #315f9f;
       --link-hover: #1f3f6f;
-      --log-item-bg: #f1f3f5;a
+      --log-item-bg: #f1f3f5;
       --btn-bg: #5f8fc9;
       --btn-bg-hover: #4778b4;
       --select-bg: #eef4fb;
@@ -108,7 +108,7 @@
     }
 
     section {
-      scroll-margin-top: 130px;
+      scroll-margin-top: 70px;
     }
 
     header {
@@ -129,10 +129,37 @@
       flex-wrap: wrap;
     }
 
-    .site-title {
-      font-weight: 800;
-      font-size: 16px;
+    .header-status {
+      font-size: 20px;
+      font-weight: 700;
       white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      line-height: 1.2;
+    }
+
+    .header-status .hs-datetime {
+      font-size: 15px;
+    }
+
+    .header-status .hs-weather {
+      color: var(--memo-label-color);
+      display: inline-flex;
+      align-items: baseline;
+      gap: 6px;
+      line-height: 1.15;
+    }
+
+    .header-status .hs-weather-loc {
+      font-size: 12px;
+      font-weight: 600;
+      opacity: 0.75;
+    }
+
+    @media (max-width: 700px) {
+      .header-status { font-size: 16px; gap: 6px; }
+      .header-status .hs-weather-loc { font-size: 11px; }
     }
 
     .header-controls {
@@ -257,30 +284,6 @@
       outline-offset: 2px;
     }
 
-    .quick-nav {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 8px;
-    }
-
-    .nav-chip {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--chip-text);
-      background: var(--chip-bg);
-      border: 1px solid var(--chip-border);
-      border-radius: 12px;
-      padding: 3px 10px;
-      text-decoration: none;
-      white-space: nowrap;
-    }
-
-    .nav-chip:hover {
-      background: var(--btn-bg);
-      color: #ffffff;
-    }
-
     .container {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -320,6 +323,7 @@
     .accent-openurl   { --accent: #c994cf; }
     .accent-useragent { --accent: #b4c978; }
     .accent-pinned    { --accent: #d4bd62; }
+    .accent-recent    { --accent: #8fb7d4; }
     .accent-data      { --accent: #6fb7aa; }
     .accent-devinfo   { --accent: #c98ab0; }
     .accent-mf1       { --accent: #7f9ed4; }
@@ -397,6 +401,222 @@
       color: #f59e0b;
     }
 
+    /* ---------- 메모 세부 항목(스니펫) 즐겨찾기 / 최근 사용 ---------- */
+    .snip-star {
+      border: none;
+      background: transparent;
+      color: var(--select-border);
+      cursor: pointer;
+      font-size: 15px;
+      line-height: 1;
+      padding: 0 2px;
+      flex-shrink: 0;
+      align-self: flex-start;
+      height: 30px;
+    }
+
+    .snip-star:hover { color: #f59e0b; }
+    .snip-star.pinned { color: #f59e0b; }
+
+    /* Copy 버튼이 없는 메모 행에 ☆를 붙이기 위한 래퍼 */
+    .snip-row-wrap {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      min-width: 0;
+    }
+
+    .snip-row-wrap > pre,
+    .snip-row-wrap > textarea,
+    .snip-row-wrap > code,
+    .snip-row-wrap > .log-code {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .snip-row-wrap > code {
+      overflow-wrap: anywhere;
+    }
+
+    .snip-row-wrap > .snip-star {
+      padding-top: 4px;
+      height: auto;
+    }
+
+    /* 최상단 Pinned/Recently Used 3분할 (링크 / 즐겨찾기 / Recently Used) */
+    .pinned-split {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    /* 한 칸 = 25%. 즐겨찾기 칸만 2칸(50%) 폭을 쓴다. */
+    .pinned-col {
+      flex: 1 1 0;
+      min-width: 200px;
+    }
+
+    /* 즐겨찾기는 2칸 폭을 차지하고, 그 안에서 항목을 2열로 쭉 나열한다.
+       (명령어/메모 구분 없이 ☆ 를 누른 순서대로 왼쪽 위 → 오른쪽 아래) */
+    #pinned-snips-group {
+      flex-grow: 2;
+      min-width: 320px;
+    }
+
+    #pinned-snips {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+      align-content: start;
+    }
+
+    /* grid 안에서는 안내 문구가 한 칸만 차지하므로 두 열에 걸치게 한다 */
+    #pinned-snips:empty::after {
+      grid-column: 1 / -1;
+    }
+
+    .pinned-col.empty h2 { opacity: 0.6; }
+
+    /* 비어 있는 칸은 감추지 않고 안내 문구를 띄운다.
+       localStorage 는 브라우저·origin(file:// vs https://) 별로 분리돼 있어서,
+       빈 칸을 display:none 으로 감추면 다른 브라우저에서 처음 열었을 때
+       기능 자체가 없어진 것처럼 보인다. */
+    .pinned-col ul:empty::after {
+      content: attr(data-empty);
+      display: block;
+      padding: 10px 8px;
+      font-size: 13px;
+      color: var(--muted-color);
+      border: 1px dashed var(--section-border);
+      border-radius: 6px;
+      text-align: center;
+    }
+
+    .pinned-col h2 {
+      font-size: 16px;
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .snip-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .snip-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 8px;
+      border: 1px solid var(--section-border);
+      border-radius: 6px;
+      background: var(--log-item-bg);
+      min-width: 0;
+    }
+
+    .snip-main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .snip-actions {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      flex-shrink: 0;
+    }
+
+    .snip-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--memo-label-color);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .snip-preview {
+      font-family: Consolas, Monaco, monospace;
+      font-size: 14px;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .snip-item .copy-btn {
+      width: 26px;
+      height: 26px;
+      align-self: center;
+    }
+
+    .snip-item .snip-star {
+      align-self: center;
+      height: auto;
+    }
+
+    .snip-count {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted-color);
+      flex-shrink: 0;
+      margin-left: 4px;
+    }
+
+    .snip-missing { opacity: 0.55; }
+
+    .snip-icon-btn {
+      border: none;
+      background: transparent;
+      color: var(--muted-color);
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+      padding: 0 2px;
+      flex-shrink: 0;
+    }
+
+    .snip-icon-btn:hover { color: var(--text); }
+
+    .snip-toolbar {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .snip-tool-btn {
+      border: 1px solid var(--input-border);
+      background: var(--input-bg);
+      color: var(--text);
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 2px 10px;
+      cursor: pointer;
+    }
+
+    .snip-tool-btn:hover { background: var(--chip-bg); }
+
+    /* 원문 위치로 이동했을 때 잠깐 반짝 */
+    .snip-flash { animation: snip-flash 1.6s ease-out; }
+    @keyframes snip-flash {
+      0%, 55% { background: rgba(251,146,60,0.28); }
+      100%    { background: transparent; }
+    }
+
     .review-badge {
       font-size: 14px;
       font-weight: 800;
@@ -409,10 +629,6 @@
     }
 
     #sec-pinned {
-      display: none;
-    }
-
-    #sec-pinned.has-items {
       display: block;
     }
 
@@ -593,6 +809,9 @@
       .section-pair {
         grid-template-columns: 1fr;
       }
+      #pinned-snips {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (max-width: 650px) {
@@ -716,7 +935,13 @@
 
 <header>
   <div class="header-top">
-    <span class="site-title">📌 Roya Bookmark</span>
+    <span class="header-status" id="header-status">
+      <span class="hs-datetime" id="hs-datetime">--</span>
+      <span class="hs-weather" id="hs-weather">
+        <span class="hs-weather-loc" id="hs-weather-loc">서울</span>
+        <span class="hs-weather-val" id="hs-weather-val">날씨 확인 중…</span>
+      </span>
+    </span>
     <div class="header-controls">
       <div class="search-box">
         <input type="text" id="global-search" class="search-input" placeholder="🔍 검색 (Ctrl+K)" autocomplete="off" spellcheck="false">
@@ -728,29 +953,31 @@
       <button id="dark-toggle" class="icon-btn" title="다크모드 전환" onclick="toggleDarkMode()">🌙</button>
     </div>
   </div>
-  <nav class="quick-nav">
-    <a href="#sec-ai" class="nav-chip">AI</a>
-    <a href="#sec-github" class="nav-chip">GitHub</a>
-    <a href="#sec-obigo" class="nav-chip">OBIGO</a>
-    <a href="#sec-devinfo" class="nav-chip">obigo dev info</a>
-    <a href="#sec-dev" class="nav-chip">Dev</a>
-    <a href="#sec-branch" class="nav-chip">Branch</a>
-    <a href="#sec-pr" class="nav-chip">PR</a>
-    <a href="#sec-mf1" class="nav-chip">MF1</a>
-    <a href="#sec-memo" class="nav-chip">Memo</a>
-    <a href="#sec-linux" class="nav-chip">CCNC/Motrex</a>
-    <a href="#sec-log" class="nav-chip">LOG</a>
-    <a href="#sec-data" class="nav-chip">DATA</a>
-    <a href="#sec-openurl" class="nav-chip">openUrl</a>
-    <a href="#sec-useragent" class="nav-chip">UA</a>
-  </nav>
 </header>
 
 <main class="container">
 
   <section class="section section-full accent-pinned" id="sec-pinned">
-    <h2>⭐ Pinned</h2>
-    <ul class="bookmark-list" id="pinned-list"></ul>
+    <div class="pinned-split">
+      <div class="pinned-col empty" id="pinned-links-group">
+        <h2><span>⭐ 링크</span></h2>
+        <ul class="bookmark-list" id="pinned-list" data-empty="링크 옆 ☆ 를 눌러 추가"></ul>
+      </div>
+      <div class="pinned-col empty" id="pinned-snips-group">
+        <h2><span>⭐ 즐겨찾기</span></h2>
+        <ul class="snip-list" id="pinned-snips" data-empty="메모·명령어 옆 ☆ 를 눌러 추가"></ul>
+      </div>
+      <div class="pinned-col empty" id="recent-group">
+        <h2>
+          <span>🕘 Recently Used</span>
+          <span class="snip-toolbar">
+            <button type="button" id="recent-sort-btn" class="snip-tool-btn" title="정렬 전환 (최근순 / 많이순)" onclick="toggleRecentSort()">최근순</button>
+            <button type="button" class="snip-tool-btn" title="사용 기록 전체 삭제" onclick="clearRecent()">초기화</button>
+          </span>
+        </h2>
+        <ul class="snip-list" id="recent-list" data-empty="📋 로 복사한 항목이 여기에 쌓입니다"></ul>
+      </div>
+    </div>
   </section>
 
   <section class="section accent-ai" id="sec-ai">
@@ -818,7 +1045,7 @@
       <div style="display:flex;align-items:center;gap:6px;">
         <a href="./pr-review-live.htm" target="_blank" rel="noopener noreferrer" class="icon-btn" style="width:24px;height:24px;font-size:14px;text-decoration:none;" title="리뷰 대기 PR 실시간 보기(작은 창)" onclick="window.open(this.href,'pr-review-live','width=440,height=760'); return false;">👀</a>
         <a href="./pr-review-guide.htm" target="_blank" rel="noopener noreferrer" class="icon-btn" style="width:24px;height:24px;font-size:14px;text-decoration:none;" title="NEW 배지(리뷰 알림) 설정 가이드">❔</a>
-        <button type="button" id="pr-review-reload-btn" class="icon-btn" style="width:24px;height:24px;font-size:14px;" title="리뷰 카운트 새로고침" onclick="reloadReviewBadges(this)">R</button>
+        <button type="button" id="pr-review-reload-btn" class="icon-btn" style="width:24px;height:24px;font-size:14px;" title="리뷰 카운트 새로고침 (우클릭: 이 브라우저에서 배지 표시 켜기/끄기)" onclick="reloadReviewBadges(this)" oncontextmenu="toggleBadgeOwner(); return false;">R</button>
         <select id="pr-type-select" class="pr-type-select" onchange="renderPRList()">
           <option value="review">review PR</option>
           <option value="open">open PR</option>
@@ -1231,7 +1458,7 @@ CP 로 설정
 	</div>
         <div class="memo-row">
           <span class="memo-label">마지막 git commit 내용 수정</span>
-          <pre>git commit --amend -m "새로운 commit 메시지"</pre>
+          <pre>git commit --amend -m ""</pre>
         </div>
         <div class="memo-row">
           <span class="memo-label">고객전달binary</span>
@@ -2095,6 +2322,7 @@ async function copyText(text, button) {
     setTimeout(() => {
       button.classList.remove("copied");
     }, 1200);
+    recordSnipUse(button, text);
   } catch (err) {
     alert("Copy failed");
     console.error(err);
@@ -2159,6 +2387,31 @@ function renderPRList() {
 const PR_REVIEW_COUNTS_API_URL =
   "https://api.github.com/repos/royasong/royasong.github.com/contents/webdata/pr_review_counts.json?ref=pr-data";
 
+/* 배지 숫자 자체는 공개 저장소(pr-data)의 JSON에서 오므로, GitHub 로그인
+   여부와 무관하게 누구에게나 똑같이 보인다. 반면 배지를 클릭해 열리는
+   링크는 `user-review-requested:@me` 라서 로그인한 본인에게만 의미가 있다.
+   그래서 "내 브라우저"로 표시해 둔 곳에서만 배지를 그린다.
+   (github.com 로그인 상태는 cross-origin 이라 페이지에서 알아낼 방법이 없다.)
+   - 켜고 끄기 : PR 섹션의 "R" 버튼 우클릭
+   - pr-review-live.htm 에 PAT 을 저장해 둔 브라우저는 자동으로 내 브라우저 취급 */
+const PR_BADGE_OWNER_KEY = "pr-review-badge-owner";
+
+function isBadgeOwner() {
+  try {
+    return localStorage.getItem(PR_BADGE_OWNER_KEY) === "1" ||
+           !!localStorage.getItem("gh_pr_review_token");
+  } catch (e) { return false; }
+}
+
+function toggleBadgeOwner() {
+  const on = localStorage.getItem(PR_BADGE_OWNER_KEY) === "1";
+  if (on) localStorage.removeItem(PR_BADGE_OWNER_KEY);
+  else localStorage.setItem(PR_BADGE_OWNER_KEY, "1");
+  renderPRList();
+  alert(on ? "이 브라우저에서 리뷰 PR 배지를 숨깁니다."
+           : "이 브라우저에서 리뷰 PR 배지를 표시합니다.");
+}
+
 function base64ToUtf8(b64) {
   const binary = atob(b64.replace(/\n/g, ""));
   const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
@@ -2185,6 +2438,10 @@ async function updateReviewBadges() {
   if (!ul) return;
   const items = Array.from(ul.querySelectorAll("li[data-repo]"));
   if (!items.length) return;
+  if (!isBadgeOwner()) {
+    items.forEach(li => setReviewBadge(li, 0));
+    return;
+  }
   try {
     const res = await fetch(PR_REVIEW_COUNTS_API_URL, {
       cache: "no-store",
@@ -2313,7 +2570,7 @@ function initFavicons(scope) {
   const root = scope || document;
   root.querySelectorAll("a[href]").forEach(a => {
     if (a.dataset.faviconDone) return;
-    if (a.classList.contains("nav-chip") || a.classList.contains("icon-btn")) return;
+    if (a.classList.contains("icon-btn")) return;
     const raw = a.getAttribute("href") || "";
     if (!raw || raw.startsWith("#")) return;
     if (!a.textContent.trim()) return;
@@ -2406,13 +2663,449 @@ function appendBookmark(ul, href, text) {
 
 function renderPinned() {
   const pins = getPins();
-  const section = document.getElementById("sec-pinned");
   const ul = document.getElementById("pinned-list");
   ul.replaceChildren();
   pins.forEach(p => appendBookmark(ul, p.href, p.text));
-  section.classList.toggle("has-items", pins.length > 0);
   initFavicons(ul);
   initPinButtons(ul);
+  updatePinnedVisibility();
+}
+
+/* 최상단 3칸(링크 / 즐겨찾기 / Recently Used)은 항상 보인다.
+   비어 있는 칸은 감추지 않고 ul[data-empty] 안내 문구를 띄운다. localStorage 가
+   브라우저·origin 별로 분리돼 있어 다른 브라우저로 열면 기록이 비는데, 예전처럼
+   빈 칸을 숨기면 기능이 사라진 것처럼 보였다. */
+function updatePinnedVisibility() {
+  const section = document.getElementById("sec-pinned");
+  if (!section) return;
+  const counts = {
+    "pinned-links-group": "pinned-list",
+    "pinned-snips-group": "pinned-snips",
+    "recent-group":       "recent-list"
+  };
+  Object.keys(counts).forEach(groupId => {
+    const group = document.getElementById(groupId);
+    const list = document.getElementById(counts[groupId]);
+    if (group && list) group.classList.toggle("empty", list.childElementCount === 0);
+  });
+}
+
+/* ---------- 메모 세부 항목(스니펫) 즐겨찾기 / 최근 사용 ----------
+   Copy 버튼 하나 = 스니펫 하나로 본다(메모 본문의 각 명령어, LOG 항목, openUrl/UA 등).
+   - key : 복사 대상 엘리먼트의 id(lm-*, misc-*, diff-text-* …). id가 없으면 "섹션id#순번"
+   - 즐겨찾기 : localStorage "pinned-snips" → ⭐ "즐겨찾기" 칸에 ☆ 누른 순서대로 2열로 나열
+   - 최근 사용 : localStorage "snip-usage" → 🕘 Recently Used 섹션(복사할 때마다 카운트/시각 누적)
+   목록에서 복사할 때는 원문 엘리먼트를 다시 읽으므로 본문이 수정돼도 항상 최신 내용이 복사된다.
+   단, LOG 섹션처럼 Copy 버튼이 화면 표시와 다른 문자열을 복사하는 항목은 초기화 때 알아낸
+   그 문자열(fixedText)을 그대로 쓴다. 원문을 못 찾으면 즐겨찾기/기록의 스냅샷으로 복사. */
+const SNIPS = new Map();
+const SNIP_PIN_KEY  = "pinned-snips";
+const SNIP_USE_KEY  = "snip-usage";
+const SNIP_SORT_KEY = "snip-recent-sort";
+const SNIP_RECENT_SHOW = 10;    // 화면에 보여주는 개수
+const SNIP_USAGE_KEEP  = 60;    // localStorage에 남겨두는 기록 개수
+const SNIP_TEXT_MAX    = 20000; // 스냅샷으로 저장하는 최대 길이
+let snipRefreshTimer = null;
+
+/* 한 행 안에서 "복사 대상이 될 수 있는" 본문 엘리먼트들
+   (pre 안의 code 처럼 다른 후보에 중첩된 것은 제외) */
+function snipSourcesIn(row) {
+  if (!row) return [];
+  return Array.from(row.querySelectorAll("pre, textarea, .log-code, code"))
+    .filter(el => !(el.parentElement && el.parentElement.closest("pre, code, .log-code")));
+}
+
+/* 복사 버튼이 복사하는 원문 엘리먼트 */
+function snipSourceOf(btn) {
+  const row = btn.closest(".memo-row, .log-item") || btn.parentElement;
+  return snipSourcesIn(row)[0] || null;
+}
+
+/* "메모 제목 · 라벨" 형태의 표시 이름 (둘 다 없으면 섹션 제목) */
+function snipTitleOf(btn) {
+  const parts = [];
+  const item = btn.closest(".memo-item");
+  if (item) {
+    const t = item.querySelector(".memo-title-text") || item.querySelector(".memo-title");
+    if (t) parts.push(t.textContent.trim());
+  }
+  const row = btn.closest(".memo-row");
+  const label = row && row.querySelector(".memo-label");
+  if (label) parts.push(label.textContent.trim());
+  if (!parts.length) {
+    const sec = btn.closest("section");
+    const h2 = sec && sec.querySelector("h2");
+    if (h2) parts.push(h2.textContent.trim());
+  }
+  return parts.join(" · ") || "snippet";
+}
+
+function snipRawText(src) {
+  if (!src) return null;
+  return src.value !== undefined ? src.value : src.innerText;
+}
+
+function snipPreviewOf(src) {
+  const raw = snipRawText(src);
+  if (!raw) return "";
+  const line = raw.split("\n").map(v => v.trim()).find(v => v) || "";
+  return line.length > 140 ? line.slice(0, 140) + "…" : line;
+}
+
+/* 목록에서 복사할 때 쓸 원문
+   : 화면과 다른 문자열을 복사하는 버튼이면 그 문자열 > 페이지의 현재 원문 > 저장된 스냅샷 */
+function snipText(key) {
+  const rec = SNIPS.get(key);
+  if (rec) {
+    if (rec.fixedText != null) return rec.fixedText;
+    const live = snipRawText(rec.src);
+    if (live != null) return live;
+  }
+  const pin = getSnipPins().find(p => p.key === key);
+  if (pin && pin.text != null) return pin.text;
+  const used = getSnipUsage()[key];
+  return used && used.text != null ? used.text : null;
+}
+
+/* Copy 버튼이 실제로 복사하는 문자열을 클립보드를 건드리지 않고 알아낸다.
+   (인라인 onclick 을 copyText 가로챈 상태로 한 번만 호출) */
+function probeCopyText(btn) {
+  if (typeof btn.onclick !== "function") return null;
+  let captured = null;
+  const original = window.copyText;
+  window.copyText = text => { captured = text; };
+  try { btn.onclick.call(btn, new Event("click")); }
+  catch (e) { captured = null; }
+  finally { window.copyText = original; }
+  return typeof captured === "string" ? captured : null;
+}
+
+/* id 가 없는 항목의 key 는 내용 기반으로 만든다. 순번(sec-xxx#3) 방식은 메모를
+   중간에 하나 끼워 넣으면 그 뒤 항목들의 즐겨찾기/사용기록이 통째로 한 칸씩
+   밀려 엉뚱한 항목에 붙는다. 내용 기반이면 본문을 고쳤을 때 key 가 바뀌어
+   "원문 없음"으로 표시될 뿐, 다른 항목을 가리키지는 않는다. */
+function snipHash(str) {
+  let h = 5381;
+  for (let i = 0; i < str.length; i++) h = ((h * 33) ^ str.charCodeAt(i)) >>> 0;
+  return h.toString(36);
+}
+
+/* ☆ 버튼 만들기 */
+function makeSnipStar(key) {
+  const star = document.createElement("button");
+  star.type = "button";
+  star.className = "snip-star";
+  star.dataset.snipKey = key;
+  star.title = "즐겨찾기";
+  star.textContent = "☆";
+  star.addEventListener("click", e => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleSnipPin(key);
+  });
+  return star;
+}
+
+/* 페이지의 복사 가능한 항목을 모두 스니펫으로 등록하고 ☆ 버튼을 붙인다.
+   1) Copy 버튼이 있는 항목  : Copy 버튼 왼쪽에 ☆
+   2) Copy 버튼이 없는 메모 행 : 본문(pre/code)을 flex 래퍼로 감싸고 오른쪽에 ☆ */
+function initSnippets() {
+  const used = new Set();
+
+  const register = (owner, src, host, fixedText) => {
+    const sec = owner.closest("section");
+    const secId = (sec && sec.id) || "sec";
+    const title = snipTitleOf(owner);
+    const body = (fixedText != null ? fixedText : (snipRawText(src) || "")).trim().replace(/\s+/g, " ");
+    let key = (src && src.id) ? src.id : secId + "#h" + snipHash(title + " :: " + body);
+    if (used.has(key)) {                       // 제목도 내용도 똑같은 항목이 여러 개일 때
+      let n = 2;
+      while (used.has(key + "-" + n)) n++;
+      key = key + "-" + n;
+    }
+    used.add(key);
+    SNIPS.set(key, { btn: host, src, title, fixedText });
+    return key;
+  };
+
+  document.querySelectorAll("main .copy-btn").forEach(btn => {
+    if (btn.dataset.snipKey) return;
+    if (btn.closest(".snip-list")) return;   // Pinned/Recently Used 목록의 버튼은 제외
+    const src = snipSourceOf(btn);
+    // 버튼이 실제로 복사하는 문자열이 화면 본문과 다르면(LOG 섹션의 리터럴 복사 등) 그 값을 고정으로 쓴다
+    const probed = probeCopyText(btn);
+    const fixedText = (probed != null && probed !== snipRawText(src)) ? probed : null;
+    const key = register(btn, src, btn, fixedText);
+    btn.dataset.snipKey = key;
+    btn.parentNode.insertBefore(makeSnipStar(key), btn);
+  });
+
+  document.querySelectorAll("main .memo-row, main .log-item").forEach(row => {
+    if (row.dataset.snipDone) return;
+    if (row.querySelector(".copy-btn")) return;             // 위에서 처리됨
+    const sources = snipSourcesIn(row);                     // 한 행에 본문이 여러 개일 수 있다
+    if (!sources.length) return;                            // 설명 문구/링크만 있는 행은 제외
+    row.dataset.snipDone = "1";
+    sources.forEach(src => {
+      const key = register(row, src, row, null);
+      const wrap = document.createElement("div");
+      wrap.className = "snip-row-wrap";
+      src.parentNode.insertBefore(wrap, src);
+      wrap.appendChild(src);
+      wrap.appendChild(makeSnipStar(key));
+    });
+  });
+
+  syncSnipStars();
+}
+
+/* key 규칙을 순번(sec-xxx#3) 에서 내용 기반(sec-xxx#h3fvcqz) 으로 바꿨다.
+   예전 규칙으로 저장된 항목은 지금 페이지의 어떤 항목과도 연결되지 않으므로 정리한다. */
+function dropLegacySnipKeys() {
+  const legacy = k => /#\d+(-\d+)?$/.test(k) && !SNIPS.has(k);
+  const pins = getSnipPins();
+  const kept = pins.filter(p => !legacy(p.key));
+  if (kept.length !== pins.length) saveSnipPins(kept);
+  const map = getSnipUsage();
+  let changed = false;
+  Object.keys(map).forEach(k => { if (legacy(k)) { delete map[k]; changed = true; } });
+  if (changed) saveSnipUsage(map);
+}
+
+function syncSnipStars() {
+  const pinned = new Set(getSnipPins().map(p => p.key));
+  document.querySelectorAll(".snip-star").forEach(star => {
+    const on = pinned.has(star.dataset.snipKey);
+    star.classList.toggle("pinned", on);
+    star.textContent = on ? "★" : "☆";
+  });
+}
+
+function getSnipPins() {
+  try { return JSON.parse(localStorage.getItem(SNIP_PIN_KEY) || "[]"); }
+  catch (e) { return []; }
+}
+function saveSnipPins(list) {
+  try {
+    localStorage.setItem(SNIP_PIN_KEY, JSON.stringify(list));
+  } catch (e) {
+    console.warn("pin save failed", e);
+    alert("즐겨찾기를 저장하지 못했습니다(브라우저 저장 공간 부족).");
+  }
+}
+
+function toggleSnipPin(key) {
+  const list = getSnipPins();
+  const idx = list.findIndex(p => p.key === key);
+  if (idx >= 0) {
+    list.splice(idx, 1);
+  } else {
+    const rec = SNIPS.get(key);
+    const text = snipText(key);
+    list.push({
+      key,
+      title: rec ? rec.title : key,
+      preview: rec ? snipPreviewOf(rec.src) : "",
+      text: text != null ? text.slice(0, SNIP_TEXT_MAX) : null
+    });
+  }
+  saveSnipPins(list);
+  renderSnipPins();
+  renderRecent();
+}
+
+/* ---------- 최근 사용 기록 ---------- */
+function getSnipUsage() {
+  try {
+    const v = JSON.parse(localStorage.getItem(SNIP_USE_KEY) || "{}");
+    return (v && typeof v === "object") ? v : {};
+  } catch (e) { return {}; }
+}
+function saveSnipUsage(map) {
+  try { localStorage.setItem(SNIP_USE_KEY, JSON.stringify(map)); }
+  catch (e) { console.warn("usage save failed", e); }
+}
+
+function recordSnipUse(button, text) {
+  const key = button && button.dataset ? button.dataset.snipKey : null;
+  if (!key) return;
+  const rec = SNIPS.get(key);
+  const map = getSnipUsage();
+  const entry = map[key] || { count: 0 };
+  entry.count = (entry.count || 0) + 1;
+  entry.at = Date.now();
+  entry.title = rec ? rec.title : (entry.title || key);
+  if (rec) entry.preview = snipPreviewOf(rec.src);
+  if (text != null) entry.text = text.slice(0, SNIP_TEXT_MAX);
+  map[key] = entry;
+  saveSnipUsage(pruneSnipUsage(map));
+  scheduleSnipRefresh();
+}
+
+function pruneSnipUsage(map) {
+  const keys = Object.keys(map);
+  if (keys.length <= SNIP_USAGE_KEEP) return map;
+  keys.sort((a, b) => (map[b].at || 0) - (map[a].at || 0));
+  const out = {};
+  keys.slice(0, SNIP_USAGE_KEEP).forEach(k => { out[k] = map[k]; });
+  return out;
+}
+
+/* 복사 직후 바로 다시 그리면 눌린 버튼의 ✅ 표시가 사라지므로 표시가 끝난 뒤 갱신 */
+function scheduleSnipRefresh() {
+  clearTimeout(snipRefreshTimer);
+  snipRefreshTimer = setTimeout(renderRecent, 1300);
+}
+
+function recentSortMode() {
+  return localStorage.getItem(SNIP_SORT_KEY) === "count" ? "count" : "recent";
+}
+function toggleRecentSort() {
+  localStorage.setItem(SNIP_SORT_KEY, recentSortMode() === "count" ? "recent" : "count");
+  renderRecent();
+}
+function clearRecent() {
+  if (!confirm("최근 사용 기록을 모두 지울까요?")) return;
+  localStorage.removeItem(SNIP_USE_KEY);
+  renderRecent();
+}
+function removeRecent(key) {
+  const map = getSnipUsage();
+  delete map[key];
+  saveSnipUsage(map);
+  renderRecent();
+}
+
+/* ---------- Pinned / Recently Used 목록 렌더 ---------- */
+function snipListItem(entry, opts) {
+  const key = entry.key;
+  const rec = SNIPS.get(key);
+  const live = !!(rec && document.body.contains(rec.btn));
+  const li = document.createElement("li");
+  li.className = "snip-item";
+
+  const main = document.createElement("div");
+  main.className = "snip-main";
+
+  const title = document.createElement("div");
+  title.className = "snip-title";
+  title.textContent = (rec && rec.title) || entry.title || key;
+  if (opts.count) {
+    const cnt = document.createElement("span");
+    cnt.className = "snip-count";
+    cnt.textContent = "×" + (entry.count || 1);
+    title.appendChild(cnt);
+  }
+  main.appendChild(title);
+
+  const preview = document.createElement("div");
+  preview.className = "snip-preview";
+  preview.textContent = (live ? snipPreviewOf(rec.src) : "") || entry.preview || "";
+  preview.title = preview.textContent;
+  main.appendChild(preview);
+  li.appendChild(main);
+
+  const actions = document.createElement("div");
+  actions.className = "snip-actions";
+
+  const copy = document.createElement("button");
+  copy.type = "button";
+  copy.className = "copy-btn";
+  copy.title = "복사";
+  copy.dataset.snipKey = key;
+  copy.addEventListener("click", () => {
+    const text = snipText(key);
+    if (text == null) { alert("복사할 원문을 찾지 못했습니다"); return; }
+    copyText(text, copy);
+  });
+  actions.appendChild(copy);
+
+  if (live) {
+    const go = document.createElement("button");
+    go.type = "button";
+    go.className = "snip-icon-btn";
+    go.title = "원문 위치로 이동";
+    go.textContent = "↗";
+    go.addEventListener("click", () => gotoSnip(key));
+    actions.appendChild(go);
+  } else {
+    li.classList.add("snip-missing");
+    li.title = "페이지에서 원문을 찾지 못했습니다(저장해 둔 내용으로 복사됩니다)";
+  }
+
+  const star = makeSnipStar(key);
+  actions.appendChild(star);
+
+  if (opts.remove) {
+    const del = document.createElement("button");
+    del.type = "button";
+    del.className = "snip-icon-btn";
+    del.title = "기록에서 삭제";
+    del.textContent = "✕";
+    del.addEventListener("click", () => removeRecent(key));
+    actions.appendChild(del);
+  }
+
+  li.appendChild(actions);
+  return li;
+}
+
+/* ☆ 는 종류 구분 없이 그냥 즐겨찾기다. 누른 순서대로 2열 그리드에 쭉 나열한다. */
+function renderSnipPins() {
+  const ul = document.getElementById("pinned-snips");
+  if (!ul) return;
+  ul.replaceChildren();
+  getSnipPins().forEach(p => ul.appendChild(snipListItem(p, { count: false, remove: false })));
+  syncSnipStars();
+  updatePinnedVisibility();
+}
+
+function renderRecent() {
+  const ul = document.getElementById("recent-list");
+  if (!ul) return;
+  const mode = recentSortMode();
+  const sortBtn = document.getElementById("recent-sort-btn");
+  if (sortBtn) sortBtn.textContent = mode === "count" ? "많이순" : "최근순";
+  const map = getSnipUsage();
+  const list = Object.keys(map).map(k => Object.assign({ key: k }, map[k]));
+  list.sort((a, b) => mode === "count"
+    ? (b.count - a.count) || ((b.at || 0) - (a.at || 0))
+    : ((b.at || 0) - (a.at || 0)));
+  ul.replaceChildren();
+  list.slice(0, SNIP_RECENT_SHOW).forEach(e => ul.appendChild(snipListItem(e, { count: true, remove: true })));
+  syncSnipStars();
+  updatePinnedVisibility();
+}
+
+/* 목록의 ↗ : 원문 메모를 펼치고 그 위치로 스크롤 + 잠깐 하이라이트 */
+function expandMemoItem(item) {
+  const idx = Array.from(document.querySelectorAll(".memo-item")).indexOf(item);
+  item.classList.add("expanded");
+  if (idx >= 0) localStorage.setItem("memo-open-" + idx, "1");
+}
+
+function gotoSnip(key) {
+  const rec = SNIPS.get(key);
+  if (!rec || !document.body.contains(rec.btn)) return;
+  const target = rec.btn.closest(".memo-row, .log-item") || rec.btn.parentElement;
+  const item = rec.btn.closest(".memo-item");
+  if (item) expandMemoItem(item);
+  /* 메모를 펼쳤는데도 안 보이면 검색 필터에 걸러진 상태다. 그대로 스크롤하면 좌표가
+     전부 0이라 엉뚱하게 위로 튀므로, 검색을 먼저 풀고 다시 확인한다. */
+  if (!target.getClientRects().length) {
+    const input = document.getElementById("global-search");
+    if (input && input.value) {
+      input.value = "";
+      runSearch(false);
+      if (item) expandMemoItem(item);   // runSearch 가 아코디언 상태를 되돌린다
+    }
+    if (!target.getClientRects().length) return;
+  }
+  scrollMatchIntoView(target);
+  target.classList.remove("snip-flash");
+  void target.offsetWidth;
+  target.classList.add("snip-flash");
+  setTimeout(() => target.classList.remove("snip-flash"), 1700);
 }
 
 /* ---------- LOG diff +/- 라인 색상 강조 ---------- */
@@ -2730,13 +3423,74 @@ function initFreeMemoPanel() {
 renderPRList();
 initFavicons();
 initPinButtons();
+/* ---------- 헤더 날짜/시간/날씨 ---------- */
+const WMO_ICON = {
+  0: "☀️", 1: "🌤️", 2: "⛅", 3: "☁️",
+  45: "🌫️", 48: "🌫️",
+  51: "🌦️", 53: "🌦️", 55: "🌦️", 56: "🌧️", 57: "🌧️",
+  61: "🌧️", 63: "🌧️", 65: "🌧️", 66: "🌧️", 67: "🌧️",
+  71: "🌨️", 73: "🌨️", 75: "❄️", 77: "🌨️",
+  80: "🌦️", 81: "🌧️", 82: "⛈️", 85: "🌨️", 86: "❄️",
+  95: "⛈️", 96: "⛈️", 99: "⛈️"
+};
+
+function renderHeaderClock() {
+  const el = document.getElementById("hs-datetime");
+  if (!el) return;
+  const now = new Date();
+  const days = ["일", "월", "화", "수", "목", "금", "토"];
+  const p2 = (n) => String(n).padStart(2, "0");
+  el.textContent =
+    now.getFullYear() + "-" + p2(now.getMonth() + 1) + "-" + p2(now.getDate()) +
+    " (" + days[now.getDay()] + ") " +
+    p2(now.getHours()) + ":" + p2(now.getMinutes());
+}
+
+const WEATHER_LOCATION = { name: "서울", lat: 37.5665, lon: 126.9780 };
+
+async function loadHeaderWeather() {
+  const box = document.getElementById("hs-weather");
+  const el = document.getElementById("hs-weather-val");
+  const loc = document.getElementById("hs-weather-loc");
+  if (!el) return;
+  if (loc) loc.textContent = WEATHER_LOCATION.name;
+  try {
+    const url = "https://api.open-meteo.com/v1/forecast" +
+      "?latitude=" + WEATHER_LOCATION.lat + "&longitude=" + WEATHER_LOCATION.lon +
+      "&current=temperature_2m,weather_code" +
+      "&timezone=Asia%2FSeoul";
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    const cur = data.current || {};
+    const icon = WMO_ICON[cur.weather_code] || "🌡️";
+    el.textContent = icon + " " + Math.round(cur.temperature_2m) + "°C";
+    if (box) box.title = WEATHER_LOCATION.name + " 현재 날씨 (Open-Meteo)";
+  } catch (e) {
+    el.textContent = "🌐 날씨 정보 없음";
+    if (box) box.title = String(e);
+  }
+}
+
+function initHeaderStatus() {
+  renderHeaderClock();
+  setInterval(renderHeaderClock, 10 * 1000);
+  loadHeaderWeather();
+  setInterval(loadHeaderWeather, 10 * 60 * 1000);
+}
+
 wrapMemoTitles();
 initAccordion();
 colorizeDiffs();
+initSnippets();
+dropLegacySnipKeys();
 renderPinned();
+renderSnipPins();
+renderRecent();
 initFreeMemoPanel();
 initSearch();
 applyTheme(localStorage.getItem("theme") || "light");
+initHeaderStatus();
 </script>
 
 </body>
