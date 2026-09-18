@@ -327,6 +327,7 @@
     .accent-data      { --accent: #6fb7aa; }
     .accent-devinfo   { --accent: #c98ab0; }
     .accent-mf1       { --accent: #7f9ed4; }
+    .accent-cve143    { --accent: #d48a8a; }
 
     /* LOG / Branch 섹션은 전체 너비 */
     .section-full {
@@ -670,6 +671,15 @@
       border-radius: 6px;
     }
 
+    /* log-item 상단 작은 라벨 */
+    .log-item-label {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: var(--memo-label-color);
+      margin-bottom: 4px;
+    }
+
     /* diff +/- 라인 색상 강조 */
     .diff-add  { background: var(--diff-add-bg); color: var(--diff-add-text); display: inline-block; width: 100%; }
     .diff-del  { background: var(--diff-del-bg); color: var(--diff-del-text); display: inline-block; width: 100%; }
@@ -700,6 +710,43 @@
     }
 
     .copy-btn.copied::before {
+      content: "✅";
+    }
+
+    /* obj open url: $ 버튼이 보낼 단말 IP/Port 입력칸 */
+    .oba-target {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 6px;
+      font-size: 12px;
+      align-items: center;
+    }
+
+    .oba-target-hint {
+      opacity: 0.7;
+    }
+
+    .oba-target input {
+      font-family: Consolas, Monaco, monospace;
+      font-size: 12px;
+      padding: 1px 4px;
+    }
+
+    .oba-target .oba-host-pick {
+      width: 22px;
+      margin-left: 2px;
+      font-size: 12px;
+      padding: 0;
+      cursor: pointer;
+    }
+
+    /* 명령어 전체 복사 버튼: $ 표시 */
+    .copy-btn.copy-cmd::before {
+      content: "$";
+      font-weight: 700;
+    }
+
+    .copy-btn.copy-cmd.copied::before {
       content: "✅";
     }
 
@@ -1011,6 +1058,7 @@
       <li><a href="https://github.com/OBIGOGIT/android-obigo-brs-122" target="_blank" rel="noopener noreferrer">android-obigo-brs-122</a></li>
       <li><a href="https://github.com/OBIGOGIT/android-obigo-brs-133" target="_blank" rel="noopener noreferrer">android-obigo-brs-133</a></li>
       <li><a href="https://github.com/OBIGOGIT/obigo-af-agb-143" target="_blank" rel="noopener noreferrer">obigo-af-agb-143</a></li>
+      <li><a href="https://github.com/OBIGOGIT/obigo-picknow-jsf-tts-reader" target="_blank" rel="noopener noreferrer">obigo-tts-reader</a></li>
       <li><a href="https://github.com/OBIGOGIT/obigo-ccos-qml-application" target="_blank" rel="noopener noreferrer">(WCH) obigo-ccos-qml-application</a></li>
       <li><a href="https://github.com/OBIGOGIT/obigo-common-build-suite" target="_blank" rel="noopener noreferrer">(build) obigo-common-build-suite</a></li>
       <li><a href="https://github.com/OBIGOGIT/obigo-linux-af" target="_blank" rel="noopener noreferrer">(linux-af) obigo-linux-af</a></li>
@@ -1026,7 +1074,6 @@
 	  <li><a href="https://outlook.office.com/owa/" target="_blank" rel="noopener noreferrer">Outlook Mail</a></li>
 	  <li><a href="https://obigoinc.atlassian.net/wiki/spaces/~roya.song/overview?homepageId=80347142" target="_blank" rel="noopener noreferrer">roya confluence</a></li>
       <li><a href="https://obigoinc.atlassian.net/wiki/spaces/YVMJ/overview?homepageId=962331091" target="_blank" rel="noopener noreferrer">motrex confluence</a></li>
-      <li><a href="http://172.16.30.66:8787/" target="_blank" rel="noopener noreferrer">cve피에르</a></li>
       <div class="memo-label" style="margin-top:12px;">PickNow</div>
       <li><a href="https://stg-picknow.obigo.ai/admin-web/#/" target="_blank" rel="noopener noreferrer">STG Admin-web(admin/1***)</a></li>
       <li><a href="https://obigoinc.atlassian.net/wiki/spaces/PicknowOpe/pages/1110835237/3+Configuration" target="_blank" rel="noopener noreferrer">Picknow Config</a></li>
@@ -1051,7 +1098,6 @@
           <option value="open">open PR</option>
           <option value="my">my PR(open)</option>
           <option value="myall">my PR(all)</option>
-          <option value="closed">closed PR</option>
         </select>
       </div>
     </h2>
@@ -1062,15 +1108,18 @@
     <h2>Dev</h2>
     <ul class="bookmark-list">
 	  <li><a href="https://ip.pe.kr/" target="_blank" rel="noopener noreferrer">내 ip및 위치 확인</a></li>
-	  <li><a href="https://royasong.github.io/ip/ipinfo.htm" target="_blank" rel="noopener noreferrer">내 ip및 위치 확인2</a></li>
-      <li><a href="https://royasong.github.io/game/" target="_blank" rel="noopener noreferrer">Game</a></li>
-      <li><a href="https://royasong.github.io/webrisk/" target="_blank" rel="noopener noreferrer">WebRisk</a></li>
+	  <li><a href="./test/ip/ipinfo.htm" target="_blank" rel="noopener noreferrer">내 ip및 위치 확인2</a></li>
+      <li><a href="./test/game/" target="_blank" rel="noopener noreferrer">Game</a></li>
+      <li><a href="./test/webrisk/" target="_blank" rel="noopener noreferrer">WebRisk</a></li>
       <li><a href="https://www.w3schools.com/html/html5_geolocation.asp" target="_blank" rel="noopener noreferrer">Web geolocation</a></li>
-      <li><a href="https://royasong.github.io/event/mouse_scroll.htm" target="_blank" rel="noopener noreferrer">scroll mouse only page</a></li>
+      <li><a href="./test/event/mouse_scroll.htm" target="_blank" rel="noopener noreferrer">scroll mouse only page</a></li>
+      <li><a href="./test/print.htm" target="_blank" rel="noopener noreferrer">print test(window.print())</a></li>
       <li><a href="https://speed.cloudflare.com" target="_blank" rel="noopener noreferrer">internet speed check</a></li>
       <li><a href="https://www.w3schools.com/html/tryit.asp?filename=tryhtml_input_password" target="_blank" rel="noopener noreferrer">id/password test</a></li>
       <li><a href="https://excelkospi.pages.dev/" target="_blank" rel="noopener noreferrer">excelkospi.pages.dev/</a></li>
       <li><a href="https://top.cafe.daum.net/" target="_blank" rel="noopener noreferrer">top.cafe</a></li>
+      <li><a href="http://httpforever.com/" target="_blank" rel="noopener noreferrer">http example(1)</a></li>
+      <li><a href="http://httpbin.org/" target="_blank" rel="noopener noreferrer">http example(2)</a></li>
     </ul>
   </section>
 
@@ -1081,9 +1130,12 @@
       <div class="memo-title">repo의 manifest에 명시된 브랜치로 돌리는 방법</div>
       <div class="memo-body">
         <div class="memo-row">
-          <pre>먼저 manifest를 git pull로 최신으로 만들어 주고
-
-repo forall -c 'git checkout $REPO_RREV'</pre>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="lm-repo-checkout-rrev" style="flex:1;margin:0;">
+repo forall -c 'git checkout $REPO_RREV'
+* manifest를 git pull로 최신으로</pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("lm-repo-checkout-rrev").innerText.split("\n")[0], this)'>Copy</button>
+          </div>
         </div>
       </div>
     </div>
@@ -1355,6 +1407,8 @@ export OBIGO_COUNTRY_CODE="KR"</pre>
       <li><a href="https://obigoinc.atlassian.net/wiki/x/SwBrOQ" target="_blank" rel="noopener noreferrer">Motrex 개발정보</a></li>
       <li><a href="https://obigoinc.atlassian.net/wiki/x/BYDoQg" target="_blank" rel="noopener noreferrer">Motrex contents config</a></li>
       <li><a href="https://obigoinc.atlassian.net/wiki/x/JYDldg" target="_blank" rel="noopener noreferrer">Android SE10 엔지니어모드</a></li>
+      <li><a href="https://obigoinc.atlassian.net/wiki/x/pAmvB" target="_blank" rel="noopener noreferrer">CCNC Ethernet 환경 Network 설정 가이드</a></li>
+      <li><a href="https://github.com/OBIGOGIT/android-obigo-brs-133#script-for-performance-measurement-perfanalyzer3" target="_blank" rel="noopener noreferrer">Android PickNow pss측정하는 법</a></li>
     </ul>
   </section>
 
@@ -1529,6 +1583,13 @@ Current Screen is saved at /tmp/front-screen-1920x720@135448.jpeg</pre>
           </div>
         </div>
         <div class="memo-row">
+          <span class="memo-label">mobis ccnc capture</span>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="misc-mobis-ccnc-capture" style="flex:1;margin:0;">/ccos/interfaces/hwindow/wmctl capture FRONT_CENTER test.png</pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("misc-mobis-ccnc-capture").innerText, this)'>Copy</button>
+          </div>
+        </div>
+        <div class="memo-row">
           <span class="memo-label">SSH af.obigo.com</span>
           <div style="display:flex;gap:8px;align-items:flex-start;">
             <pre id="misc-af-obigo-ssh" style="flex:1;margin:0;">ssh af@af.obigo.com</pre>
@@ -1543,6 +1604,17 @@ Current Screen is saved at /tmp/front-screen-1920x720@135448.jpeg</pre>
           <div style="display:flex;gap:8px;align-items:flex-start;">
             <pre id="misc-force-crash" style="flex:1;margin:0;">*(volatile int*)0 = 0;   // null 쓰기 &#8594; SIGSEGV</pre>
             <button class="copy-btn" onclick='copyText(document.getElementById("misc-force-crash").innerText, this)'>Copy</button>
+          </div>
+        </div>
+        <div class="memo-row">
+          <span class="memo-label">SUNNY PC (SAMBA : 폴더 주소창에 붙여넣기)</span>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="misc-sunny-samba" style="flex:1;margin:0;">smb://172.16.30.130/obigo/</pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("misc-sunny-samba").innerText, this)'>Copy</button>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="misc-sunny-ssh" style="flex:1;margin:0;">ssh obigo@172.16.30.130</pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("misc-sunny-ssh").innerText, this)'>Copy</button>
           </div>
         </div>
       </div>
@@ -1643,88 +1715,6 @@ webappmanager : /ccos/apps/manager/webappmanager
           <div style="display:flex;gap:8px;align-items:flex-start;">
             <pre id="lm-ccnc-virtualkeyboard" style="flex:1;margin:0;">./virtualKeypad -home</pre>
             <button class="copy-btn" onclick='copyText(document.getElementById("lm-ccnc-virtualkeyboard").innerText, this)'>Copy</button>
-          </div>
-        </div>
-
-        <div class="memo-row">
-          <span class="memo-label">webappmanager.config</span>
-          <div style="display:flex;gap:8px;align-items:flex-start;">
-          <textarea id="lm-wam-config" class="code-textarea" rows="30"># Browser
-# finishload-on-fcp : on/off [default:on]
-finishload-on-fcp : on
-
-# disable-web-security : on/off [default:off]
-disable-web-security : off
-
-# BRS sandbox enable : on/off [default : on]
-enable-sandbox : on
-
-# disable-check-network-state : on/off [default:off]
-disable-check-network-state : on
-
-# disable-check-ccs-available : on/off [default:off]
-disable-check-ccs-available : on
-
-# disable-check-driving-restriction-state : on/off [default:off]
-disable-check-driving-restriction-state : off
-
-# disable-filtering-urls : on/off [default:off]
-disable-filtering-urls : on
-
-################ PICKNOW #########################
-# picknow - kr or us or in
-picknow-region: kr
-
-# picknow - dev or stg or prod
-picknow-environment: stg
-
-# picknow
-picknow-kr-dev-host-url : kr-demo-picknow.obigo.ai
-picknow-kr-stg-host-url : stg-picknow.obigo.ai
-picknow-kr-prod-host-url : picknow.obigo.ai
-picknow-us-dev-host-url : brk-demo-us-west.obigo.com/picknow
-picknow-in-prod-host-url : brk-demo-india.obigo.com/picknow
-picknow-eu-prod-host-url : eu-demo-picknow.obigo.ai
-
-# picknow default home path
-picknow-default-home-path : /launcher/#/
-picknow-kr-dev-home-path : /launcher/#/
-
-################ PICKJOY #########################
-# pickjoy - kr or us
-pickjoy-region: kr
-
-# picknow - dev or stg or prod
-pickjoy-environment: prod
-
-# pickjoy
-pickjoy-kr-dev-host-url : pickjoy-dev.obigo.com
-pickjoy-kr-stg-host-url : stg-pickjoy.obigo.ai
-pickjoy-kr-prod-host-url : pickjoy.obigo.ai
-pickjoy-us-dev-host-url : brk-demo-us-west.obigo.com
-pickjoy-in-prod-host-url : brk-demo-india.obigo.com
-pickjoy-eu-prod-host-url : eu-demo-pickjoy.obigo.ai
-
-# pickjoy default home path
-pickjoy-default-home-path : /apps/
-
-pickjoy-us-dev-home-path : /pickjoy/apps/
-
-pickjoy-in-prod-home-path : /pickjoy/apps/
-
-pickjoy-eu-prod-home-path : /apps/
-
-# Tune server
-tune-server-default-url : wss://brk-demo-us-west.obigo.com/ws/
-tune-server-us-dev-url : wss://brk-demo-us-west.obigo.com/ws/
-tune-server-in-prod-url : wss://brk-demo-india.obigo.com/ws/
-tune-server-eu-prod-url : wss://eu-demo-picknow.obigo.ai/ws/
-
-tune-server-id : 111111
-lpsound-volume : 1.4
-rainsound-volume : 0.0
-</textarea>
-          <button class="copy-btn" onclick='copyText(document.getElementById("lm-wam-config").value, this)'>Copy</button>
           </div>
         </div>
 
@@ -1836,6 +1826,28 @@ country_code: IN</pre>
       </div>
     </div>
 
+    <div class="memo-item" style="margin-top:10px;">
+      <div class="memo-title">ccnc mobis cookie/cache 위치</div>
+      <div class="memo-body">
+        <div class="memo-row">
+          <span class="memo-label">Video+ (picknowweb)</span>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="lm-ccnc-picknowweb-storage" style="flex:1;margin:0;">쿠키     : /ccos/data/web/AGBSecure/users/1/Storage/ext/picknowweb/def/Cookies
+HTTP 캐시: /ccos/data/web/AGBAsset/users/1/Storage/ext/picknowweb/def/Cache/Cache_Data/</pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("lm-ccnc-picknowweb-storage").innerText, this)'>Copy</button>
+          </div>
+        </div>
+        <div class="memo-row">
+          <span class="memo-label">Audio+ (pickaudioweb)</span>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="lm-ccnc-pickaudioweb-storage" style="flex:1;margin:0;">쿠키     : /ccos/data/web/AGBSecure/users/1/Storage/ext/pickaudioweb/def/Cookies
+HTTP 캐시: /ccos/data/web/AGBAsset/users/1/Storage/ext/pickaudioweb/def/Cache/Cache_Data/</pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("lm-ccnc-pickaudioweb-storage").innerText, this)'>Copy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </section>
   </div><!-- /section-pair -->
 
@@ -1866,7 +1878,7 @@ country_code: IN</pre>
       <div class="log-item">
         <div class="log-code">LOG(ERROR) &lt;&lt; "[RLOG][" &lt;&lt; __FUNCTION__ &lt;&lt; "] " &lt;&lt; __FILE__ &lt;&lt; ":" &lt;&lt; __LINE__ &lt;&lt; " ";</div>
         <button class="copy-btn"
-          onclick='copyText(`LOG(ERROR) << "[OBG][" << __FUNCTION__ << "] " << __FILE__ << ":" << __LINE__ << " ";`, this)'>
+          onclick='copyText(`LOG(ERROR) << "[RLOG][" << __FUNCTION__ << "] " << __FILE__ << ":" << __LINE__ << " ";`, this)'>
           Copy
         </button>
       </div>
@@ -2244,6 +2256,247 @@ index c27de4f1ae..36c5c40ec5 100644
         </button>
       </div>
 
+
+      <!-- 11 -->
+      <div class="log-item">
+        <div style="flex:1; min-width:0;">
+          <div class="log-item-label">install mobis ccnc</div>
+          <div class="log-code log-scroll-box" id="diff-text-8">#!/bin/sh
+
+BASE_DIR=/home/root/roya
+
+echo "LOG"
+echo "=========================================="
+
+"$BASE_DIR/virtualKeypad_" -home
+sync
+
+DEB_DIR="$BASE_DIR/debs"
+HAS_DEB=0
+
+if [ $# -gt 0 ]; then
+    # 인자로 받은 파일명이 없으면 debs 폴더 기준으로 찾음
+    n=$#
+    while [ $n -gt 0 ]; do
+        f=$1
+        shift
+
+        [ -f "$f" ] || f="$DEB_DIR/$f"
+
+        set -- "$@" "$f"
+        n=$((n-1))
+    done
+
+    HAS_DEB=1
+
+    echo "[LOG] Installing specified deb package(s): $@"
+    dpkg --force-all -i "$@"
+else
+    set -- "$DEB_DIR"/*.deb
+
+    if [ -f "$1" ]; then
+        HAS_DEB=1
+
+        echo "[LOG] Installing all .deb packages in $DEB_DIR ..."
+        dpkg --force-all -i "$@"
+    else
+        echo "[LOG] No .deb files found in $DEB_DIR. Skipping installation."
+    fi
+fi
+
+echo "[LOG] Restarting services..."
+
+systemctl stop webcommonhmi theaterhmi webappmanager-pick
+systemctl start webcommonhmi theaterhmi webappmanager-pick
+
+if [ $HAS_DEB -eq 1 ]; then
+    echo "[LOG] Cleaning up deb files: $@"
+    rm -f "$@"
+fi
+
+echo "=========================================="
+
+ls "$DEB_DIR"
+</div>
+        </div>
+        <button class="copy-btn"
+          onclick='copyText(document.getElementById("diff-text-8").innerText, this)'>
+          Copy
+        </button>
+      </div>
+
+      <!-- 12-1 -->
+      <div class="log-item">
+        <div style="flex:1; min-width:0;">
+          <div class="log-item-label">install mobis ccnc (+ webappmanager config 변경)</div>
+          <div class="log-code log-scroll-box" id="diff-text-12">#!/bin/sh
+
+BASE_DIR=/home/root/roya
+
+echo "LOG"
+echo "=========================================="
+
+"$BASE_DIR/virtualKeypad_" -home
+sync
+
+DEB_DIR="$BASE_DIR/debs"
+HAS_DEB=0
+
+if [ $# -gt 0 ]; then
+    # 인자로 받은 파일명이 없으면 debs 폴더 기준으로 찾음
+    n=$#
+    while [ $n -gt 0 ]; do
+        f=$1
+        shift
+
+        [ -f "$f" ] || f="$DEB_DIR/$f"
+
+        set -- "$@" "$f"
+        n=$((n-1))
+    done
+
+    HAS_DEB=1
+
+    echo "[LOG] Installing specified deb package(s): $@"
+    dpkg --force-all -i "$@"
+else
+    set -- "$DEB_DIR"/*.deb
+
+    if [ -f "$1" ]; then
+        HAS_DEB=1
+
+        echo "[LOG] Installing all .deb packages in $DEB_DIR ..."
+        dpkg --force-all -i "$@"
+    else
+        echo "[LOG] No .deb files found in $DEB_DIR. Skipping installation."
+    fi
+fi
+
+# config 변경은 deb 유무와 관계없이 항상 수행 (deb 없으면 config 변경 + 재시작만 됨)
+# deb 설치 시 config가 덮어써질 수 있으므로 설치 후, 서비스 재시작 전에 변경
+CONFIG_PATH="${CONFIG_PATH:-/ccos/apps/manager/webappmanager-pick/configuration/webappmanager.config}"
+
+if [ -f "$CONFIG_PATH" ]; then
+    echo "[LOG] Updating config: $CONFIG_PATH"
+
+    KEYS="
+disable-check-network-state:on
+disable-check-ccs-available:on
+disable-check-driving-restriction-state:on
+enable-crash-stack-trace:on
+"
+
+    for item in $KEYS; do
+        key="${item%%:*}"
+        value="${item#*:}"
+
+        if grep -q "^[[:space:]]*$key[[:space:]]*:" "$CONFIG_PATH"; then
+            sed -i -E "s/^[[:space:]]*$key[[:space:]]*:.*/$key : $value/" "$CONFIG_PATH"
+        else
+            echo "$key : $value" &gt;&gt; "$CONFIG_PATH"
+        fi
+    done
+    sync
+else
+    printf '\033[1;31m[ERROR] Config not found, skip: %s\033[0m\n' "$CONFIG_PATH"
+fi
+
+echo "[LOG] Restarting services..."
+
+systemctl stop webcommonhmi theaterhmi webappmanager-pick
+systemctl start webcommonhmi theaterhmi webappmanager-pick
+
+if [ $HAS_DEB -eq 1 ]; then
+    echo "[LOG] Cleaning up deb files: $@"
+    rm -f "$@"
+fi
+
+echo "=========================================="
+
+ls "$DEB_DIR"
+</div>
+        </div>
+        <button class="copy-btn"
+          onclick='copyText(document.getElementById("diff-text-12").innerText, this)'>
+          Copy
+        </button>
+      </div>
+
+      <!-- 13 -->
+      <div class="log-item">
+        <div style="flex:1; min-width:0;">
+          <div class="log-item-label">mobis ccnc capure&amp;scp</div>
+          <div class="log-code log-scroll-box" id="diff-text-10">#!/bin/sh
+
+REMOTE="obigo@192.168.105.37"
+REMOTE_DIR="/home/obigo/a_images"
+IMAGE_DIR="./image"
+
+FILE_NAME="$1"
+
+case "$FILE_NAME" in
+    ""|*/*|.|..)
+        echo "Usage: $0 &lt;file_name&gt;"
+        echo "Example: $0 test.png"
+        exit 1
+        ;;
+esac
+
+case "$FILE_NAME" in
+    *.png) ;;
+    *) FILE_NAME="${FILE_NAME}.png" ;;
+esac
+
+mkdir -p "$IMAGE_DIR" || exit 1
+IMAGE_PATH="$IMAGE_DIR/$FILE_NAME"
+
+echo "[LOG] Capturing: $IMAGE_PATH"
+/ccos/interfaces/hwindow/wmctl capture FRONT_CENTER "$IMAGE_PATH" || {
+    echo "[ERROR] Capture failed."
+    exit 1
+}
+
+if [ ! -s "$IMAGE_PATH" ]; then
+    echo "[ERROR] Capture file is missing or empty."
+    exit 1
+fi
+
+echo "[LOG] Copying to $REMOTE:$REMOTE_DIR/"
+scp "$IMAGE_PATH" "$REMOTE:$REMOTE_DIR/" || {
+    echo "[ERROR] SCP copy failed."
+    exit 1
+}
+
+echo "[LOG] Done."</div>
+        </div>
+        <button class="copy-btn"
+          onclick='copyText(document.getElementById("diff-text-10").innerText, this)'>
+          Copy
+        </button>
+      </div>
+
+      <!-- 14 -->
+      <div class="log-item">
+        <div style="flex:1; min-width:0;">
+          <div class="log-item-label">net.sh(ccnc)</div>
+          <textarea id="diff-text-11" class="code-textarea" wrap="off" rows="11">#!/bin/bash
+if [ ! -d "/esp/services/webappmanager" ]; then
+  mkdir -p /esp/services/webappmanager/webappmanager_enable
+  systemctl restart webappmanager webcommonhmi websocketmanager nginx
+fi
+mount -o rw,remount /
+echo "nameserver 8.8.8.8" &gt;&gt; /etc/resolv.conf
+route add default gw 192.168.105.200 eth1
+# iptables -I INPUT 1 -p tcp --dport 9222 -j ACCEPT
+rdate -s time.bora.net
+date</textarea>
+        </div>
+        <button class="copy-btn"
+          onclick='copyText(document.getElementById("diff-text-11").value, this)'>
+          Copy
+        </button>
+      </div>
+
     </div><!-- /log-grid -->
   </section>
 
@@ -2262,8 +2515,25 @@ index c27de4f1ae..36c5c40ec5 100644
     </table>
   </section>
 
+  <section class="section accent-cve143" id="sec-cve143">
+    <h2>143 CVE</h2>
+    <ul class="bookmark-list">
+      <li><a href="http://172.16.30.138:8790/" target="_blank" rel="noopener noreferrer">143CVE 오픈소스 관리 페이지</a></li>
+      <li><a href="http://172.16.30.130:8787/?v=143" target="_blank" rel="noopener noreferrer">143CVE CVE Probe</a></li>
+      <li><a href="https://obigoinc.atlassian.net/wiki/spaces/AF1/pages/2096332803/CVE+Probe" target="_blank" rel="noopener noreferrer">143CVE CVE Probe 개선 Comment Confluence</a></li>
+      <li><a href="https://obigoinc.atlassian.net/browse/HKMCCCNCMO-5846" target="_blank" rel="noopener noreferrer">143CVE Work Log JIRA</a></li>
+      <li><a href="https://obigoinc.atlassian.net/wiki/spaces/AF1/pages/2088239105/Management" target="_blank" rel="noopener noreferrer">143CVE OSS-RESULT 포맷</a></li>
+      <li>EP Code: <code>GR_PICKNOW_LINUX_26_PRD</code></li>
+    </ul>
+  </section>
+
   <section class="section section-full accent-openurl" id="sec-openurl">
     <h2>obj open url</h2>
+    <div class="oba-target">
+      <label>IP <input id="oba-host" type="text" value="192.168.105.1" size="13" spellcheck="false"><select class="oba-host-pick" title="IP 선택" onchange="if(this.value){var h=document.getElementById('oba-host');h.value=this.value;h.dispatchEvent(new Event('input'));h.focus();}this.selectedIndex=0;"><option value="">▾</option><option>192.168.105.1</option><option>192.168.105.6</option></select></label>
+      <label>Port <input id="oba-port" type="text" value="9222" size="5" spellcheck="false"></label>
+      <span class="oba-target-hint">$ 버튼으로 복사 → 터미널에 그대로 붙여넣으면 실행</span>
+    </div>
     <div style="display:flex;gap:8px;align-items:flex-start;">
       <textarea id="bottom-obj-open-url" class="code-textarea" wrap="off" rows="17">obaJs.openUrl(
     "https://m.youtube.com/",
@@ -2283,8 +2553,50 @@ index c27de4f1ae..36c5c40ec5 100644
     }),
     999
 );</textarea>
-      <button class="copy-btn" onclick='copyText(document.getElementById("bottom-obj-open-url").value, this)'>Copy</button>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <button class="copy-btn" title="원본 복사" onclick='copyText(document.getElementById("bottom-obj-open-url").value, this)'>Copy</button>
+        <button class="copy-btn copy-cmd" title="터미널에 붙여넣기만 하면 실행되는 한 줄 명령 복사 (python3, 기본 192.168.105.1:9222, OBA_HOST/OBA_PORT 로 변경)" onclick='copyText(toStandaloneCmd(document.getElementById("bottom-obj-open-url").value), this)'>Copy command</button>
+      </div>
     </div>
+    <!-- $ 버튼이 base64 로 감싸 python3 -c 로 실행하는 CDP 클라이언트(oba_open_url.py 축약판). argv[1] 의 JS 를 obaJs 가 있는 첫 페이지에서 실행한다. -->
+    <script type="text/plain" id="oba-open-url-py">
+import base64,json,os,socket,struct,sys,urllib.request as U
+H=os.environ.get("OBA_HOST","192.168.105.1");P=int(os.environ.get("OBA_PORT","9222"));E=sys.argv[1]
+def ev(ws,x):
+ hp,_,p=ws[5:].partition("/");h,_,pt=hp.partition(":");s=socket.create_connection((h,int(pt)),5)
+ s.sendall(("GET /%s HTTP/1.1\r\nHost: %s\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: %s\r\nSec-WebSocket-Version: 13\r\n\r\n"%(p,hp,base64.b64encode(os.urandom(16)).decode())).encode())
+ b=b""
+ while b"\r\n\r\n" not in b:
+  c=s.recv(4096)
+  if not c:raise ConnectionError("handshake")
+  b+=c
+ b=b.split(b"\r\n\r\n",1)[1]
+ def rd(n):
+  nonlocal b
+  while len(b)<n:
+   c=s.recv(65536)
+   if not c:raise ConnectionError("closed")
+   b+=c
+  d,b=b[:n],b[n:];return d
+ d=json.dumps({"id":1,"method":"Runtime.evaluate","params":{"expression":x,"returnByValue":True}}).encode();n=len(d);m=os.urandom(4)
+ hd=bytes([129])+(bytes([128|n]) if n<126 else bytes([254])+struct.pack(">H",n) if n<65536 else bytes([255])+struct.pack(">Q",n))
+ s.sendall(hd+m+bytes(v^m[i%4] for i,v in enumerate(d)))
+ while 1:
+  n=rd(2)[1]&127
+  if n==126:n=struct.unpack(">H",rd(2))[0]
+  elif n==127:n=struct.unpack(">Q",rd(8))[0]
+  r=json.loads(rd(n).decode(errors="replace"))
+  if r.get("id")==1:
+   s.close();r=r.get("result",{})
+   if "exceptionDetails" in r:raise RuntimeError(r["exceptionDetails"].get("exception",{}).get("description") or r["exceptionDetails"].get("text"))
+   return r.get("result",{}).get("value")
+def ok(t):
+ try:return ev(t["webSocketDebuggerUrl"],"typeof obaJs!=='undefined'&&typeof obaJs.openUrl==='function'")
+ except Exception:return 0
+T=[t for t in json.load(U.urlopen("http://%s:%d/json"%(H,P),timeout=5)) if t.get("type")=="page" and t.get("webSocketDebuggerUrl") and ok(t)]
+if not T:sys.exit("no page with obaJs.openUrl on %s:%d"%(H,P))
+print("sent to %s -> %s"%(T[0].get("url"),json.dumps(ev(T[0]["webSocketDebuggerUrl"],E),ensure_ascii=False)))
+</script>
   </section>
 
   <section class="section section-full accent-useragent" id="sec-useragent">
@@ -2299,10 +2611,7 @@ Mozilla/5.0 (X11; ccNC; Linux aarch64) AppleWebKit/537.36 (KHTML, like Gecko) Ch
   </section>
 
   <section class="section section-full accent-openurl" id="free-memo-panel">
-    <h2 style="display:flex;align-items:center;justify-content:space-between;">
-      <span>📝 Free Memo</span>
-      <button id="free-memo-hide-btn" class="pin-btn" style="font-size:14px;margin-left:0;" title="숨기기" onclick="hideFreeMemo()">Hide</button>
-    </h2>
+    <h2>📝 Free Memo</h2>
     <div style="display:flex;gap:8px;align-items:flex-start;">
       <textarea id="free-memo-text" class="code-textarea" wrap="off" rows="17" placeholder="여기에 자유롭게 메모하세요. 자동 저장됩니다."></textarea>
     </div>
@@ -2311,10 +2620,38 @@ Mozilla/5.0 (X11; ccNC; Linux aarch64) AppleWebKit/537.36 (KHTML, like Gecko) Ch
 </main>
 
 <footer>
-  <a href="./privacy/index.htm" target="_blank" rel="noopener" title="Private"><img src="damgomface.png" alt="담곰" style="width:32px;height:32px;vertical-align:middle;margin-right:6px;cursor:pointer;"></a><span title="Free Memo" onclick="toggleFreeMemo()" style="cursor:pointer;">Generated Bookmark Dashboard · Roya Song</span>
+  <a href="./privacy/index.htm" target="_blank" rel="noopener" title="Private"><img src="damgomface.png" alt="담곰" style="width:32px;height:32px;vertical-align:middle;margin-right:6px;cursor:pointer;"></a><span>Generated Bookmark Dashboard · Roya Song</span>
 </footer>
 
 <script>
+// 여러 줄 코드를 터미널에 붙여넣을 수 있게 한 줄로 합친다(각 줄 앞뒤 공백 제거 후 공백 하나로 연결).
+function toOneLine(text) {
+  return text.split("\n").map(l => l.trim()).filter(Boolean).join(" ");
+}
+
+// 스크립트 파일 없이 터미널에 붙여넣기만 하면 되는 한 줄 명령을 만든다.
+// oba-open-url-py 를 base64 로 넣어 python3 -c 로 실행하고, 한 줄로 합친 코드는 작은따옴표로 감싸 인자로 넘긴다(내부 ' 는 '\'' 로 이스케이프).
+// 대상은 IP/Port 입력칸 값을 OBA_HOST/OBA_PORT 로 넘긴다.
+function toStandaloneCmd(text) {
+  const q = v => "'" + v.replace(/'/g, "'\\''") + "'";
+  const host = document.getElementById("oba-host").value.trim() || "192.168.105.1";
+  const port = document.getElementById("oba-port").value.trim() || "9222";
+  const py = btoa(document.getElementById("oba-open-url-py").textContent.trim() + "\n");
+  return `OBA_HOST=${q(host)} OBA_PORT=${q(port)} python3 -c "import base64;exec(base64.b64decode('${py}'))" ` + q(toOneLine(text));
+}
+
+// IP 입력칸 값(드롭다운 선택·직접 수정 모두)을 새로고침 후에도 유지한다.
+(() => {
+  const host = document.getElementById("oba-host");
+  try {
+    const saved = localStorage.getItem("oba-host");
+    if (saved) host.value = saved;
+  } catch (e) {}
+  host.addEventListener("input", () => {
+    try { localStorage.setItem("oba-host", host.value.trim()); } catch (e) {}
+  });
+})();
+
 async function copyText(text, button) {
   try {
     await navigator.clipboard.writeText(text);
@@ -2337,6 +2674,7 @@ const PR_REPOS = [
   "obigo-local-webserver-apps",
   "obigo-linux-af",
   "obigo-common-build-suite",
+  "obigo-picknow-jsf-tts-reader",
   "mf1_dev_tools"
 ];
 
@@ -2344,16 +2682,14 @@ const PR_QUERIES = {
   review: "is%3Apr+is%3Aopen+user-review-requested%3A%40me",
   open: "is%3Apr+is%3Aopen",
   my: "is%3Apr+is%3Aopen+author%3A%40me",
-  myall: "is%3Apr+author%3A%40me",
-  closed: "is%3Apr+is%3Aclosed"
+  myall: "is%3Apr+author%3A%40me"
 };
 
 const PR_LABELS = {
   review: "PR",
   open: "open PR",
   my: "my PR(open)",
-  myall: "my PR(all)",
-  closed: "closed PR"
+  myall: "my PR(all)"
 };
 
 function renderPRList() {
@@ -3139,7 +3475,7 @@ const SEARCH = { q: "", targets: [], marks: [], idx: -1 };
 const SEARCH_MAX_MARKS = 400;   // 한 글자 검색 등으로 마크가 폭주하는 것 방지
 let searchDebounce = null;
 
-/* Pinned(즐겨찾기 스트립)와 Free Memo(사용자 메모/Hide 상태)는
+/* Pinned(즐겨찾기 스트립)와 Free Memo(항상 표시)는
    검색이 display를 건드리지 않는다. */
 const SEARCH_SKIP_SECTIONS = ["sec-pinned", "free-memo-panel"];
 
@@ -3402,17 +3738,6 @@ function bindFreeMemoTextarea() {
   textarea.addEventListener("input", () => {
     localStorage.setItem(FREE_MEMO_KEY, textarea.value);
   });
-}
-
-function toggleFreeMemo() {
-  const panel = document.getElementById("free-memo-panel");
-  const show = panel.style.display === "none";
-  panel.style.display = show ? "block" : "none";
-  if (show) bindFreeMemoTextarea();
-}
-
-function hideFreeMemo() {
-  document.getElementById("free-memo-panel").style.display = "none";
 }
 
 function initFreeMemoPanel() {

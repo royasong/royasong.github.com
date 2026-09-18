@@ -1,0 +1,144 @@
+<title>Apple Podcasts 드롭박스 선택 오류</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  /* Layout: one narrow column, an issue report read top to bottom */
+  :root {
+    --bg: #fbfbfd;
+    --fg: #1d1f24;
+    --muted: #5f6470;
+    --line: #dcdfe6;
+    --accent: #2457c5;
+    --code-bg: #eef1f7;
+    --fail: #b3261e;
+    --ok: #1b7a3d;
+    --font-body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #15171c; --fg: #e6e8ee; --muted: #9aa0ad; --line: #2c3039;
+      --accent: #7ea2f2; --code-bg: #20242c; --fail: #f08a82; --ok: #6fd08f;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #15171c; --fg: #e6e8ee; --muted: #9aa0ad; --line: #2c3039;
+    --accent: #7ea2f2; --code-bg: #20242c; --fail: #f08a82; --ok: #6fd08f;
+    color-scheme: dark;
+  }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+  .page {
+    max-width: 760px;
+    margin: 0 auto;
+    padding-block: 40px 56px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+  header { display: flex; flex-direction: column; gap: 6px; border-bottom: 1px solid var(--line); padding-bottom: 18px; }
+  .eyebrow { font-size: 12px; letter-spacing: 0.06em; color: var(--muted); text-transform: uppercase; }
+  h1 { font-size: 24px; line-height: 1.35; margin: 0; text-wrap: balance; }
+  h2 { font-size: 17px; margin: 0 0 8px; color: var(--accent); text-wrap: balance; }
+  section { min-width: 0; }
+  p, ul, ol { margin: 0; }
+  ul, ol { padding-left: 1.3em; display: flex; flex-direction: column; gap: 4px; }
+  code {
+    font-family: var(--font-mono);
+    font-size: 0.88em;
+    background: var(--code-bg);
+    padding: 1px 5px;
+    border-radius: 4px;
+    overflow-wrap: anywhere;
+  }
+  .flow {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 10px;
+    padding: 12px 14px;
+    border-left: 3px solid var(--accent);
+    background: var(--code-bg);
+    border-radius: 0 6px 6px 0;
+  }
+  .flow div { min-width: 0; }
+  .table-wrap { overflow-x: auto; margin-top: 10px; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; white-space: nowrap; }
+  .fail { color: var(--fail); font-weight: 600; }
+  .ok { color: var(--ok); font-weight: 600; }
+  pre {
+    margin: 10px 0 0;
+    padding: 12px 14px;
+    background: var(--code-bg);
+    border-radius: 6px;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .note { font-size: 13px; color: var(--muted); }
+</style>
+
+<main class="page">
+  <header>
+    <span class="eyebrow">ccNC Web Solution · 원인 분석 및 대책</span>
+    <h1>Apple Podcasts 유해 콘텐츠 차단 메뉴에서 비활성화된 드롭박스 항목이 선택되는 현상</h1>
+  </header>
+
+  <section>
+    <h2>현상</h2>
+    <p>Apple Podcasts 설정(유해 콘텐츠 차단 &gt; 콘텐츠 제한) 드롭박스에서 선택할 수 없는(disabled) 첫 항목 "다음 중 하나를 선택하십시오."를 터치한 뒤 목록 바깥을 터치하면, 해당 항목이 선택된 상태로 바뀝니다. 기존에 선택되어 있던 값(예: 청소년 이용불가)은 사라집니다.</p>
+  </section>
+
+  <section>
+    <h2>원인</h2>
+    <p>웹 페이지 문제가 아니라 브라우저 엔진(Chromium Blink)의 결함입니다. 드롭박스 목록에서 <strong>터치 입력</strong>을 처리하는 경로가 비활성화 항목인지 검사하지 않습니다. 마우스 입력 경로에는 이 검사가 있어 PC에서는 발생하지 않고, 터치 전용인 ccNC에서 드러났습니다.</p>
+    <div class="flow">
+      <div>① 목록에서 비활성화 항목을 터치하면 기존 선택이 해제되고 아무 항목도 선택되지 않은 상태가 됩니다.</div>
+      <div>② 목록은 빈 값을 브라우저에 전달하고, 브라우저는 이를 첫 번째 항목(index 0)으로 해석합니다.</div>
+      <div>③ 목록 바깥을 터치해 닫으면, 브라우저가 비활성화 여부를 확인하지 않고 첫 번째 항목을 선택값으로 확정합니다.</div>
+    </div>
+    <p class="note" style="margin-top:10px">관련 코드: <code>third_party/blink/renderer/core/html/forms/select_type.cc</code> <code>ListBoxSelectType::DefaultEventHandler()</code>의 GestureTap 처리부</p>
+  </section>
+
+  <section>
+    <h2>확인 내용</h2>
+    <ul>
+      <li>실차 재현: 웹페이지 스크립트가 아닌 브라우저가 직접 값을 변경(사용자 입력으로 발생한 change 이벤트, index 0)한 것을 로그로 확인했습니다.</li>
+      <li>Chromium 143 원본(OBIGO 수정 없음)에서도 터치 입력 조건으로 동일하게 재현됩니다.</li>
+      <li>최신 Chromium(main, 2026-10-26 기준)에도 같은 코드가 남아 있어 upstream에서도 아직 수정되지 않았습니다.</li>
+      <li>영향 범위: 브라우저 내장 드롭박스 목록을 쓰는 페이지에서, 비활성화 항목을 터치한 경우에만 발생합니다. Apple Podcasts에 한정되지 않습니다.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>대책</h2>
+    <p>터치 입력 경로에도 마우스 입력과 같은 비활성화 항목 검사를 추가했습니다. 비활성화 항목을 터치하면 아무 동작도 하지 않고 기존 선택값이 유지됩니다.</p>
+<pre>if (!select_-&gt;IsDisabledFormControl() &amp;&amp;
+    !option-&gt;IsDisabledFormControl()) {   // 추가: 비활성화 항목 제외
+  UpdateSelectedState(...);
+  ListBoxOnChange();
+}</pre>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>확인 항목</th><th>수정 전</th><th>수정 후</th></tr></thead>
+        <tbody>
+          <tr><td>비활성화 항목 터치 → 목록 닫기</td><td class="fail">비활성화 항목 선택됨</td><td class="ok">기존 선택값 유지</td></tr>
+          <tr><td>일반 항목 터치</td><td>정상 선택</td><td>정상 선택 (변경 없음)</td></tr>
+          <tr><td>마우스·키보드 입력</td><td>정상</td><td>정상 (변경 없음)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note" style="margin-top:10px">Chromium 143 원본 환경에서 수정 전 재현과 수정 후 해소를 확인했습니다. 적용 버전은 별도 안내드리겠습니다.</p>
+  </section>
+</main>

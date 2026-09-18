@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>select touch disabled repro</title>
+<style>
+  body { font-family: sans-serif; margin: 24px; background: #fff; color: #1d1d1f; }
+  .row { margin: 0 0 28px; }
+  label { display: block; font-weight: bold; margin-bottom: 8px; }
+  /* Same look as the Apple fin-select: appearance none, placeholder in gray. */
+  select { appearance: none; width: 320px; height: 52px; padding: 0 16px; font-size: 16px;
+           border: 1px solid #86868b; border-radius: 12px; background: #fff; }
+  select.not-selected { color: #6e6e73; }
+  option[disabled] { color: #6e6e73; }
+  #log { font: 13px monospace; white-space: pre-wrap; border-top: 1px solid #ccc; padding-top: 8px; }
+  .bad { color: #d70015; font-weight: bold; }
+  button { margin-bottom: 16px; }
+</style>
+</head>
+<body>
+<p>
+  Repro of the ccNC Apple Podcasts settings issue: tapping the disabled
+  placeholder ("다음 중 하나를 선택하십시오.") in the popup, then closing the popup
+  by tapping outside, selects the disabled placeholder.<br>
+  Run chrome with <code>--obigo-emulate-touch</code> so mouse clicks arrive as touch.
+</p>
+<button id="reset">reset to initial values</button>
+
+<div class="row">
+  <label for="musicRating">Apple Music 및 Apple 팟캐스트</label>
+  <select id="musicRating" name="musicRating" data-initial="EXPLICIT">
+    <option disabled value="">다음 중 하나를 선택하십시오.</option>
+    <option value="CLEAN">전체 연령 사용가</option>
+    <option value="EXPLICIT">청소년 이용불가</option>
+  </select>
+</div>
+
+<div class="row">
+  <label for="tvRating">TV 프로그램</label>
+  <select id="tvRating" name="tvRating" data-initial="100">
+    <option disabled value="">다음 중 하나를 선택하십시오.</option>
+    <option value="100">TV-Y</option>
+    <option value="200">TV-Y7</option>
+    <option value="300">TV-G</option>
+  </select>
+</div>
+
+<div id="log"></div>
+
+<script>
+  const logEl = document.getElementById('log');
+  const log = (msg, bad) => {
+    const line = document.createElement('div');
+    if (bad) line.className = 'bad';
+    line.textContent = `${performance.now().toFixed(0)} ${msg}`;
+    logEl.prepend(line);
+    console.log('[SelectTouch]', msg);
+  };
+
+  // Same pattern as the Apple fin-select (Vue v-model): the model takes the
+  // select's value on change, and the "not-selected" class follows the model.
+  const selects = [...document.querySelectorAll('select')];
+  const model = {};
+  const render = (s) => s.classList.toggle('not-selected', !model[s.id]);
+  const reset = () => {
+    for (const s of selects) {
+      model[s.id] = s.dataset.initial;
+      s.value = model[s.id];
+      render(s);
+    }
+    log('reset: ' + selects.map(s => `${s.id}=${s.value}`).join(', '));
+  };
+
+  for (const s of selects) {
+    s.addEventListener('change', (e) => {
+      model[s.id] = s.value;
+      render(s);
+      const opt = s.options[s.selectedIndex];
+      const bad = !!(opt && opt.disabled);
+      log(`change ${s.id} trusted=${e.isTrusted} selectedIndex=${s.selectedIndex} ` +
+          `value="${s.value}"${bad ? '  <-- DISABLED placeholder selected' : ''}`, bad);
+    });
+    for (const type of ['touchstart', 'mousedown', 'click', 'blur']) {
+      s.addEventListener(type, (e) => log(`${type} ${s.id} selectedIndex=${s.selectedIndex}`));
+    }
+  }
+  document.getElementById('reset').addEventListener('click', reset);
+  reset();
+</script>
+</body>
+</html>

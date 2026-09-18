@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>특정 영역 인쇄 테스트</title>
+    <style>
+        /* 화면에서는 보이지만, 인쇄할 때는 숨김 처리 */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #print-area, #print-area * {
+                visibility: visible;
+            }
+            #print-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+
+    <!-- 인쇄하고 싶은 영역 -->
+    <div id="print-area">
+        <h2>인쇄될 내용 영역</h2>
+        <p>이 박스 안에 있는 내용만 종이에 출력됩니다.</p>
+    </div>
+    <div class="no-print">
+        <button onclick="window.print()">이 부분만 인쇄하기</button>
+        <p>이 버튼과 설명 글자는 인쇄물에 나오지 않습니다.</p>
+        <hr>
+    </div>
+
+</body>
+</html>

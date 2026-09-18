@@ -46,6 +46,7 @@ jobs:
             obigo-local-webserver-apps
             obigo-linux-af
             obigo-common-build-suite
+            obigo-picknow-jsf-tts-reader
             mf1_dev_tools
           )
 

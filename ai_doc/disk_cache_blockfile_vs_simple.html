@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Blockfile vs Simple 캐시</title>
+<style>
+:root { --bg:#fff; --fg:#1f2328; --muted:#59636e; --line:#d1d9e0; --head:#f6f8fa; --accent:#0969da; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#0d1117; --fg:#e6edf3; --muted:#9198a1; --line:#3d444d; --head:#161b22; --accent:#4493f8; } }
+:root[data-theme="dark"] { --bg:#0d1117; --fg:#e6edf3; --muted:#9198a1; --line:#3d444d; --head:#161b22; --accent:#4493f8; }
+body { background:var(--bg); color:var(--fg); font:14px/1.6 -apple-system, "Segoe UI", "Noto Sans KR", sans-serif; margin:0; padding:24px 16px; }
+main { max-width:1100px; margin:0 auto; }
+h1 { font-size:22px; margin:0 0 4px; }
+h2 { font-size:17px; margin:28px 0 8px; }
+p.sub { color:var(--muted); margin:0 0 16px; }
+.wrap { overflow-x:auto; }
+table { border-collapse:collapse; width:100%; }
+th, td { border:1px solid var(--line); padding:6px 10px; vertical-align:top; text-align:left; }
+th { background:var(--head); }
+code { font-size:12.5px; }
+ul { margin:4px 0; padding-left:20px; }
+</style>
+</head>
+<body>
+<main>
+<h1>HTTP 디스크 캐시 백엔드 비교: blockfile vs simple</h1>
+<p class="sub">brs_143 (Chromium 143) 기준 · mobis-ccnc = blockfile, motrex-ccnc = simple · 2026-10-29</p>
+
+<h2>1. 적용 현황</h2>
+<div class="wrap"><table>
+<tr><th>항목</th><th>blockfile</th><th>simple</th></tr>
+<tr><td>적용 대상</td><td>mobis-ccnc</td><td>motrex-ccnc (Linux 기본값)</td></tr>
+<tr><td>선택 방법</td><td><code>obigo_use_blockfile_http_cache = true</code> (<code>obigo.gni</code>, mobis_ccnc만)<br>→ <code>--enable-features=DiskCacheBackendExperiment</code> + 파라미터 기본값 <code>kBlockfile</code> (<code>net/base/features.cc</code>)</td><td>별도 설정 없음. 기능이 꺼져 있으면 <code>ChooseCacheType()</code>이 플랫폼 기본값 사용 (<code>IsSimpleBackendEnabledByDefaultPlatform()</code>: Linux = simple)</td></tr>
+<tr><td>관련 이슈</td><td>HKMCCCNCMO-5374 (simple 삭제 지연 → blockfile 전환)<br>HKMCCCNCMO-5774 / PR #491 (<code>':'</code> 분리 버그로 SQL이 켜지던 문제 수정)</td><td>-</td></tr>
+</table></div>
+
+<h2>2. 구조</h2>
+<div class="wrap"><table>
+<tr><th>항목</th><th>blockfile</th><th>simple</th></tr>
+<tr><td>파일 구성</td><td><code>index</code>, <code>data_0</code> ~ <code>data_3</code> (블록 파일), <code>f_xxxxxx</code> (큰 항목용 외부 파일)</td><td><code>index-dir/the-real-index</code>, 항목별 <code>&lt;hash&gt;_0</code>, <code>&lt;hash&gt;_1</code>, <code>&lt;hash&gt;_s</code></td></tr>
+<tr><td>저장 방식</td><td>작은 항목(16KB 이하)은 공용 블록 파일 안에 블록 단위로 저장, 큰 항목만 별도 파일</td><td>항목 하나당 파일 1~3개</td></tr>
+<tr><td>파일 수</td><td>적음</td><td>캐시 항목 수에 비례해서 많음</td></tr>
+<tr><td>구분 방법 (단말)</td><td><code>Cache_Data/</code>에 <code>index</code>, <code>data_*</code>가 있음</td><td><code>Cache_Data/</code>에 <code>index-dir/</code>, <code>*_0</code>가 있음</td></tr>
+</table></div>
+
+<h2>3. 설정 화면 (인터넷 사용기록 삭제 &gt; 캐시된 이미지 및 파일)</h2>
+<div class="wrap"><table>
+<tr><th>항목</th><th>blockfile</th><th>simple</th></tr>
+<tr><td>기간별 용량 계산<br>(<code>CalculateSizeOfEntriesBetween</code>)</td><td><b>미지원</b> → <code>ERR_NOT_IMPLEMENTED</code></td><td>지원</td></tr>
+<tr><td>화면 표시</td><td>모든 기간에서 <b>전체 캐시 크기</b>를 "최대 xx MB"로 표시 (<code>is_upper_limit = true</code>)<br>기간을 바꿔도 같은 숫자 (Chromium 원본도 동일, 버그 아님)</td><td>기간별로 실제 크기 표시 (기간을 바꾸면 숫자가 바뀜)</td></tr>
+<tr><td>표시값과 실제 확보량</td><td>표시값보다 실제로 지워지는 양이 적을 수 있음</td><td>대체로 일치</td></tr>
+</table></div>
+
+<h2>4. 삭제 동작</h2>
+<div class="wrap"><table>
+<tr><th>항목</th><th>blockfile</th><th>simple</th></tr>
+<tr><td>기간별 삭제 (<code>DoomEntriesBetween</code>)</td><td>지원 (최근 사용 순 목록을 돌며 기간 내 항목 삭제)</td><td>지원</td></tr>
+<tr><td>전체 기간 삭제</td><td>열린 항목이 없으면 캐시 파일을 지우고 새로 생성 (<code>RestartCache</code>)</td><td>항목 파일을 하나씩 삭제</td></tr>
+<tr><td>삭제 후 디스크 사용량 (du)</td><td>전체 삭제: 바로 줄어듦 (열린 항목이 없을 때)<br>기간별 삭제: <b>일부만 줄어듦</b><br>- 16KB 초과 항목(<code>f_*</code>): 파일 삭제 → 줄어듦<br>- 16KB 이하 항목(<code>data_0</code>~<code>data_3</code>): 블록을 빈 칸으로 표시만 하고 파일 크기는 그대로 (빈 칸은 이후 재사용)</td><td>지운 항목 파일이 삭제되어 바로 줄어듦</td></tr>
+<tr><td>삭제 속도 (타겟)</td><td>빠름 (파일 몇 개만 다룸)</td><td>항목이 많으면 <b>느림</b> (파일 수만큼 unlink, HKMCCCNCMO-5374)</td></tr>
+<tr><td>사용 중인 항목</td><td colspan="2">재생 중인 미디어 등 열려 있는 항목은 삭제 표시만 되고, 닫힐 때 실제로 삭제됨 (두 백엔드 공통)</td></tr>
+</table></div>
+
+<h2>5. 캐시 범위 (백엔드와 무관한 저장소)</h2>
+<div class="wrap"><table>
+<tr><th>저장소</th><th>mobis-ccnc</th><th>motrex-ccnc</th></tr>
+<tr><td>HTTP 캐시 (설정 화면 "캐시된 이미지 및 파일")</td><td>blockfile</td><td>simple</td></tr>
+<tr><td>Code Cache (JS 바이트코드)</td><td colspan="2">simple 고정 (<code>generated_code_cache.cc</code>)</td></tr>
+<tr><td>Service Worker 캐시</td><td colspan="2">simple 고정 (<code>service_worker_disk_cache.cc</code>)</td></tr>
+<tr><td>쿠키</td><td colspan="2">SQLite DB (<code>Cookies</code> 파일). 디스크 캐시 백엔드와 무관</td></tr>
+</table></div>
+
+<h2>6. 정리</h2>
+<ul>
+<li><b>blockfile (mobis)</b>: 삭제가 빠르고 전체 삭제 시 용량이 확실히 줄어듦. 대신 설정 화면의 기간별 용량은 항상 전체 크기("최대 xx MB")로 표시됨.</li>
+<li><b>simple (motrex)</b>: 기간별 용량이 정확히 표시되고 삭제 즉시 용량이 줄어듦. 대신 캐시 항목이 많으면 타겟에서 삭제가 느림.</li>
+<li>기간별 정확한 용량이 필요하면 blockfile용 기간별 크기 계산(<code>OpenIterator</code> + <code>GetLastUsed</code>/<code>GetDataSize</code>)을 직접 구현해야 함 (Chromium 미구현, 캐시가 크면 계산이 느림).</li>
+</ul>
+</main>
+</body>
+</html>
