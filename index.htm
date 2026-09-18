@@ -1545,6 +1545,17 @@ Current Screen is saved at /tmp/front-screen-1920x720@135448.jpeg</pre>
             <button class="copy-btn" onclick='copyText(document.getElementById("misc-force-crash").innerText, this)'>Copy</button>
           </div>
         </div>
+        <div class="memo-row">
+          <span class="memo-label">SUNNY PC (SAMBA : 폴더 주소창에 붙여넣기)</span>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="misc-sunny-samba" style="flex:1;margin:0;">smb://172.16.30.130/obigo/</pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("misc-sunny-samba").innerText, this)'>Copy</button>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="misc-sunny-ssh" style="flex:1;margin:0;">ssh obigo@172.16.30.130</pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("misc-sunny-ssh").innerText, this)'>Copy</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -2299,10 +2310,7 @@ Mozilla/5.0 (X11; ccNC; Linux aarch64) AppleWebKit/537.36 (KHTML, like Gecko) Ch
   </section>
 
   <section class="section section-full accent-openurl" id="free-memo-panel">
-    <h2 style="display:flex;align-items:center;justify-content:space-between;">
-      <span>📝 Free Memo</span>
-      <button id="free-memo-hide-btn" class="pin-btn" style="font-size:14px;margin-left:0;" title="숨기기" onclick="hideFreeMemo()">Hide</button>
-    </h2>
+    <h2>📝 Free Memo</h2>
     <div style="display:flex;gap:8px;align-items:flex-start;">
       <textarea id="free-memo-text" class="code-textarea" wrap="off" rows="17" placeholder="여기에 자유롭게 메모하세요. 자동 저장됩니다."></textarea>
     </div>
@@ -2311,7 +2319,7 @@ Mozilla/5.0 (X11; ccNC; Linux aarch64) AppleWebKit/537.36 (KHTML, like Gecko) Ch
 </main>
 
 <footer>
-  <a href="./privacy/index.htm" target="_blank" rel="noopener" title="Private"><img src="damgomface.png" alt="담곰" style="width:32px;height:32px;vertical-align:middle;margin-right:6px;cursor:pointer;"></a><span title="Free Memo" onclick="toggleFreeMemo()" style="cursor:pointer;">Generated Bookmark Dashboard · Roya Song</span>
+  <a href="./privacy/index.htm" target="_blank" rel="noopener" title="Private"><img src="damgomface.png" alt="담곰" style="width:32px;height:32px;vertical-align:middle;margin-right:6px;cursor:pointer;"></a><span>Generated Bookmark Dashboard · Roya Song</span>
 </footer>
 
 <script>
@@ -3139,7 +3147,7 @@ const SEARCH = { q: "", targets: [], marks: [], idx: -1 };
 const SEARCH_MAX_MARKS = 400;   // 한 글자 검색 등으로 마크가 폭주하는 것 방지
 let searchDebounce = null;
 
-/* Pinned(즐겨찾기 스트립)와 Free Memo(사용자 메모/Hide 상태)는
+/* Pinned(즐겨찾기 스트립)와 Free Memo(항상 표시)는
    검색이 display를 건드리지 않는다. */
 const SEARCH_SKIP_SECTIONS = ["sec-pinned", "free-memo-panel"];
 
@@ -3402,17 +3410,6 @@ function bindFreeMemoTextarea() {
   textarea.addEventListener("input", () => {
     localStorage.setItem(FREE_MEMO_KEY, textarea.value);
   });
-}
-
-function toggleFreeMemo() {
-  const panel = document.getElementById("free-memo-panel");
-  const show = panel.style.display === "none";
-  panel.style.display = show ? "block" : "none";
-  if (show) bindFreeMemoTextarea();
-}
-
-function hideFreeMemo() {
-  document.getElementById("free-memo-panel").style.display = "none";
 }
 
 function initFreeMemoPanel() {
