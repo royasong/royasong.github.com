@@ -8,7 +8,7 @@
 <link rel="icon" type="image/png" href="../damgomface.png">
 <style>
   body {
-    max-width: 640px;
+    max-width: 1400px;
     margin: 40px auto;
     padding: 0 20px;
     font-family: "Segoe UI", "Malgun Gothic", sans-serif;
@@ -34,6 +34,7 @@
   .site a { color: #315f9f; }
   table {
     width: 100%;
+    max-width: 640px;
     border-collapse: collapse;
     background: #fff;
     border: 1px solid #d6d9de;
@@ -81,6 +82,79 @@
   .copy-btn::before { content: "📋"; font-size: 12px; }
   .copy-btn.copied::before { content: "✅"; }
   .copy-btn:hover { background: #4778b4; }
+  .section { margin-top: 32px; }
+  .section h2 {
+    font-size: 16px;
+    margin: 0 0 10px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #b8bec7;
+  }
+  .card {
+    background: #fff;
+    border: 1px solid #d6d9de;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+  }
+  .card ul, .card ol { margin: 4px 0; padding-left: 20px; }
+  .card a { color: #315f9f; word-break: break-all; }
+  .tpl-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #35506f;
+  }
+  .tpl textarea {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    border: 1px solid #d6d9de;
+    color: inherit;
+    line-height: 1.5;
+    resize: vertical;
+    overflow: hidden;
+    padding: 10px 12px;
+    background: #f1f3f5;
+    border-radius: 6px;
+    font-family: Consolas, monospace;
+    font-size: 13px;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .tpl textarea:focus { outline: none; border-color: #5f8fc9; background: #fff; }
+  .tag {
+    margin-left: 4px;
+    padding: 1px 8px;
+    border-radius: 10px;
+    background: #eef4fb;
+    color: #315f9f;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .grid .card { margin-bottom: 0; }
+  .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  @media (max-width: 1100px) { .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 560px) { .grid, .grid-4 { grid-template-columns: 1fr; } }
+  .shots-label { font-size: 15px; font-weight: 600; color: #35506f; margin: 20px 0 8px; }
+  .shots { align-items: start; }
+  .shots img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid #d6d9de;
+    border-radius: 8px;
+    background: #fff;
+  }
   footer { margin-top: 20px; font-size: 12px; color: #7a828d; }
 </style>
 </head>
@@ -115,6 +189,76 @@
   </tbody>
 </table>
 
+<div class="section">
+  <h2>Mobis Work Log 작성 기준</h2>
+  <div class="grid">
+  <div class="card">
+    <ul>
+      <li>Mobis 에서 확인하는 Work Log 기준</li>
+      <li>SubTask</li>
+      <li>Label 추가</li>
+      <li>오비고 WorkLog + 30% 추가하여 작성</li>
+      <li style="color:#d93025;font-weight:600">양식에 맞게 수정사항 적을때 수정내용 대해 개발사항을 자세히 쓰면 설명요구받거나 reject될수있으니<br>일반인 대상 쉽고 문제없을만한 문구를 사용하여 수정내용 작성할 것!!</li>
+    </ul>
+  </div>
+  <div class="card">
+    <div class="tpl-head">ex) 버그 이슈 정리</div>
+    <a href="https://jira.mobis.co.kr/browse/AVNSTDG6-420120" target="_blank" rel="noopener">https://jira.mobis.co.kr/browse/AVNSTDG6-420120</a>
+    <ol>
+      <li>SubTask 생성</li>
+      <li>SubTask에 Work Time Log 추가 처리</li>
+      <li>SubTask에 라벨 입력 후 Status Done 처리</li>
+      <li>상위 버그 Ticket resolve 처리</li>
+    </ol>
+  </div>
+  </div>
+
+  <div class="grid grid-4">
+  <div class="card tpl">
+    <div class="tpl-head"><span>양식 1 <span class="tag">Fixed</span></span><button class="copy-btn" title="복사"></button></div>
+<textarea spellcheck="false">[개선 완료/Fixed]
+원인 : -
+대책 : -
+일정 : `21.12/27
+Cause: -
+Countermeasure: -
+Date : `21.12/27</textarea>
+  </div>
+  <div class="card tpl">
+    <div class="tpl-head"><span>양식 2 <span class="tag">Will be fixed</span></span><button class="copy-btn" title="복사"></button></div>
+<textarea spellcheck="false">[대책 완료/Will be fixed]
+원인 : -
+대책 : -
+일정 : '22.2/7
+Cause: -
+Countermeasure: -
+Date : -</textarea>
+  </div>
+  <div class="card tpl">
+    <div class="tpl-head"><span>양식 3 <span class="tag">Transfer to action division</span></span><button class="copy-btn" title="복사"></button></div>
+<textarea spellcheck="false">[조치 부문 이관/Transfer to action division]
+&lt;이관 사유 설명&gt;
+-
+조치 부문 : -
+&lt;Explanation&gt;
+-
+action division : -</textarea>
+  </div>
+  <div class="card tpl">
+    <div class="tpl-head"><span>양식 4 <span class="tag">Keep current</span></span><button class="copy-btn" title="복사"></button></div>
+<textarea spellcheck="false">[현 사양 유지/Keep current]
+- (한글)
+- (영문)</textarea>
+  </div>
+  </div>
+</div>
+
+<div class="shots-label">예제설명</div>
+<div class="grid shots">
+  <a href="mobis_jira1.png" target="_blank"><img src="mobis_jira1.png" alt="Mobis JIRA 1"></a>
+  <a href="mobis_jira2.png" target="_blank"><img src="mobis_jira2.png" alt="Mobis JIRA 2"></a>
+</div>
+
 <footer><a href="../index.htm">← Dashboard</a></footer>
 
 <script>
@@ -122,13 +266,20 @@ document.addEventListener("click", async (e) => {
   const btn = e.target.closest(".copy-btn");
   if (!btn) return;
   try {
-    await navigator.clipboard.writeText(btn.dataset.copy);
+    const text = btn.dataset.copy ?? btn.closest(".tpl").querySelector("textarea").value;
+    await navigator.clipboard.writeText(text);
     btn.classList.add("copied");
     setTimeout(() => btn.classList.remove("copied"), 1200);
   } catch (err) {
     alert("Copy failed");
   }
 });
+const fit = (t) => { t.style.height = "auto"; t.style.height = t.scrollHeight + 2 + "px"; };
+document.querySelectorAll(".tpl textarea").forEach((t) => {
+  fit(t);
+  t.addEventListener("input", () => fit(t));
+});
+window.addEventListener("resize", () => document.querySelectorAll(".tpl textarea").forEach(fit));
 </script>
 
 </body>
