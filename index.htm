@@ -670,6 +670,15 @@
       border-radius: 6px;
     }
 
+    /* log-item 상단 작은 라벨 */
+    .log-item-label {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: var(--memo-label-color);
+      margin-bottom: 4px;
+    }
+
     /* diff +/- 라인 색상 강조 */
     .diff-add  { background: var(--diff-add-bg); color: var(--diff-add-text); display: inline-block; width: 100%; }
     .diff-del  { background: var(--diff-del-bg); color: var(--diff-del-text); display: inline-block; width: 100%; }
@@ -1355,6 +1364,7 @@ export OBIGO_COUNTRY_CODE="KR"</pre>
       <li><a href="https://obigoinc.atlassian.net/wiki/x/SwBrOQ" target="_blank" rel="noopener noreferrer">Motrex 개발정보</a></li>
       <li><a href="https://obigoinc.atlassian.net/wiki/x/BYDoQg" target="_blank" rel="noopener noreferrer">Motrex contents config</a></li>
       <li><a href="https://obigoinc.atlassian.net/wiki/x/JYDldg" target="_blank" rel="noopener noreferrer">Android SE10 엔지니어모드</a></li>
+      <li><a href="https://github.com/OBIGOGIT/android-obigo-brs-133#script-for-performance-measurement-perfanalyzer3" target="_blank" rel="noopener noreferrer">Android PickNow pss측정하는 법</a></li>
     </ul>
   </section>
 
@@ -1545,6 +1555,17 @@ Current Screen is saved at /tmp/front-screen-1920x720@135448.jpeg</pre>
             <button class="copy-btn" onclick='copyText(document.getElementById("misc-force-crash").innerText, this)'>Copy</button>
           </div>
         </div>
+        <div class="memo-row">
+          <span class="memo-label">SUNNY PC (SAMBA : 폴더 주소창에 붙여넣기)</span>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="misc-sunny-samba" style="flex:1;margin:0;">smb://172.16.30.130/obigo/</pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("misc-sunny-samba").innerText, this)'>Copy</button>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="misc-sunny-ssh" style="flex:1;margin:0;">ssh obigo@172.16.30.130</pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("misc-sunny-ssh").innerText, this)'>Copy</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -1643,88 +1664,6 @@ webappmanager : /ccos/apps/manager/webappmanager
           <div style="display:flex;gap:8px;align-items:flex-start;">
             <pre id="lm-ccnc-virtualkeyboard" style="flex:1;margin:0;">./virtualKeypad -home</pre>
             <button class="copy-btn" onclick='copyText(document.getElementById("lm-ccnc-virtualkeyboard").innerText, this)'>Copy</button>
-          </div>
-        </div>
-
-        <div class="memo-row">
-          <span class="memo-label">webappmanager.config</span>
-          <div style="display:flex;gap:8px;align-items:flex-start;">
-          <textarea id="lm-wam-config" class="code-textarea" rows="30"># Browser
-# finishload-on-fcp : on/off [default:on]
-finishload-on-fcp : on
-
-# disable-web-security : on/off [default:off]
-disable-web-security : off
-
-# BRS sandbox enable : on/off [default : on]
-enable-sandbox : on
-
-# disable-check-network-state : on/off [default:off]
-disable-check-network-state : on
-
-# disable-check-ccs-available : on/off [default:off]
-disable-check-ccs-available : on
-
-# disable-check-driving-restriction-state : on/off [default:off]
-disable-check-driving-restriction-state : off
-
-# disable-filtering-urls : on/off [default:off]
-disable-filtering-urls : on
-
-################ PICKNOW #########################
-# picknow - kr or us or in
-picknow-region: kr
-
-# picknow - dev or stg or prod
-picknow-environment: stg
-
-# picknow
-picknow-kr-dev-host-url : kr-demo-picknow.obigo.ai
-picknow-kr-stg-host-url : stg-picknow.obigo.ai
-picknow-kr-prod-host-url : picknow.obigo.ai
-picknow-us-dev-host-url : brk-demo-us-west.obigo.com/picknow
-picknow-in-prod-host-url : brk-demo-india.obigo.com/picknow
-picknow-eu-prod-host-url : eu-demo-picknow.obigo.ai
-
-# picknow default home path
-picknow-default-home-path : /launcher/#/
-picknow-kr-dev-home-path : /launcher/#/
-
-################ PICKJOY #########################
-# pickjoy - kr or us
-pickjoy-region: kr
-
-# picknow - dev or stg or prod
-pickjoy-environment: prod
-
-# pickjoy
-pickjoy-kr-dev-host-url : pickjoy-dev.obigo.com
-pickjoy-kr-stg-host-url : stg-pickjoy.obigo.ai
-pickjoy-kr-prod-host-url : pickjoy.obigo.ai
-pickjoy-us-dev-host-url : brk-demo-us-west.obigo.com
-pickjoy-in-prod-host-url : brk-demo-india.obigo.com
-pickjoy-eu-prod-host-url : eu-demo-pickjoy.obigo.ai
-
-# pickjoy default home path
-pickjoy-default-home-path : /apps/
-
-pickjoy-us-dev-home-path : /pickjoy/apps/
-
-pickjoy-in-prod-home-path : /pickjoy/apps/
-
-pickjoy-eu-prod-home-path : /apps/
-
-# Tune server
-tune-server-default-url : wss://brk-demo-us-west.obigo.com/ws/
-tune-server-us-dev-url : wss://brk-demo-us-west.obigo.com/ws/
-tune-server-in-prod-url : wss://brk-demo-india.obigo.com/ws/
-tune-server-eu-prod-url : wss://eu-demo-picknow.obigo.ai/ws/
-
-tune-server-id : 111111
-lpsound-volume : 1.4
-rainsound-volume : 0.0
-</textarea>
-          <button class="copy-btn" onclick='copyText(document.getElementById("lm-wam-config").value, this)'>Copy</button>
           </div>
         </div>
 
@@ -2244,6 +2183,95 @@ index c27de4f1ae..36c5c40ec5 100644
         </button>
       </div>
 
+
+      <!-- 11 -->
+      <div class="log-item">
+        <div style="flex:1; min-width:0;">
+          <div class="log-item-label">install mobis ccnc</div>
+          <div class="log-code log-scroll-box" id="diff-text-8">#!/bin/sh
+echo "LOG"
+echo "=========================================="
+
+./virtualKeypad_ -home
+sync
+
+HAS_DEB=0
+
+if [ $# -gt 0 ]; then
+    HAS_DEB=1
+    echo "[LOG] Installing specified deb package(s): $@"
+    dpkg --force-all -i "$@"
+else
+    set -- *.deb
+    if [ -f "$1" ]; then
+        HAS_DEB=1
+        echo "[LOG] Installing all .deb packages in current directory..."
+        dpkg --force-all -i *.deb
+    else
+        echo "[LOG] No .deb files found. Skipping installation."
+    fi
+fi
+
+echo "[LOG] Restarting services..."
+systemctl stop webcommonhmi theaterhmi webappmanager-pick
+systemctl start webcommonhmi theaterhmi webappmanager-pick
+
+if [ $HAS_DEB -eq 1 ]; then
+    echo "[LOG] Cleaning up deb files..."
+    rm -f *.deb
+fi
+
+echo "=========================================="</div>
+        </div>
+        <button class="copy-btn"
+          onclick='copyText(document.getElementById("diff-text-8").innerText, this)'>
+          Copy
+        </button>
+      </div>
+
+      <!-- 12 -->
+      <div class="log-item">
+        <div style="flex:1; min-width:0;">
+          <div class="log-item-label">webappmanager config 변경</div>
+          <div class="log-code log-scroll-box" id="diff-text-9">#!/bin/sh
+
+if [ -n "$1" ]; then
+    CONFIG_PATH="$1"
+else
+    CONFIG_PATH="/ccos/apps/manager/webappmanager-pick/configuration/webappmanager.config"
+fi
+
+if [ ! -f "$CONFIG_PATH" ]; then
+    echo "오류: 파일을 찾을 수 없습니다 -&gt; $CONFIG_PATH"
+    exit 1
+fi
+
+KEYS="
+disable-check-network-state:on
+disable-check-ccs-available:on
+disable-check-driving-restriction-state:on
+enable-crash-stack-trace:on
+"
+
+for item in $KEYS; do
+    key="${item%%:*}"
+    value="${item#*:}"
+
+    if grep -q "^[[:space:]]*$key[[:space:]]*:" "$CONFIG_PATH"; then
+        sed -i -E "s/^[[:space:]]*$key[[:space:]]*:.*/$key : $value/" "$CONFIG_PATH"
+    else
+        echo "$key : $value" &gt;&gt; "$CONFIG_PATH"
+    fi
+done
+
+echo "설정 변경 완료: $CONFIG_PATH"</div>
+        </div>
+        <button class="copy-btn"
+          onclick='copyText(document.getElementById("diff-text-9").innerText, this)'>
+          Copy
+        </button>
+      </div>
+
     </div><!-- /log-grid -->
   </section>
 
@@ -2299,10 +2327,7 @@ Mozilla/5.0 (X11; ccNC; Linux aarch64) AppleWebKit/537.36 (KHTML, like Gecko) Ch
   </section>
 
   <section class="section section-full accent-openurl" id="free-memo-panel">
-    <h2 style="display:flex;align-items:center;justify-content:space-between;">
-      <span>📝 Free Memo</span>
-      <button id="free-memo-hide-btn" class="pin-btn" style="font-size:14px;margin-left:0;" title="숨기기" onclick="hideFreeMemo()">Hide</button>
-    </h2>
+    <h2>📝 Free Memo</h2>
     <div style="display:flex;gap:8px;align-items:flex-start;">
       <textarea id="free-memo-text" class="code-textarea" wrap="off" rows="17" placeholder="여기에 자유롭게 메모하세요. 자동 저장됩니다."></textarea>
     </div>
@@ -2311,7 +2336,7 @@ Mozilla/5.0 (X11; ccNC; Linux aarch64) AppleWebKit/537.36 (KHTML, like Gecko) Ch
 </main>
 
 <footer>
-  <a href="./privacy/index.htm" target="_blank" rel="noopener" title="Private"><img src="damgomface.png" alt="담곰" style="width:32px;height:32px;vertical-align:middle;margin-right:6px;cursor:pointer;"></a><span title="Free Memo" onclick="toggleFreeMemo()" style="cursor:pointer;">Generated Bookmark Dashboard · Roya Song</span>
+  <a href="./privacy/index.htm" target="_blank" rel="noopener" title="Private"><img src="damgomface.png" alt="담곰" style="width:32px;height:32px;vertical-align:middle;margin-right:6px;cursor:pointer;"></a><span>Generated Bookmark Dashboard · Roya Song</span>
 </footer>
 
 <script>
@@ -3139,7 +3164,7 @@ const SEARCH = { q: "", targets: [], marks: [], idx: -1 };
 const SEARCH_MAX_MARKS = 400;   // 한 글자 검색 등으로 마크가 폭주하는 것 방지
 let searchDebounce = null;
 
-/* Pinned(즐겨찾기 스트립)와 Free Memo(사용자 메모/Hide 상태)는
+/* Pinned(즐겨찾기 스트립)와 Free Memo(항상 표시)는
    검색이 display를 건드리지 않는다. */
 const SEARCH_SKIP_SECTIONS = ["sec-pinned", "free-memo-panel"];
 
@@ -3402,17 +3427,6 @@ function bindFreeMemoTextarea() {
   textarea.addEventListener("input", () => {
     localStorage.setItem(FREE_MEMO_KEY, textarea.value);
   });
-}
-
-function toggleFreeMemo() {
-  const panel = document.getElementById("free-memo-panel");
-  const show = panel.style.display === "none";
-  panel.style.display = show ? "block" : "none";
-  if (show) bindFreeMemoTextarea();
-}
-
-function hideFreeMemo() {
-  document.getElementById("free-memo-panel").style.display = "none";
 }
 
 function initFreeMemoPanel() {
