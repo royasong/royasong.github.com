@@ -661,9 +661,29 @@
       line-height: 1.7;
     }
 
+    /* 짧은 LOG 항목: 4열, 한 줄 */
+    .log-grid-short {
+      grid-template-columns: repeat(4, 1fr);
+      margin-bottom: 10px;
+    }
+    .log-grid-short .log-item {
+      align-items: center;
+      padding: 4px 8px;
+    }
+    .log-grid-short .log-code {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+    .log-grid-short .log-code:hover { white-space: normal; }
+
     /* 스크롤 박스 스타일 */
     .log-scroll-box {
-      max-height: 200px;
+      max-height: 110px;
+      font-size: 12px;
+      line-height: 1.45;
       overflow-y: auto;
       background: var(--scrollbox-bg);
       padding: 8px;
@@ -730,14 +750,6 @@
       font-family: Consolas, Monaco, monospace;
       font-size: 12px;
       padding: 1px 4px;
-    }
-
-    .oba-target .oba-host-pick {
-      width: 22px;
-      margin-left: 2px;
-      font-size: 12px;
-      padding: 0;
-      cursor: pointer;
     }
 
     /* 명령어 전체 복사 버튼: $ 표시 */
@@ -852,6 +864,9 @@
     @media (max-width: 900px) {
       .log-grid {
         grid-template-columns: 1fr;
+      }
+      .log-grid-short {
+        grid-template-columns: repeat(2, 1fr);
       }
       .section-pair {
         grid-template-columns: 1fr;
@@ -1854,7 +1869,7 @@ HTTP 캐시: /ccos/data/web/AGBAsset/users/1/Storage/ext/pickaudioweb/def/Cache/
   <section class="section section-full accent-log" id="sec-log">
     <h2>LOG</h2>
 
-    <div class="log-grid">
+    <div class="log-grid log-grid-short">
 
       <!-- 1 -->
       <div class="log-item">
@@ -1891,6 +1906,9 @@ HTTP 캐시: /ccos/data/web/AGBAsset/users/1/Storage/ext/pickaudioweb/def/Cache/
           Copy
         </button>
       </div>
+    </div>
+
+    <div class="log-grid">
 
       <!-- 5 -->
       <div class="log-item">
@@ -2479,11 +2497,7 @@ echo "[LOG] Done."</div>
       <div class="log-item">
         <div style="flex:1; min-width:0;">
           <div class="log-item-label">net.sh(ccnc)</div>
-          <textarea id="diff-text-11" class="code-textarea" wrap="off" rows="11">#!/bin/bash
-if [ ! -d "/esp/services/webappmanager" ]; then
-  mkdir -p /esp/services/webappmanager/webappmanager_enable
-  systemctl restart webappmanager webcommonhmi websocketmanager nginx
-fi
+          <textarea id="diff-text-11" class="code-textarea" wrap="off" rows="7" style="font-size:12px;line-height:1.45;">#!/bin/bash
 mount -o rw,remount /
 echo "nameserver 8.8.8.8" &gt;&gt; /etc/resolv.conf
 route add default gw 192.168.105.200 eth1
@@ -2530,7 +2544,7 @@ date</textarea>
   <section class="section section-full accent-openurl" id="sec-openurl">
     <h2>obj open url</h2>
     <div class="oba-target">
-      <label>IP <input id="oba-host" type="text" value="192.168.105.1" size="13" spellcheck="false"><select class="oba-host-pick" title="IP 선택" onchange="if(this.value){var h=document.getElementById('oba-host');h.value=this.value;h.dispatchEvent(new Event('input'));h.focus();}this.selectedIndex=0;"><option value="">▾</option><option>192.168.105.1</option><option>192.168.105.6</option></select></label>
+      <label>IP <input id="oba-host" type="text" value="192.168.105.1" size="13" spellcheck="false"></label>
       <label>Port <input id="oba-port" type="text" value="9222" size="5" spellcheck="false"></label>
       <span class="oba-target-hint">$ 버튼으로 복사 → 터미널에 그대로 붙여넣으면 실행</span>
     </div>

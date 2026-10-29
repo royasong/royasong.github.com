@@ -31,7 +31,7 @@
     border-bottom: 2px solid #b8bec7;
     font-size: 13px;
   }
-  .site a { color: #315f9f; }
+  .site a { color: #315f9f; font-size: 20px; }
   table {
     width: 100%;
     max-width: 640px;
@@ -82,6 +82,16 @@
   .copy-btn::before { content: "📋"; font-size: 12px; }
   .copy-btn.copied::before { content: "✅"; }
   .copy-btn:hover { background: #4778b4; }
+  .site a.open-btn {
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+    background: #5f8fc9;
+    padding: 4px 10px;
+    border-radius: 4px;
+    text-decoration: none;
+  }
+  .site a.open-btn:hover { background: #4778b4; }
   .section { margin-top: 32px; }
   .section h2 {
     font-size: 16px;
@@ -164,6 +174,7 @@
 <div class="site">
   <a href="https://im.mobis.com/" target="_blank" rel="noopener">https://im.mobis.com/</a>
   <button class="copy-btn" title="복사" data-copy="https://im.mobis.com/"></button>
+  <a class="open-btn" href="https://im.mobis.com/" target="_blank" rel="noopener" title="새 탭에서 열기">open link</a>
 </div>
 
 <table>
