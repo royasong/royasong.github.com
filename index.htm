@@ -44,8 +44,6 @@
       --diff-meta-text: #6b7280;
       --diff-file-text: #4b5563;
       --muted-color: #7a828d;
-      --review-badge-bg: #fef08a;
-      --review-badge-text: #1a1a1a;
     }
 
     [data-theme="dark"] {
@@ -85,8 +83,6 @@
       --diff-meta-text: #a1a7b0;
       --diff-file-text: #d1d5db;
       --muted-color: #9aa1ab;
-      --review-badge-bg: #fde047;
-      --review-badge-text: #1a1a1a;
     }
 
     * {
@@ -402,6 +398,22 @@
       color: #f59e0b;
     }
 
+    /* 📎 섹션 클립: 누른 섹션을 ⭐ 고정 영역 바로 다음(맨 앞)으로 */
+    .sec-clip-btn {
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+      padding: 0 4px 0 0;
+      vertical-align: 2px;
+      opacity: 0.25;
+      filter: grayscale(1);
+    }
+    .sec-clip-btn:hover { opacity: 0.6; }
+    .sec-clip-btn.clipped { opacity: 1; filter: none; }
+    #sec-pinned { order: -10000; }
+
     /* ---------- 메모 세부 항목(스니펫) 즐겨찾기 / 최근 사용 ---------- */
     .snip-star {
       border: none;
@@ -618,17 +630,6 @@
       100%    { background: transparent; }
     }
 
-    .review-badge {
-      font-size: 14px;
-      font-weight: 800;
-      color: var(--review-badge-text);
-      background: var(--review-badge-bg);
-      border-radius: 3px;
-      padding: 0 5px;
-      line-height: 1.5;
-      flex-shrink: 0;
-    }
-
     #sec-pinned {
       display: block;
     }
@@ -731,6 +732,30 @@
 
     .copy-btn.copied::before {
       content: "✅";
+    }
+
+    /* 삭제/제거처럼 실행 영향이 큰 명령: 빨간 테두리 + ⚠ 표시, 복사 버튼도 빨간색 */
+    .danger-cmd {
+      border-left: 4px solid #d64545 !important;
+      background: rgba(214, 69, 69, 0.07) !important;
+    }
+
+    .danger-cmd::before {
+      content: "⚠ 위험 명령 (삭제/제거)";
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: #d64545;
+      margin-bottom: 4px;
+      font-family: inherit;
+    }
+
+    .copy-btn.copy-btn-danger {
+      background: #d64545;
+    }
+
+    .copy-btn.copy-btn-danger:hover {
+      background: #b33434;
     }
 
     /* obj open url: $ 버튼이 보낼 단말 IP/Port 입력칸 */
@@ -1106,17 +1131,19 @@
       <span>PR</span>
       <div style="display:flex;align-items:center;gap:6px;">
         <a href="./pr-review-live.htm" target="_blank" rel="noopener noreferrer" class="icon-btn" style="width:24px;height:24px;font-size:14px;text-decoration:none;" title="리뷰 대기 PR 실시간 보기(작은 창)" onclick="window.open(this.href,'pr-review-live','width=440,height=760'); return false;">👀</a>
-        <a href="./pr-review-guide.htm" target="_blank" rel="noopener noreferrer" class="icon-btn" style="width:24px;height:24px;font-size:14px;text-decoration:none;" title="NEW 배지(리뷰 알림) 설정 가이드">❔</a>
-        <button type="button" id="pr-review-reload-btn" class="icon-btn" style="width:24px;height:24px;font-size:14px;" title="리뷰 카운트 새로고침 (우클릭: 이 브라우저에서 배지 표시 켜기/끄기)" onclick="reloadReviewBadges(this)" oncontextmenu="toggleBadgeOwner(); return false;">R</button>
         <select id="pr-type-select" class="pr-type-select" onchange="renderPRList()">
           <option value="review">review PR</option>
           <option value="open">open PR</option>
           <option value="my">my PR(open)</option>
           <option value="myall">my PR(all)</option>
+          <option value="branches">branches</option>
         </select>
       </div>
     </h2>
     <ul class="bookmark-list" id="pr-list"></ul>
+    <ul class="bookmark-list">
+      <li><a href="#" onclick="document.getElementById('reviewer-dlg').showModal();return false;">REVIEWER (~26/12월)</a></li>
+    </ul>
   </section>
 
   <section class="section accent-dev" id="sec-dev">
@@ -1182,6 +1209,20 @@ repo forall -c 'git checkout $REPO_RREV'</pre>
 build option : --j=48
 build option (wch only): --cqa-only</pre>
             <button class="copy-btn" onclick='copyText(document.getElementById("lm-mobis-143-build-option").innerText, this)'>Copy</button>
+          </div>
+        </div>
+        <div class="memo-row">
+          <span class="memo-label">배포를 위한 릴리즈 시 빌드옵션 (내부)</span>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="lm-mobis-143-release-internal" style="flex:1;margin:0;">source build/oaf-init-build-env;obigo-build hyundai-mobis-ccnc-target_brs143 --internal-release --release-num=R1 --j=48</pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("lm-mobis-143-release-internal").innerText, this)'>Copy</button>
+          </div>
+        </div>
+        <div class="memo-row">
+          <span class="memo-label">배포를 위한 릴리즈 시 빌드옵션 (외부)</span>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="lm-mobis-143-release-external" style="flex:1;margin:0;">source build/oaf-init-build-env;obigo-build hyundai-mobis-ccnc-target_brs143 --release --release-num=R1 --j=48</pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("lm-mobis-143-release-external").innerText, this)'>Copy</button>
           </div>
         </div>
       </div>
@@ -1433,6 +1474,7 @@ export OBIGO_COUNTRY_CODE="KR"</pre>
 	  <li><a href="https://obigoinc.atlassian.net/browse/MF1-1" target="_blank" rel="noopener noreferrer">MF1애매한업무티켓</a></li>
 	  <li><a href="https://obigoinc.atlassian.net/jira/dashboards/10374" target="_blank" rel="noopener noreferrer">MF1 issue dashboard</a></li>
 	  <li><a href="https://home.atlassian.com/o/5a6289kj-cb76-10b4-67jj-69ca7ad1786k/people/team/3a24e0a4-3d38-4af6-a5fd-ada4b9b3609f?cloudId=7c8056ba-ed98-43d2-89aa-86ec9cf4958b" target="_blank" rel="noopener noreferrer">MF1 confluence</a></li>
+	  <li><a href="https://obigoinc.atlassian.net/wiki/spaces/AF1/overview?homepageId=78282755" target="_blank" rel="noopener noreferrer">팀 confluence(meeting note)</a></li>
       <li><a href="https://github.com/OBIGOGIT/mf1_dev_tools" target="_blank" rel="noopener noreferrer">MF1 dev tools repo</a></li>
       <li><a href="https://obigogit.github.io/mf1_dev_tools/utils/urlfilter/" target="_blank" rel="noopener noreferrer">urlfilter</a></li>
       <li><a href="https://obigogit.github.io/mf1_dev_tools/utils/guider/" target="_blank" rel="noopener noreferrer">guider</a></li>
@@ -1641,6 +1683,279 @@ Current Screen is saved at /tmp/front-screen-1920x720@135448.jpeg</pre>
     <h2>CCNC / Motrex</h2>
 
     <div class="memo-item">
+      <div class="memo-title">install mobis ccnc</div>
+      <div class="memo-body">
+        <div class="memo-row">
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <textarea id="lm-ccnc-install-sh" class="code-textarea" wrap="off" rows="12" style="font-size:12px;line-height:1.45;">#!/bin/sh
+
+BASE_DIR=/home/root/roya
+
+echo "LOG"
+echo "=========================================="
+
+"$BASE_DIR/virtualKeypad_" -home
+sync
+
+DEB_DIR="$BASE_DIR/debs"
+HAS_DEB=0
+
+if [ $# -gt 0 ]; then
+    n=$#
+    while [ $n -gt 0 ]; do
+        f=$1
+        shift
+
+        [ -f "$f" ] || f="$DEB_DIR/$f"
+
+        set -- "$@" "$f"
+        n=$((n-1))
+    done
+
+    HAS_DEB=1
+
+    echo "[LOG] Installing specified deb package(s): $@"
+    dpkg --force-all -i "$@"
+else
+    set -- "$DEB_DIR"/*.deb
+
+    if [ -f "$1" ]; then
+        HAS_DEB=1
+
+        echo "[LOG] Installing all .deb packages in $DEB_DIR ..."
+        dpkg --force-all -i "$@"
+    else
+        echo "[LOG] No .deb files found in $DEB_DIR. Skipping installation."
+    fi
+fi
+
+echo "[LOG] Restarting services..."
+
+systemctl stop webcommonhmi theaterhmi webappmanager-pick
+systemctl start webcommonhmi theaterhmi webappmanager-pick
+
+if [ $HAS_DEB -eq 1 ]; then
+    echo "[LOG] Cleaning up deb files: $@"
+    rm -f "$@"
+fi
+
+echo "=========================================="
+
+ls "$DEB_DIR"</textarea>
+            <button class="copy-btn" onclick='copyText(document.getElementById("lm-ccnc-install-sh").value, this)'>Copy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="memo-item" style="margin-top:10px;">
+      <div class="memo-title">mobis ccnc capure&amp;scp</div>
+      <div class="memo-body">
+        <div class="memo-row">
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <textarea id="lm-ccnc-capture-scp-sh" class="code-textarea" wrap="off" rows="12" style="font-size:12px;line-height:1.45;">#!/bin/sh
+
+REMOTE="obigo@192.168.105.37"
+REMOTE_DIR="/home/obigo/a_images"
+IMAGE_DIR="./image"
+
+FILE_NAME="$1"
+
+case "$FILE_NAME" in
+    ""|*/*|.|..)
+        echo "Usage: $0 &lt;file_name&gt;"
+        echo "Example: $0 test.png"
+        exit 1
+        ;;
+esac
+
+case "$FILE_NAME" in
+    *.png) ;;
+    *) FILE_NAME="${FILE_NAME}.png" ;;
+esac
+
+mkdir -p "$IMAGE_DIR" || exit 1
+IMAGE_PATH="$IMAGE_DIR/$FILE_NAME"
+
+echo "[LOG] Capturing: $IMAGE_PATH"
+/ccos/interfaces/hwindow/wmctl capture FRONT_CENTER "$IMAGE_PATH" || {
+    echo "[ERROR] Capture failed."
+    exit 1
+}
+
+if [ ! -s "$IMAGE_PATH" ]; then
+    echo "[ERROR] Capture file is missing or empty."
+    exit 1
+fi
+
+echo "[LOG] Copying to $REMOTE:$REMOTE_DIR/"
+scp "$IMAGE_PATH" "$REMOTE:$REMOTE_DIR/" || {
+    echo "[ERROR] SCP copy failed."
+    exit 1
+}
+
+echo "[LOG] Done."</textarea>
+            <button class="copy-btn" onclick='copyText(document.getElementById("lm-ccnc-capture-scp-sh").value, this)'>Copy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="memo-item" style="margin-top:10px;">
+      <div class="memo-title">net.sh(ccnc)</div>
+      <div class="memo-body">
+        <div class="memo-row">
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <textarea id="lm-ccnc-net-sh" class="code-textarea" wrap="off" rows="7" style="font-size:12px;line-height:1.45;">#!/bin/bash
+mount -o rw,remount /
+echo "nameserver 8.8.8.8" &gt;&gt; /etc/resolv.conf
+route add default gw 192.168.105.200 eth1
+# iptables -I INPUT 1 -p tcp --dport 9222 -j ACCEPT
+rdate -s time.bora.net
+date</textarea>
+            <button class="copy-btn" onclick='copyText(document.getElementById("lm-ccnc-net-sh").value, this)'>Copy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="memo-item" style="margin-top:10px;">
+      <div class="memo-title">config_change.sh(ccnc) - webappmanager.config 변경</div>
+      <div class="memo-body">
+        <div class="memo-row">
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <textarea id="lm-ccnc-config-change-sh" class="code-textarea" wrap="off" rows="12" style="font-size:12px;line-height:1.45;">#!/bin/sh
+
+CONFIG_FILE="/ccos/apps/manager/webappmanager-pick/configuration/webappmanager.config"
+
+# Check if the config file exists
+if [ ! -f "$CONFIG_FILE" ]; then
+    echo "Error: Config file not found at $CONFIG_FILE"
+    exit 1
+fi
+
+# Create a backup file (.bak)
+cp "$CONFIG_FILE" "${CONFIG_FILE}.bak"
+echo "Backup created: ${CONFIG_FILE}.bak"
+
+# List of keys to configure (space-separated string for compatibility)
+KEYS="disable-check-network-state disable-check-ccs-available disable-check-driving-restriction-state enable-crash-stack-trace"
+
+for key in $KEYS; do
+    # Check if the key already exists in the file (supports : or = delimiters)
+    if grep -qE "^\s*${key}\s*[:=]" "$CONFIG_FILE"; then
+        # Replace existing value with 'on' regardless of what it was
+        sed -i -E "s/^(\s*${key}\s*[:=]\s*).*/\1on/" "$CONFIG_FILE"
+        echo "Updated: $key -&gt; on"
+    else
+        # Append the key-value pair if it does not exist
+        echo "${key} : on" &gt;&gt; "$CONFIG_FILE"
+        echo "Added: $key : on"
+    fi
+done
+
+echo "Configuration update completed successfully."</textarea>
+            <button class="copy-btn" onclick='copyText(document.getElementById("lm-ccnc-config-change-sh").value, this)'>Copy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="memo-item" style="margin-top:10px;">
+      <div class="memo-title">install<span style="font-weight:800;font-size:1.3em;color:#e5533d;margin:0 4px;">+</span>webappmanager.config변경</div>
+      <div class="memo-body">
+        <div class="memo-row">
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <textarea id="lm-ccnc-install-config-sh" class="code-textarea" wrap="off" rows="12" style="font-size:12px;line-height:1.45;">#!/bin/sh
+
+BASE_DIR=/home/root/roya
+
+echo "LOG"
+echo "=========================================="
+
+"$BASE_DIR/virtualKeypad_" -home
+sync
+
+DEB_DIR="$BASE_DIR/debs"
+HAS_DEB=0
+
+if [ $# -gt 0 ]; then
+    n=$#
+    while [ $n -gt 0 ]; do
+        f=$1
+        shift
+
+        [ -f "$f" ] || f="$DEB_DIR/$f"
+
+        set -- "$@" "$f"
+        n=$((n-1))
+    done
+
+    HAS_DEB=1
+
+    echo "[LOG] Installing specified deb package(s): $@"
+    dpkg --force-all -i "$@"
+else
+    set -- "$DEB_DIR"/*.deb
+
+    if [ -f "$1" ]; then
+        HAS_DEB=1
+
+        echo "[LOG] Installing all .deb packages in $DEB_DIR ..."
+        dpkg --force-all -i "$@"
+    else
+        echo "[LOG] No .deb files found in $DEB_DIR. Skipping installation."
+    fi
+fi
+
+echo "[LOG] Restarting services..."
+
+systemctl stop webcommonhmi theaterhmi webappmanager-pick
+
+# ===== config_change.sh (서비스 stop 상태에서 수행) =====
+CONFIG_FILE="/ccos/apps/manager/webappmanager-pick/configuration/webappmanager.config"
+
+# Check if the config file exists (없으면 경고 후 config 변경만 건너뛰고 계속 진행)
+if [ ! -f "$CONFIG_FILE" ]; then
+    echo "Warning: Config file not found at $CONFIG_FILE. Skipping config change."
+else
+    # Create a backup file (.bak)
+    cp "$CONFIG_FILE" "${CONFIG_FILE}.bak"
+    echo "Backup created: ${CONFIG_FILE}.bak"
+
+    # List of keys to configure (space-separated string for compatibility)
+    KEYS="disable-check-network-state disable-check-ccs-available disable-check-driving-restriction-state enable-crash-stack-trace"
+
+    for key in $KEYS; do
+        # Check if the key already exists in the file (supports : or = delimiters)
+        if grep -qE "^\s*${key}\s*[:=]" "$CONFIG_FILE"; then
+            # Replace existing value with 'on' regardless of what it was
+            sed -i -E "s/^(\s*${key}\s*[:=]\s*).*/\1on/" "$CONFIG_FILE"
+            echo "Updated: $key -&gt; on"
+        else
+            # Append the key-value pair if it does not exist
+            echo "${key} : on" &gt;&gt; "$CONFIG_FILE"
+            echo "Added: $key : on"
+        fi
+    done
+
+    echo "Configuration update completed successfully."
+fi
+# ===== config_change.sh end =====
+
+systemctl start webcommonhmi theaterhmi webappmanager-pick
+
+if [ $HAS_DEB -eq 1 ]; then
+    echo "[LOG] Cleaning up deb files: $@"
+    rm -f "$@"
+fi
+
+echo "=========================================="
+
+ls "$DEB_DIR"</textarea>
+            <button class="copy-btn" onclick='copyText(document.getElementById("lm-ccnc-install-config-sh").value, this)'>Copy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="memo-item" style="margin-top:10px;">
       <div class="memo-title">CCNC / Motrex</div>
       <div class="memo-body">
         <div class="memo-row">
@@ -1858,6 +2173,26 @@ HTTP 캐시: /ccos/data/web/AGBAsset/users/1/Storage/ext/picknowweb/def/Cache/Ca
             <pre id="lm-ccnc-pickaudioweb-storage" style="flex:1;margin:0;">쿠키     : /ccos/data/web/AGBSecure/users/1/Storage/ext/pickaudioweb/def/Cookies
 HTTP 캐시: /ccos/data/web/AGBAsset/users/1/Storage/ext/pickaudioweb/def/Cache/Cache_Data/</pre>
             <button class="copy-btn" onclick='copyText(document.getElementById("lm-ccnc-pickaudioweb-storage").innerText, this)'>Copy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="memo-item" style="margin-top:10px;">
+      <div class="memo-title">Video+ / Audio+ URL (STG)</div>
+      <div class="memo-body">
+        <div class="memo-row">
+          <span class="memo-label">Video+</span>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="lm-ccnc-videoplus-url" style="flex:1;margin:0;white-space:pre-wrap;word-break:break-all;"><a href="https://stg-picknow.obigo.ai/mobis-launcher/#/?subset=picknow&amp;exclude=AUDIO&amp;exclude=MUSIC" target="_blank" rel="noopener noreferrer">https://stg-picknow.obigo.ai/mobis-launcher/#/?subset=picknow&amp;exclude=AUDIO&amp;exclude=MUSIC</a></pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("lm-ccnc-videoplus-url").innerText, this)'>Copy</button>
+          </div>
+        </div>
+        <div class="memo-row">
+          <span class="memo-label">Audio+</span>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="lm-ccnc-audioplus-url" style="flex:1;margin:0;white-space:pre-wrap;word-break:break-all;"><a href="https://stg-picknow.obigo.ai/mobis-launcher/#/?subset=pickaudio&amp;only=AUDIO&amp;only=MUSIC" target="_blank" rel="noopener noreferrer">https://stg-picknow.obigo.ai/mobis-launcher/#/?subset=pickaudio&amp;only=AUDIO&amp;only=MUSIC</a></pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("lm-ccnc-audioplus-url").innerText, this)'>Copy</button>
           </div>
         </div>
       </div>
@@ -2274,243 +2609,6 @@ index c27de4f1ae..36c5c40ec5 100644
         </button>
       </div>
 
-
-      <!-- 11 -->
-      <div class="log-item">
-        <div style="flex:1; min-width:0;">
-          <div class="log-item-label">install mobis ccnc</div>
-          <div class="log-code log-scroll-box" id="diff-text-8">#!/bin/sh
-
-BASE_DIR=/home/root/roya
-
-echo "LOG"
-echo "=========================================="
-
-"$BASE_DIR/virtualKeypad_" -home
-sync
-
-DEB_DIR="$BASE_DIR/debs"
-HAS_DEB=0
-
-if [ $# -gt 0 ]; then
-    # 인자로 받은 파일명이 없으면 debs 폴더 기준으로 찾음
-    n=$#
-    while [ $n -gt 0 ]; do
-        f=$1
-        shift
-
-        [ -f "$f" ] || f="$DEB_DIR/$f"
-
-        set -- "$@" "$f"
-        n=$((n-1))
-    done
-
-    HAS_DEB=1
-
-    echo "[LOG] Installing specified deb package(s): $@"
-    dpkg --force-all -i "$@"
-else
-    set -- "$DEB_DIR"/*.deb
-
-    if [ -f "$1" ]; then
-        HAS_DEB=1
-
-        echo "[LOG] Installing all .deb packages in $DEB_DIR ..."
-        dpkg --force-all -i "$@"
-    else
-        echo "[LOG] No .deb files found in $DEB_DIR. Skipping installation."
-    fi
-fi
-
-echo "[LOG] Restarting services..."
-
-systemctl stop webcommonhmi theaterhmi webappmanager-pick
-systemctl start webcommonhmi theaterhmi webappmanager-pick
-
-if [ $HAS_DEB -eq 1 ]; then
-    echo "[LOG] Cleaning up deb files: $@"
-    rm -f "$@"
-fi
-
-echo "=========================================="
-
-ls "$DEB_DIR"
-</div>
-        </div>
-        <button class="copy-btn"
-          onclick='copyText(document.getElementById("diff-text-8").innerText, this)'>
-          Copy
-        </button>
-      </div>
-
-      <!-- 12-1 -->
-      <div class="log-item">
-        <div style="flex:1; min-width:0;">
-          <div class="log-item-label">install mobis ccnc (+ webappmanager config 변경)</div>
-          <div class="log-code log-scroll-box" id="diff-text-12">#!/bin/sh
-
-BASE_DIR=/home/root/roya
-
-echo "LOG"
-echo "=========================================="
-
-"$BASE_DIR/virtualKeypad_" -home
-sync
-
-DEB_DIR="$BASE_DIR/debs"
-HAS_DEB=0
-
-if [ $# -gt 0 ]; then
-    # 인자로 받은 파일명이 없으면 debs 폴더 기준으로 찾음
-    n=$#
-    while [ $n -gt 0 ]; do
-        f=$1
-        shift
-
-        [ -f "$f" ] || f="$DEB_DIR/$f"
-
-        set -- "$@" "$f"
-        n=$((n-1))
-    done
-
-    HAS_DEB=1
-
-    echo "[LOG] Installing specified deb package(s): $@"
-    dpkg --force-all -i "$@"
-else
-    set -- "$DEB_DIR"/*.deb
-
-    if [ -f "$1" ]; then
-        HAS_DEB=1
-
-        echo "[LOG] Installing all .deb packages in $DEB_DIR ..."
-        dpkg --force-all -i "$@"
-    else
-        echo "[LOG] No .deb files found in $DEB_DIR. Skipping installation."
-    fi
-fi
-
-# config 변경은 deb 유무와 관계없이 항상 수행 (deb 없으면 config 변경 + 재시작만 됨)
-# deb 설치 시 config가 덮어써질 수 있으므로 설치 후, 서비스 재시작 전에 변경
-CONFIG_PATH="${CONFIG_PATH:-/ccos/apps/manager/webappmanager-pick/configuration/webappmanager.config}"
-
-if [ -f "$CONFIG_PATH" ]; then
-    echo "[LOG] Updating config: $CONFIG_PATH"
-
-    KEYS="
-disable-check-network-state:on
-disable-check-ccs-available:on
-disable-check-driving-restriction-state:on
-enable-crash-stack-trace:on
-"
-
-    for item in $KEYS; do
-        key="${item%%:*}"
-        value="${item#*:}"
-
-        if grep -q "^[[:space:]]*$key[[:space:]]*:" "$CONFIG_PATH"; then
-            sed -i -E "s/^[[:space:]]*$key[[:space:]]*:.*/$key : $value/" "$CONFIG_PATH"
-        else
-            echo "$key : $value" &gt;&gt; "$CONFIG_PATH"
-        fi
-    done
-    sync
-else
-    printf '\033[1;31m[ERROR] Config not found, skip: %s\033[0m\n' "$CONFIG_PATH"
-fi
-
-echo "[LOG] Restarting services..."
-
-systemctl stop webcommonhmi theaterhmi webappmanager-pick
-systemctl start webcommonhmi theaterhmi webappmanager-pick
-
-if [ $HAS_DEB -eq 1 ]; then
-    echo "[LOG] Cleaning up deb files: $@"
-    rm -f "$@"
-fi
-
-echo "=========================================="
-
-ls "$DEB_DIR"
-</div>
-        </div>
-        <button class="copy-btn"
-          onclick='copyText(document.getElementById("diff-text-12").innerText, this)'>
-          Copy
-        </button>
-      </div>
-
-      <!-- 13 -->
-      <div class="log-item">
-        <div style="flex:1; min-width:0;">
-          <div class="log-item-label">mobis ccnc capure&amp;scp</div>
-          <div class="log-code log-scroll-box" id="diff-text-10">#!/bin/sh
-
-REMOTE="obigo@192.168.105.37"
-REMOTE_DIR="/home/obigo/a_images"
-IMAGE_DIR="./image"
-
-FILE_NAME="$1"
-
-case "$FILE_NAME" in
-    ""|*/*|.|..)
-        echo "Usage: $0 &lt;file_name&gt;"
-        echo "Example: $0 test.png"
-        exit 1
-        ;;
-esac
-
-case "$FILE_NAME" in
-    *.png) ;;
-    *) FILE_NAME="${FILE_NAME}.png" ;;
-esac
-
-mkdir -p "$IMAGE_DIR" || exit 1
-IMAGE_PATH="$IMAGE_DIR/$FILE_NAME"
-
-echo "[LOG] Capturing: $IMAGE_PATH"
-/ccos/interfaces/hwindow/wmctl capture FRONT_CENTER "$IMAGE_PATH" || {
-    echo "[ERROR] Capture failed."
-    exit 1
-}
-
-if [ ! -s "$IMAGE_PATH" ]; then
-    echo "[ERROR] Capture file is missing or empty."
-    exit 1
-fi
-
-echo "[LOG] Copying to $REMOTE:$REMOTE_DIR/"
-scp "$IMAGE_PATH" "$REMOTE:$REMOTE_DIR/" || {
-    echo "[ERROR] SCP copy failed."
-    exit 1
-}
-
-echo "[LOG] Done."</div>
-        </div>
-        <button class="copy-btn"
-          onclick='copyText(document.getElementById("diff-text-10").innerText, this)'>
-          Copy
-        </button>
-      </div>
-
-      <!-- 14 -->
-      <div class="log-item">
-        <div style="flex:1; min-width:0;">
-          <div class="log-item-label">net.sh(ccnc)</div>
-          <textarea id="diff-text-11" class="code-textarea" wrap="off" rows="7" style="font-size:12px;line-height:1.45;">#!/bin/bash
-mount -o rw,remount /
-echo "nameserver 8.8.8.8" &gt;&gt; /etc/resolv.conf
-route add default gw 192.168.105.200 eth1
-# iptables -I INPUT 1 -p tcp --dport 9222 -j ACCEPT
-rdate -s time.bora.net
-date</textarea>
-        </div>
-        <button class="copy-btn"
-          onclick='copyText(document.getElementById("diff-text-11").value, this)'>
-          Copy
-        </button>
-      </div>
-
     </div><!-- /log-grid -->
   </section>
 
@@ -2537,6 +2635,7 @@ date</textarea>
       <li><a href="https://obigoinc.atlassian.net/wiki/spaces/AF1/pages/2096332803/CVE+Probe" target="_blank" rel="noopener noreferrer">143CVE CVE Probe 개선 Comment Confluence</a></li>
       <li><a href="https://obigoinc.atlassian.net/browse/HKMCCCNCMO-5846" target="_blank" rel="noopener noreferrer">143CVE Work Log JIRA</a></li>
       <li><a href="https://obigoinc.atlassian.net/wiki/spaces/AF1/pages/2088239105/Management" target="_blank" rel="noopener noreferrer">143CVE OSS-RESULT 포맷</a></li>
+      <li>빌드옵션: <code>obigo-build hyundai-mobis-ccnc-target_brs143  --release --release-num=R1 --j=48</code></li>
       <li>EP Code: <code>GR_PICKNOW_LINUX_26_PRD</code></li>
     </ul>
   </section>
@@ -2703,7 +2802,8 @@ const PR_LABELS = {
   review: "PR",
   open: "open PR",
   my: "my PR(open)",
-  myall: "my PR(all)"
+  myall: "my PR(all)",
+  branches: "branches"
 };
 
 function renderPRList() {
@@ -2712,121 +2812,18 @@ function renderPRList() {
   const label = PR_LABELS[type];
   const ul = document.getElementById("pr-list");
   ul.replaceChildren();
-  appendBookmark(ul, "https://github.com/pulls/inbox", "Inbox");
+  if (type !== "branches") {
+    appendBookmark(ul, "https://github.com/pulls/inbox", "Inbox");
+  }
   PR_REPOS.forEach(repo => {
-    const li = appendBookmark(ul, `https://github.com/OBIGOGIT/${repo}/pulls?q=${query}`, `${repo} ${label}`);
+    const url = type === "branches"
+      ? `https://github.com/OBIGOGIT/${repo}/branches`
+      : `https://github.com/OBIGOGIT/${repo}/pulls?q=${query}`;
+    const li = appendBookmark(ul, url, `${repo} ${label}`);
     li.dataset.repo = repo;
   });
   initFavicons(ul);
   initPinButtons(ul);
-  if (type === "review") {
-    updateReviewBadges();
-  }
-}
-
-/* ---------- 리뷰해야 할 PR 알림 배지 ----------
-   GitHub Actions(.github/workflows/pr-review-counts.yml)가 15분마다
-   pr-data 브랜치의 webdata/pr_review_counts.json 을 갱신한다.
-   main 브랜치를 amend/force-push 해도 pr-data 브랜치는 영향을 받지 않도록
-   데이터를 일부러 별도 브랜치에 둔다.
-   raw.githubusercontent.com은 지역별 CDN 엣지마다 최대 5분씩 독립적으로
-   캐시돼서 "Actions는 끝났는데 화면은 옛날 값" 문제가 반복됐다. 대신
-   GitHub REST Contents API(api.github.com)를 쓴다 — CORS가 열려있고
-   캐시도 1분(max-age=60)으로 훨씬 짧다. 토큰 없이도 호출 가능(공개 저장소)
-   하므로 여전히 클라이언트에 토큰이 노출되지 않는다. */
-const PR_REVIEW_COUNTS_API_URL =
-  "https://api.github.com/repos/royasong/royasong.github.com/contents/webdata/pr_review_counts.json?ref=pr-data";
-
-/* 배지 숫자 자체는 공개 저장소(pr-data)의 JSON에서 오므로, GitHub 로그인
-   여부와 무관하게 누구에게나 똑같이 보인다. 반면 배지를 클릭해 열리는
-   링크는 `user-review-requested:@me` 라서 로그인한 본인에게만 의미가 있다.
-   그래서 "내 브라우저"로 표시해 둔 곳에서만 배지를 그린다.
-   (github.com 로그인 상태는 cross-origin 이라 페이지에서 알아낼 방법이 없다.)
-   - 켜고 끄기 : PR 섹션의 "R" 버튼 우클릭
-   - pr-review-live.htm 에 PAT 을 저장해 둔 브라우저는 자동으로 내 브라우저 취급 */
-const PR_BADGE_OWNER_KEY = "pr-review-badge-owner";
-
-function isBadgeOwner() {
-  try {
-    return localStorage.getItem(PR_BADGE_OWNER_KEY) === "1" ||
-           !!localStorage.getItem("gh_pr_review_token");
-  } catch (e) { return false; }
-}
-
-function toggleBadgeOwner() {
-  const on = localStorage.getItem(PR_BADGE_OWNER_KEY) === "1";
-  if (on) localStorage.removeItem(PR_BADGE_OWNER_KEY);
-  else localStorage.setItem(PR_BADGE_OWNER_KEY, "1");
-  renderPRList();
-  alert(on ? "이 브라우저에서 리뷰 PR 배지를 숨깁니다."
-           : "이 브라우저에서 리뷰 PR 배지를 표시합니다.");
-}
-
-function base64ToUtf8(b64) {
-  const binary = atob(b64.replace(/\n/g, ""));
-  const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
-  return new TextDecoder("utf-8").decode(bytes);
-}
-
-function setReviewBadge(li, count) {
-  let badge = li.querySelector(".review-badge");
-  if (count > 0) {
-    if (!badge) {
-      badge = document.createElement("span");
-      badge.className = "review-badge";
-      li.querySelector("a").after(badge);
-    }
-    badge.textContent = count;
-    badge.title = `리뷰 대기 PR ${count}건`;
-  } else if (badge) {
-    badge.remove();
-  }
-}
-
-async function updateReviewBadges() {
-  const ul = document.getElementById("pr-list");
-  if (!ul) return;
-  const items = Array.from(ul.querySelectorAll("li[data-repo]"));
-  if (!items.length) return;
-  if (!isBadgeOwner()) {
-    items.forEach(li => setReviewBadge(li, 0));
-    return;
-  }
-  try {
-    const res = await fetch(PR_REVIEW_COUNTS_API_URL, {
-      cache: "no-store",
-      headers: { Accept: "application/vnd.github+json" }
-    });
-    if (!res.ok) throw new Error(`fetch failed: ${res.status}`);
-    const payload = await res.json();
-    const data = JSON.parse(base64ToUtf8(payload.content));
-    const counts = data.counts || {};
-    items.forEach(li => setReviewBadge(li, counts[li.dataset.repo] || 0));
-  } catch (e) {
-    console.error("리뷰 PR 카운트 로드 실패:", e);
-  }
-}
-
-// "R" 버튼: review 모드로 전환하고 pr-data의 최신 JSON을 다시 읽어온다.
-// (cron이 불안정해서, 그 사이 GitHub Actions를 수동/외부에서 갱신했다면
-//  페이지를 새로고침하지 않고도 바로 반영해서 볼 수 있게 하기 위함)
-async function reloadReviewBadges(btn) {
-  const select = document.getElementById("pr-type-select");
-  if (select && select.value !== "review") {
-    select.value = "review";
-  }
-  renderPRList();
-  if (btn) {
-    btn.disabled = true;
-    const original = btn.textContent;
-    btn.textContent = "…";
-    try {
-      await updateReviewBadges();
-    } finally {
-      btn.textContent = original;
-      btn.disabled = false;
-    }
-  }
 }
 
 /* ---------- 다크모드 ---------- */
@@ -2997,6 +2994,51 @@ function initPinButtons(scope) {
     btn.addEventListener("click", (e) => { e.preventDefault(); togglePin(btn); });
     li.appendChild(btn);
   });
+}
+
+/* ---------- 📎 섹션 클립(섹션 순서 바꾸기) ----------
+   각 섹션 제목 앞 📎 를 누르면 그 섹션이 ⭐ 고정 영역 바로 다음(맨 앞)으로 온다.
+   여러 개면 최근에 클립한 섹션이 가장 앞. 다시 누르면 원래 자리로.
+   DOM 은 건드리지 않고 grid 의 CSS order 로만 순서를 바꾼다.
+   localStorage "clipped-sections" = [section id, ...] (최근 클립 순) */
+function getSecClips() {
+  try { return JSON.parse(localStorage.getItem("clipped-sections") || "[]"); }
+  catch (e) { return []; }
+}
+function applySecClipOrder() {
+  const clips = getSecClips();
+  document.querySelectorAll("main.container > section[id]").forEach(sec => {
+    if (sec.id === "sec-pinned") return;
+    const i = clips.indexOf(sec.id);
+    sec.style.order = i >= 0 ? String(i - clips.length) : "";
+    const btn = sec.querySelector(":scope > h2 .sec-clip-btn");
+    if (btn) btn.classList.toggle("clipped", i >= 0);
+  });
+}
+function initSectionClips() {
+  document.querySelectorAll("main.container > section[id]").forEach(sec => {
+    if (sec.id === "sec-pinned") return;
+    const h2 = sec.querySelector(":scope > h2");
+    if (!h2 || h2.querySelector(".sec-clip-btn")) return;
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "sec-clip-btn";
+    btn.textContent = "📎";
+    btn.title = "이 섹션을 맨 앞으로";
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const list = getSecClips();
+      const i = list.indexOf(sec.id);
+      if (i >= 0) list.splice(i, 1); else list.unshift(sec.id);
+      try { localStorage.setItem("clipped-sections", JSON.stringify(list)); } catch (err) {}
+      applySecClipOrder();
+    });
+    /* PR 처럼 h2 가 flex(제목 span + 툴바)면 제목 span 안에 넣어 배치를 안 깨뜨린다 */
+    const host = h2.firstElementChild && h2.firstElementChild.tagName === "SPAN" ? h2.firstElementChild : h2;
+    host.insertBefore(btn, host.firstChild);
+  });
+  applySecClipOrder();
 }
 
 function appendBookmark(ul, href, text) {
@@ -3363,6 +3405,7 @@ function snipListItem(entry, opts) {
   copy.className = "copy-btn";
   copy.title = "복사";
   copy.dataset.snipKey = key;
+  if (isDangerCmd(snipText(key) || "")) copy.classList.add("copy-btn-danger");
   copy.addEventListener("click", () => {
     const text = snipText(key);
     if (text == null) { alert("복사할 원문을 찾지 못했습니다"); return; }
@@ -3530,7 +3573,7 @@ function highlightIn(root, q, budget) {
       const parent = node.parentElement;
       if (!parent) return NodeFilter.FILTER_REJECT;
       if (parent.nodeName === "MARK") return NodeFilter.FILTER_REJECT;
-      if (parent.closest("button, textarea, input, script, style, .review-badge")) return NodeFilter.FILTER_REJECT;
+      if (parent.closest("button, textarea, input, script, style")) return NodeFilter.FILTER_REJECT;
       return node.nodeValue.toLowerCase().includes(q) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
     }
   });
@@ -3617,10 +3660,11 @@ function runSearch(jumpToFirst) {
   });
 
   // textarea 안(openUrl/user agent)처럼 <mark>를 넣을 수 없는 곳은
-  // 해당 영역 자체를 이동 대상으로 삼는다.
-  SEARCH.targets = SEARCH.marks.length
-    ? SEARCH.marks
-    : matchedUnits;
+  // 해당 영역 자체를 이동 대상으로 삼는다. 다른 곳에 <mark>가 있어도 빠지지 않도록
+  // mark가 하나도 없는 영역만 더해서 문서 순서대로 정렬한다.
+  const unmarkedUnits = matchedUnits.filter(u => !SEARCH.marks.some(m => u.contains(m)));
+  SEARCH.targets = [...SEARCH.marks, ...unmarkedUnits].sort((a, b) =>
+    a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1);
 
   if (SEARCH.targets.length && jumpToFirst !== false) {
     setCurrentMatch(0);
@@ -3762,6 +3806,7 @@ function initFreeMemoPanel() {
 renderPRList();
 initFavicons();
 initPinButtons();
+initSectionClips();
 /* ---------- 헤더 날짜/시간/날씨 ---------- */
 const WMO_ICON = {
   0: "☀️", 1: "🌤️", 2: "⛅", 3: "☁️",
@@ -3818,7 +3863,28 @@ function initHeaderStatus() {
   setInterval(loadHeaderWeather, 10 * 60 * 1000);
 }
 
+/* 실행 영향이 큰 명령(재귀 삭제, 앱 제거, 디스크 포맷, git 강제 작업) 판별 */
+const DANGER_CMD_RE = /\brm\s+-[a-zA-Z]*[rR]|\buninstall\b|\bmkfs\b|\bdd\s+if=|\bgit\s+(?:reset\s+--hard|clean\s+-[a-zA-Z]*f|push\s+(?:-f\b|--force))/;
+
+function isDangerCmd(text) {
+  return DANGER_CMD_RE.test(text);
+}
+
+/* copyText(document.getElementById("ID")...) 로 복사하는 버튼을 찾아
+   복사 대상 명령이 위험하면 명령 영역과 버튼에 경고 스타일을 붙인다 */
+function markDangerCmds() {
+  document.querySelectorAll(".copy-btn[onclick]").forEach(btn => {
+    const m = btn.getAttribute("onclick").match(/getElementById\("([^"]+)"\)/);
+    const target = m && document.getElementById(m[1]);
+    if (!target || !isDangerCmd(target.innerText || target.value || "")) return;
+    target.classList.add("danger-cmd");
+    btn.classList.add("copy-btn-danger");
+    btn.title = "⚠ 위험 명령 복사";
+  });
+}
+
 wrapMemoTitles();
+markDangerCmds();
 initAccordion();
 colorizeDiffs();
 initSnippets();
@@ -3832,5 +3898,8 @@ applyTheme(localStorage.getItem("theme") || "light");
 initHeaderStatus();
 </script>
 
+<dialog id="reviewer-dlg" onclick="if(event.target===this)this.close()" style="padding:0;border:none;border-radius:8px;max-width:95vw;">
+  <img src="reviewer2612.png" alt="MF1 팀 리뷰어 (~26년 12월)" style="display:block;max-width:95vw;max-height:90vh;" onclick="this.closest('dialog').close()">
+</dialog>
 </body>
 </html>
