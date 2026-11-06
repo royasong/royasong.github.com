@@ -1162,6 +1162,7 @@
       <li><a href="https://top.cafe.daum.net/" target="_blank" rel="noopener noreferrer">top.cafe</a></li>
       <li><a href="http://httpforever.com/" target="_blank" rel="noopener noreferrer">http example(1)</a></li>
       <li><a href="http://httpbin.org/" target="_blank" rel="noopener noreferrer">http example(2)</a></li>
+      <li><a href="https://easyhtml5video.com/" target="_blank" rel="noopener noreferrer">video test(1분)</a></li>
     </ul>
   </section>
 
@@ -1540,6 +1541,13 @@ CP 로 설정
         <div class="memo-row">
           <span class="memo-label" style="color:#d33;font-weight:bold;">!!중요!! 반영후 jira에 수정버전 꽂기(그래야 릴리즈노트에 반영됨!!)</span>
         </div>
+        <div class="memo-row">
+          <span class="memo-label">나→다른 사람으로 변경된 이슈 조회 필터</span>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <textarea id="memo-jql-reassigned" class="code-textarea" rows="2">assignee CHANGED FROM currentUser() AFTER -30d AND assignee != currentUser() AND resolution = Unresolved AND status NOT IN ("Internal Released", Verified) ORDER BY updated DESC</textarea>
+            <button class="copy-btn" onclick='copyText(document.getElementById("memo-jql-reassigned").value, this)'>Copy</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -1623,7 +1631,7 @@ git checkout origin_chromium143
           <span class="memo-label">ISODev mount</span>
           <div style="display:flex;gap:8px;align-items:flex-start;">
             <pre id="misc-isodev-mount" style="flex:1;margin:0;">mkdir ISODev
-sudo mount -t cifs -o iocharset=utf8,suid,uid=obigo,gid=obigo,domain=ac,username=isodevw,password=[REDACTED] //10.28.2.24/isodev /home/obigo/ISODev
+sudo mount -t cifs -o iocharset=utf8,suid,uid=obigo,gid=obigo,domain=ac,username=isodevw,password=start%55 //10.28.2.24/isodev /home/obigo/ISODev
 cd ./ISODev/</pre>
             <button class="copy-btn" onclick='copyText(document.getElementById("misc-isodev-mount").innerText, this)'>Copy</button>
           </div>
