@@ -229,12 +229,13 @@ a { color: var(--accent); }
 </section>
 
 <section>
-  <h2>6. 스트레스 테스트 (진행 중)</h2>
+  <h2>6. 스트레스 테스트</h2>
   <ol class="timeline">
     <li><span class="step">로그인 백업</span><div class="body"><b>두 앱이 로그인된 상태를 백업하고 복원이 되는지 확인했습니다.</b><p>서비스를 멈추고 두 앱 파티션을 tar로 묶었습니다. Video+를 로그아웃한 뒤 복원하니 다시 로그인 상태로 떴습니다. 서버가 로그아웃 때 세션을 끊지 않아서, 같은 로그인 상태로 반복 테스트할 수 있습니다.</p></div></li>
     <li><span class="step">채우기</span><div class="body"><b>Video+ CP 21~22곳을 CDP로 돌며 데이터를 쌓았습니다.</b><p>CP마다 페이지 열기 → 스크롤 → 같은 사이트 링크 3개 이동 → 영상 15초 재생 순서로 돌았습니다. 여기에 쿠키 40개, Local Storage, IndexedDB 4MB, CacheStorage 2.5MB, <code>force-cache</code> fetch를 강제로 더했습니다.</p></div></li>
     <li><span class="step">1GB</span><div class="body"><b>1038MB에서 멈췄습니다.</b><p>HTTP 캐시 395M, IndexedDB 234M, Service Worker 223M, Code 캐시 179M, 쿠키 2797개였습니다. 서비스 재시작은 없었습니다. 이 상태는 PC에 백업했습니다(아래).</p></div></li>
-    <li><span class="step">2GB</span><div class="body"><b>2GB까지 채우는 중입니다.</b><p>14:19 기준 1151MB입니다. 다 채우면 Video+를 로그아웃하고 5분 동안 감시합니다. 웹 화면을 10초마다 캡처하고, 서비스 PID와 재시작 횟수, 토큰이 남아 있는지 확인합니다.</p></div></li>
+    <li><span class="step">1.24GB</span><div class="body"><b>1244MB에서 채우기를 멈추고 백업했습니다.</b><p>HTTP 캐시 414M, IndexedDB 340M, Service Worker 288M, Code 캐시 192M, 쿠키 약 2900개였습니다. HTTP 캐시는 같은 CP를 다시 돌면 새로 쌓이는 게 거의 없어서 상한(800MB)까지 가지 않았습니다.</p></div></li>
+    <li><span class="step">로그아웃</span><div class="body"><b>Video+를 직접 로그아웃했고 결과는 정상입니다.</b><p>14:31:50에 삭제를 시작해 14:31:56에 HTTP 캐시까지 끝났습니다(약 5.6초). 쿠키 2916개를 지우고 Home 쿠키 1개만 남겼고, 파티션은 1244M에서 102M이 됐습니다. 남은 HTTP 캐시 100M은 blockfile <code>data_N</code> 파일 크기가 줄지 않은 것입니다. 두 번째 빈 토큰은 <code>changed: 0</code>이라 다시 삭제하지 않았습니다. Home은 에러 없이 다시 로딩됐고, 크래시와 재시작은 없었습니다. 로그아웃 직전의 서비스 재시작은 수동 stop/start였습니다.</p></div></li>
   </ol>
 
   <h3>테스트 중 발견한 점</h3>
@@ -256,6 +257,7 @@ a { color: var(--accent); }
       <ul>
         <li><code>picknow_login_1106_0224.tar</code>(34MB): 두 앱 로그인 직후</li>
         <li><code>picknow_filled_video1G_1106_1350.tar.gz</code>(801MB): Video+를 1GB 채운 상태, Audio+는 로그인 상태</li>
+        <li><code>picknow_filled_video1_2G_1106_1428.tar.gz</code>(991MB): Video+를 1.24GB 채운 상태, Audio+는 로그인 상태</li>
       </ul>
     </li>
     <li>복원 순서:
