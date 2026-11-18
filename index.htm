@@ -1683,6 +1683,20 @@ Current Screen is saved at /tmp/front-screen-1920x720@135448.jpeg</pre>
             <button class="copy-btn" onclick='copyText(document.getElementById("misc-sunny-ssh").innerText, this)'>Copy</button>
           </div>
         </div>
+        <div class="memo-row">
+          <span class="memo-label">git 원격지 동기화 및 로컬 변경사항 덮어쓰기</span>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="misc-git-reset-origin" style="flex:1;margin:0;">git fetch origin &amp;&amp; git reset --hard origin/master &amp;&amp; git clean -f -d</pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("misc-git-reset-origin").innerText, this)'>Copy</button>
+          </div>
+        </div>
+        <div class="memo-row">
+          <span class="memo-label">git 이미 마스터 브랜치에 머지된 모든 브랜치들 삭제하기</span>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="misc-git-delete-merged" style="flex:1;margin:0;">git branch --merged master | grep -v '^\*' | xargs -n 1 git branch -d</pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("misc-git-delete-merged").innerText, this)'>Copy</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -2202,6 +2216,21 @@ HTTP 캐시: /ccos/data/web/AGBAsset/users/1/Storage/ext/pickaudioweb/def/Cache/
           <div style="display:flex;gap:8px;align-items:flex-start;">
             <pre id="lm-ccnc-audioplus-url" style="flex:1;margin:0;white-space:pre-wrap;word-break:break-all;"><a href="https://stg-picknow.obigo.ai/mobis-launcher/#/?subset=pickaudio&amp;only=AUDIO&amp;only=MUSIC" target="_blank" rel="noopener noreferrer">https://stg-picknow.obigo.ai/mobis-launcher/#/?subset=pickaudio&amp;only=AUDIO&amp;only=MUSIC</a></pre>
             <button class="copy-btn" onclick='copyText(document.getElementById("lm-ccnc-audioplus-url").innerText, this)'>Copy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="memo-item" style="margin-top:10px;">
+      <div class="memo-title">CCS 에러 발생시</div>
+      <div class="memo-body">
+        <div class="memo-row">
+          <span class="memo-label">obigo/extension/app/ccnc/application_manager_ccnc.cc onRequestAppShow() (1163행)</span>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <pre id="lm-ccnc-ccs-error" style="flex:1;margin:0;">if (port::CCSHmi::getInst()-&gt;checkCCSHmiAvailable() == false) {
+  ERROR_LOG() &lt;&lt; "ApplicationManager::onRequestAppShow - CCS is not available";
+  return;
+}</pre>
+            <button class="copy-btn" onclick='copyText(document.getElementById("lm-ccnc-ccs-error").innerText, this)'>Copy</button>
           </div>
         </div>
       </div>
