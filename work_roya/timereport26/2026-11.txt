@@ -1,0 +1,6 @@
+# Jira 업무로그 2026-11 (jira-worklog 자동 입력)
+
+2026-11-19 (목)  총 8h
+  - HKMCCCNCMO-5846    4h  https://obigoinc.atlassian.net/browse/HKMCCCNCMO-5846?focusedWorklogId=119284  26년 3분기 v143 오픈소스 취약점 성적서 (~12/18)
+  - HKMCCCNCMO-6005    2h  https://obigoinc.atlassian.net/browse/HKMCCCNCMO-6005?focusedWorklogId=119289  [AVNSTDG6-428224] [IND][CR][QY2I] Pick Audio+ 음원 재생 중 SS_미디어 위젯 확인 시, 재생 시간 표시 및 버튼 동작 오류
+  - HKMCCCNCMO-2867    2h  https://obigoinc.atlassian.net/browse/HKMCCCNCMO-2867?focusedWorklogId=119290  [AVNSTDG6-189759][SQA][YouTube] YouTube 재생시 Cluster Simulator 내 Playtime 상이함

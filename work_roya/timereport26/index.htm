@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="UTF-8"><title>timereport</title><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>body{font-family:sans-serif;margin:24px;}li{margin:10px 0;}.day{margin:12px 0;}textarea{width:100%;box-sizing:border-box;font-family:monospace;font-size:13px;margin-top:4px;padding:10px;border:1px solid #c7ccd3;border-radius:4px;white-space:pre;}button{font-size:12px;}.raw{font-size:12px;color:#888;margin-left:8px;}</style><script>function t(i){var e=document.getElementById("f"+i);e.hidden=!e.hidden;return false;}function c(i,b){var x=document.getElementById("x"+i);x.select();(navigator.clipboard?navigator.clipboard.writeText(x.value):Promise.reject()).catch(function(){document.execCommand("copy");}).finally(function(){b.textContent="복사됨";setTimeout(function(){b.textContent="복사";},1200);});}</script></head>
+<body>
+<h3>업무기록 (timereport)</h3>
+<ul>
+<li><a href="#" onclick="return t(0)">2026-11.txt</a> <a class="raw" href="./2026-11.txt">원본</a><div id="f0"><div class="day"><b>2026-11-19 (목)  총 8h</b> <button onclick="c(0,this)">복사</button><br><textarea id="x0" rows="5" spellcheck="false">2026-11-19 (목)  총 8h
+  - HKMCCCNCMO-5846    4h  https://obigoinc.atlassian.net/browse/HKMCCCNCMO-5846?focusedWorklogId=119284  26년 3분기 v143 오픈소스 취약점 성적서 (~12/18)
+  - HKMCCCNCMO-6005    2h  https://obigoinc.atlassian.net/browse/HKMCCCNCMO-6005?focusedWorklogId=119289  [AVNSTDG6-428224] [IND][CR][QY2I] Pick Audio+ 음원 재생 중 SS_미디어 위젯 확인 시, 재생 시간 표시 및 버튼 동작 오류
+  - HKMCCCNCMO-2867    2h  https://obigoinc.atlassian.net/browse/HKMCCCNCMO-2867?focusedWorklogId=119290  [AVNSTDG6-189759][SQA][YouTube] YouTube 재생시 Cluster Simulator 내 Playtime 상이함</textarea></div></div></li>
+</ul>
+</body></html>
