@@ -1,6 +1,19 @@
 # Jira 업무로그 2026-11 (jira-worklog 자동 입력)
 
 2026-11-19 (목)  총 8h
-  - HKMCCCNCMO-5846    4h  https://obigoinc.atlassian.net/browse/HKMCCCNCMO-5846?focusedWorklogId=119284  26년 3분기 v143 오픈소스 취약점 성적서 (~12/18)
-  - HKMCCCNCMO-6005    2h  https://obigoinc.atlassian.net/browse/HKMCCCNCMO-6005?focusedWorklogId=119289  [AVNSTDG6-428224] [IND][CR][QY2I] Pick Audio+ 음원 재생 중 SS_미디어 위젯 확인 시, 재생 시간 표시 및 버튼 동작 오류
-  - HKMCCCNCMO-2867    2h  https://obigoinc.atlassian.net/browse/HKMCCCNCMO-2867?focusedWorklogId=119290  [AVNSTDG6-189759][SQA][YouTube] YouTube 재생시 Cluster Simulator 내 Playtime 상이함
+  - HKMCCCNCMO-5846    4h  26년 3분기 v143 오픈소스 취약점 성적서 (~12/18)  https://obigoinc.atlassian.net/browse/HKMCCCNCMO-5846?focusedWorklogId=119284
+  - HKMCCCNCMO-6005    2h  [AVNSTDG6-428224] [IND][CR][QY2I] Pick Audio+ 음원 재생 중 SS_미디어 위젯 확인 시, 재생 시간 표시 및 버튼 동작 오류  https://obigoinc.atlassian.net/browse/HKMCCCNCMO-6005?focusedWorklogId=119289
+  - HKMCCCNCMO-2867    2h  [AVNSTDG6-189759][SQA][YouTube] YouTube 재생시 Cluster Simulator 내 Playtime 상이함  https://obigoinc.atlassian.net/browse/HKMCCCNCMO-2867?focusedWorklogId=119290
+
+2026-11-20 (금)  총 8h
+  - HKMCCCNCMO-5743    5h  [AVNSTDG6-423420] [MTCI][SQA2][IVI_V&V1][ccNC][CCS][VIDEO+_AUDIO+]No media OSD is displayed on RVC screen after current playback is completed and playing next song  https://obigoinc.atlassian.net/browse/HKMCCCNCMO-5743?focusedWorklogId=119322
+  - HKMCCCNCMO-6009    1h  [AVNSTDG6-430445] [HMIM-7608] [QY2i] [Obigo] [Issue#33] [Issue Description] : In Skillshare (Video+), while playing any video, random image is overlapped and displaying continually  https://obigoinc.atlassian.net/browse/HKMCCCNCMO-6009?focusedWorklogId=119338
+  - HKMCCCNCMO-5846    2h  26년 3분기 v143 오픈소스 취약점 성적서 (~12/18)  https://obigoinc.atlassian.net/browse/HKMCCCNCMO-5846?focusedWorklogId=119321
+
+2026-11-23 (월)  총 0h
+  - https://obigoinc.atlassian.net/wiki/spaces/HKMCCCNCMOB/pages/2166292489/CP+PC#7.-%EC%B8%A1%EC%A0%95-%EA%B2%B0%EA%B3%BC-%EC%9A%94%EC%95%BD 측정함.
+
+2026-11-24 (화)  총 8h
+  - MF1-24             6h  chrome://inspector 진입점 막기(by keyboard)  https://obigoinc.atlassian.net/browse/MF1-24?focusedWorklogId=119499
+  - HKMCCCNCMO-5572    1h  [AVNSTDG6-422033] [MTCI][SQA2][IVI_V&V1][ccNC][CCS][VIDEO+_AUDIO+]Home media wiget content is not displaying as per HMI spec  https://obigoinc.atlassian.net/browse/HKMCCCNCMO-5572?focusedWorklogId=119500
+  - HKMCCCNCMO-6009    1h  [AVNSTDG6-430445] [HMIM-7608] [QY2i] [Obigo] [Issue#33] [Issue Description] : In Skillshare (Video+), while playing any video, random image is overlapped and displaying continually  https://obigoinc.atlassian.net/browse/HKMCCCNCMO-6009?focusedWorklogId=119501

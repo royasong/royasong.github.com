@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Video Hole Test A</title>
+<style>
+  :root { --bg:#10131a; --fg:#e8ecf3; --sub:#9aa4b5; --acc:#ff8a3d; --box:#1b2030; }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:16px; background:var(--bg); color:var(--fg); font:16px/1.5 system-ui, sans-serif; }
+  h1 { margin:0 0 4px; font-size:28px; }
+  h1 span { color:var(--acc); }
+  p.desc { margin:0 0 12px; color:var(--sub); font-size:14px; }
+  video { display:block; width:100%; max-width:800px; aspect-ratio:16/9; background:#000; }
+  .btns { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0; }
+  .btns a, .btns button { padding:12px 18px; font-size:16px; border:0; border-radius:8px; background:var(--box); color:var(--fg); text-decoration:none; cursor:pointer; }
+  .btns a.go { background:var(--acc); color:#111; font-weight:700; }
+  #log { max-width:800px; height:180px; overflow:auto; margin:0; padding:8px; background:var(--box); font:12px/1.4 monospace; white-space:pre-wrap; }
+</style>
+</head>
+<body>
+<h1>Page <span>A</span> — 처음부터 재생</h1>
+<p class="desc">A에서 영상을 재생한 뒤 “B로 이동”을 누르세요. B에서 영상을 재생하거나 전체화면으로 전환했을 때 A 영상의 프레임이 남아 있으면 재현된 것입니다.</p>
+
+<video id="v" controls playsinline preload="auto" poster="https://easyhtml5video.com/assets/video/Penguins_of_Madagascar.jpg">
+  <source src="https://easyhtml5video.com/assets/video/new/Penguins_of_Madagascar.mp4" type="video/mp4">
+</video>
+
+<div class="btns">
+  <button id="play">▶ 재생</button>
+  <button id="fs">⛶ 전체화면</button>
+  <a class="go" href="b.html">B로 이동 →</a>
+</div>
+<pre id="log"></pre>
+
+<script>
+  // unload/beforeunload 핸들러는 bfcache 진입을 막으므로 사용하지 않는다.
+  const v = document.getElementById('v');
+  const logEl = document.getElementById('log');
+  function log(m) {
+    const t = new Date().toTimeString().slice(0, 8);
+    logEl.textContent = t + '  ' + m + '\n' + logEl.textContent;
+  }
+  document.getElementById('play').onclick = () => v.play().catch(e => log('play 실패: ' + e.message));
+  document.getElementById('fs').onclick = () => (v.requestFullscreen || v.webkitRequestFullscreen).call(v);
+  ['play', 'pause', 'playing', 'ended', 'error'].forEach(e => v.addEventListener(e, () => log('video ' + e)));
+
+  const nav = performance.getEntriesByType('navigation')[0];
+  log('navigation type: ' + (nav ? nav.type : 'unknown'));
+  window.addEventListener('pageshow', e => log('pageshow persisted=' + e.persisted + (e.persisted ? '  ← bfcache에서 복원됨' : '')));
+  window.addEventListener('pagehide', e => log('pagehide persisted=' + e.persisted));
+</script>
+</body>
+</html>

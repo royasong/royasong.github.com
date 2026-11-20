@@ -1,0 +1,163 @@
+<title>brs_143 누수·CPU 점검 2026-11-24</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: 단일 컬럼 리포트, 요약 → 영역별 표 → 우선순위 */
+:root{
+  --bg:#f6f7f9; --surface:#ffffff; --fg:#1b2130; --muted:#5b6474; --line:#dde1e8;
+  --accent:#2b5fb8; --hi:#c2372f; --mid:#b8740f; --lo:#4a7a50; --chip:#eef1f6; --ok:#2f7a4f;
+  --sans:"IBM Plex Sans KR",system-ui,-apple-system,"Noto Sans KR",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12151b; --surface:#1a1f28; --fg:#e4e8ef; --muted:#9aa3b2; --line:#2c3340;
+  --accent:#7ea6ec; --hi:#f07a70; --mid:#e2a94a; --lo:#7fbf88; --chip:#232a36; --ok:#6fcf97; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12151b; --surface:#1a1f28; --fg:#e4e8ef; --muted:#9aa3b2; --line:#2c3340;
+  --accent:#7ea6ec; --hi:#f07a70; --mid:#e2a94a; --lo:#7fbf88; --chip:#232a36; --ok:#6fcf97; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:32px 64px}
+main{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+h1{font-size:1.7rem;margin:0;text-wrap:balance}
+h2{font-size:1.2rem;margin:0 0 10px;text-wrap:balance}
+p{margin:0}
+.meta{color:var(--muted);font-size:.9rem;display:flex;flex-wrap:wrap;gap:6px 16px}
+code{font-family:var(--mono);font-size:.84em;background:var(--chip);padding:1px 5px;border-radius:4px;word-break:break-all}
+section{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:20px;min-width:0}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:760px;font-size:.9rem}
+th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{color:var(--muted);font-weight:600;font-size:.78rem;letter-spacing:.04em;text-transform:uppercase}
+td:first-child{white-space:nowrap}
+.sev{display:inline-block;font-size:.75rem;font-weight:700;padding:1px 8px;border-radius:999px;border:1px solid currentColor}
+.h{color:var(--hi)} .m{color:var(--mid)} .l{color:var(--lo)}
+.v{color:var(--ok);font-weight:700;font-size:.75rem;margin-left:4px}
+ul,ol{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:4px}
+.note{color:var(--muted);font-size:.88rem}
+.big{display:inline-block;font-size:.72rem;font-weight:700;padding:1px 7px;border-radius:4px;background:var(--hi);color:var(--surface);margin-left:4px;white-space:nowrap}
+tr.bigrow td{background:color-mix(in srgb,var(--hi) 8%,transparent)}
+.callout{border:2px solid var(--hi)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:.85rem;color:var(--muted)}
+</style>
+
+<main>
+<header style="display:flex;flex-direction:column;gap:8px">
+  <h1>brs_143 포팅 코드 메모리 누수·CPU 점검 (2026-11-24)</h1>
+  <div class="meta">
+    <span>대상: <code>linux-af/oaf/brs_143/src</code> (OBIGO 수정분)</span>
+    <span>비교 기준: 원본 Chromium 143 <code>obigo-af-agb-143/src</code></span>
+    <span>빌드 기준: <code>out_mobis-ccnc/Release</code> (args.gn + ninja <code>-D</code> define)</span>
+  </div>
+  <p class="note">원본과 diff 해 회사가 바꾼 부분(OBIGO 매크로, obigo 디렉터리)만 코드 정적 분석했습니다. 빌드·실기기 측정은 하지 않았습니다. 각 항목은 ccnc 빌드에서 실제로 컴파일·실행되는지 define 기준으로 확인했고, <span class="v">✔</span>는 코드를 직접 열어 확인한 항목입니다.</p>
+  <p class="note">ccnc 활성: <code>MOBIS_CCNC</code>, <code>OBIGO_AD_BLOCK</code>, <code>OBIGO_DOMAIN_WHITELIST</code>, <code>OBIGO_AUDIO_MANAGER</code>, <code>OBIGO_USE_VIDEO_HOLE</code>, <code>OBIGO_USE_MEDIA_SERVICE</code>(<code>mojo_media_host="utility"</code>), <code>OBIGO_APP_STORAGE_PARTITION</code>, <code>OBIGO_GAMEPAD</code>, <code>OBIGO_DRM_WIDEVINE</code>, <code>OBIGO_NETWORK_DATA_USAGE</code>, <code>OBIGO_DISABLE_BACKGROUND_TIMER_THROTTLING</code>. 비활성: <code>MOTREX_CCNC</code>, <code>OBIGO_SYNC_LOGIN_INFO</code>, <code>OBIGO_STORAGE_ERROR</code>, <code>BRS_UNIT_TEST_ONLY</code>. <code>obigo/</code>는 CMake로 ccnc 소스만 빌드(<code>-fexceptions</code>).</p>
+  <div class="legend"><span><span class="sev h">상</span> 장시간 운행에서 누적·체감 영향</span><span><span class="sev m">중</span> 특정 조건·빈번 경로</span><span><span class="sev l">하</span> 소규모·저빈도</span><span><span class="big">10MB+</span> 10MB 이상 누수 예상</span></div>
+</header>
+
+<section class="callout">
+  <h2>ccnc에서 adblock은 꺼져 있음</h2>
+  <ul>
+    <li><b>코드:</b> ccnc(<code>!MOTREX_CCNC</code>)는 <code>StartWatchingAdBlockPref()</code>가 <code>obigo.adblock.enabled</code>를 기본값 <code>false</code>로 지웁니다(<code>webappextension_delegate_impl.cc:1555</code>, <code>startup_browser_creator_impl.cc:226</code>). 이 pref를 켜는 Settings 토글은 <code>#if OBIGO_AD_BLOCK &amp;&amp; MOTREX_CCNC</code> 전용(<code>prefs_util.cc:386</code>)이고, <code>SetAdBlockEnabled</code>를 부르는 곳은 <code>ApplyAdBlockToNetworkService</code> 하나뿐입니다. 꺼져 있으면 <code>setPicknowCountryCode</code>/<code>setPicknowBaseUrl</code>도 목록을 재로드하지 않습니다. ✔</li>
+    <li><b>로그:</b> 로컬 ccnc DLT 로그 49개(stress_test 2026-11-06, 2026-10-08~10-15, 2026-11-17)에서 <code>ApplyAdBlockPref : 0</code> 123회, <code>InitAdBlockService</code> 61회만 나오고 <code>ApplyAdBlockPref : 1</code>, <code>AdBlockService::</code>(목록 다운로드), <code>Parse failed</code>는 0회입니다.</li>
+    <li><b>결론:</b> adblock 목록 관련 누수(deserialize 버퍼, selector 누적, 탭별 JSON 사본, 다운로드 테스트 루프)는 <b>ccnc에서는 발생하지 않고</b>, adblock을 켜는 MOTREX에 해당합니다.</li>
+    <li><b>꺼져 있어도 남는 비용:</b> <code>RenderFrameImpl::DidCreateDocumentElement</code>의 <code>GetAdBlockCssFilters</code> 동기 IPC는 renderer에 enabled 검사가 없어 모든 문서마다 나갑니다(browser가 빈 목록 반환). WebContents마다 <code>AdBlockDelegate</code> observer가 등록되고 지워지지 않습니다.</li>
+  </ul>
+  <p class="note" style="margin-top:8px">ccnc 기준 10MB+ 후보는 GStreamer 버스 메시지와 <code>url_list_</code> 2건입니다.</p>
+</section>
+
+<section>
+  <h2>요약</h2>
+  <ul>
+    <li>가장 큰 누수: ccnc는 <b>GStreamer 버스 메시지 누적</b>과 <b>네비게이션마다 커지는 <code>url_list_</code></b>, MOTREX는 여기에 <b>adblock 필터 갱신 버퍼</b>가 더해집니다.</li>
+    <li>가장 큰 CPU 부담: 프레임·문서·미디어 로드마다 나가는 <b>renderer 동기 IPC</b>(AudioManager, 도메인 필터, adblock CSS), <b>video-hole draw마다 PostTask와 매 갱신 레이어 전체 순회</b>, <b>GStreamer duration 재시도 100µs 루프</b>, <b>로그 한 줄당 비용</b>.</li>
+    <li>안정성: 볼륨 long-press lambda의 dangling reference(UAF), CDM 타이머 빈 map 역참조, adblock <code>matches()</code> 경합, gamepad raw <code>WebContents*</code>.</li>
+    <li><code>obigo/port</code> 영역은 심각한 누수나 폴링은 없고, 앱 실행마다 반복 초기화와 Now Playing 중복 IPC 정도입니다.</li>
+  </ul>
+</section>
+
+<section class="callout">
+  <h2><span class="big" style="margin:0 6px 0 0">10MB+</span>10MB 이상 메모리 누수가 예상되는 항목</h2>
+  <p class="note" style="margin-bottom:10px">크기는 코드 기준 추정치이고, 실측은 guider PSS로 해당 프로세스 추이를 봅니다. adblock 데이터는 단말 <code>OAF/easylist.txt</code>(2019년판 원문, 코드에서 읽지 않음)가 아니라 서버(<code>/v2/adblock/filter/&lt;name&gt;?fileType=zip&amp;serialize=Y</code>)에서 받은 <b>직렬화 <code>.dat</code></b> 3개(easylist·국가·CUSTOM)이므로, 회당 누수량은 단말 <code>~/ad-block/*.dat</code> 크기 합계입니다.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>가능성</th><th>항목</th><th>누적 조건과 추정 크기</th><th>늘어나는 프로세스</th></tr></thead>
+    <tbody>
+    <tr class="bigrow"><td><span class="sev m">조건부</span><span class="v">✔</span><br><span class="note">ccnc 해당</span></td><td>GStreamer 버스 메시지 누적<br><code>gstreamer_renderer_impl.cc:1413</code></td><td><code>GstreamerBusHandler</code>(:1352)가 모든 버스 메시지를 <code>gst_message_copy</code>해 <code>copied_msg_list_</code>에 넣는데, <code>OnMessageHandler</code>는 renderer가 목록에 없거나(:1409) <code>GST_MESSAGE_SRC != gst_playbin_</code>이면(:1413) 바로 return 해서 함수 끝(:1659-1666)의 erase·unref를 건너뜁니다. 재생 중 자식 element 메시지(QOS·TAG·STATE_CHANGED·HLS 통계 등)가 플레이어 해제(:1324-1330 일괄 unref)까지 쌓입니다. 메시지당 수백 B~수 KB라 수 시간 연속 재생, QOS가 많은 영상에서 10MB 도달 가능.</td><td>Media Service (utility)</td></tr>
+    <tr class="bigrow"><td><span class="sev l">장기</span><span class="v">✔</span><br><span class="note">ccnc 해당</span></td><td><code>url_list_</code> 무한 증가<br><code>web_contents_impl.cc:7840</code></td><td><code>DidFinishNavigation</code>마다(<code>OBIGO_WEB_SOLUTION</code>) 전체 URL spec을 추가합니다. 서브프레임, 실패·미커밋, <b>same-document(SPA <code>pushState</code>·hash)</b> 네비게이션도 포함됩니다. URL 1개 수백 B, 쿼리가 매번 다른 광고 iframe이나 URL이 계속 바뀌는 SPA를 며칠 켜두면 수만 건 → 10MB 가능. 탭이 닫혀야(:1664) 회수. 중복 검사가 <code>std::find</code>라 삽입도 O(n).</td><td>browser</td></tr>
+    <tr class="bigrow"><td><span class="sev h">매우 높음</span><span class="v">✔</span><br><span class="note">ccnc 비활성 / MOTREX 해당</span></td><td>adblock deserialize 버퍼 미해제<br><code>ad_block_manager.cc:189</code></td><td>재로드 1회마다 <code>.dat</code> 3개 크기만큼 영구 누적됩니다. 라이브러리 <code>deserialize()</code>는 버퍼 포인터만 <code>deserializedBuffer</code>에 저장하고 <code>clear()</code>는 이 버퍼를 지우지 않습니다. 재로드는 부팅·adblock 토글, 그리고 adblock이 켜진 동안 picknow 웹이 <code>obaJs.SetCountryCode</code>/base URL을 설정할 때마다(<code>BookmarkPolicy::setCountryCode</code> → <code>setPicknowCountryCode</code> → <code>UpdateAdBlockList</code>) 일어나며, 이전 값과 비교하지 않아 같은 값이어도 재로드합니다. <code>.dat</code> 합계가 3MB 안팎이면 picknow 홈 진입 3~4회로 10MB.</td><td>browser (<code>NetworkServiceInProcess2</code> 강제로 network service가 browser 내)</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note" style="margin-top:10px">나머지 누수 항목(Null sink, haudiosink, adblock observer, ivi surface map, PAL 버퍼 등)은 건당 수십 B~수 KB라 10MB까지 가려면 비현실적인 횟수가 필요합니다. appId별 StoragePartition과 adblock 탭별 JSON 사본은 누수가 아닌 상한 있는 상주 비용입니다.</p>
+</section>
+
+<section>
+  <h2>1. 메모리 누수</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>심각도</th><th>위치</th><th>문제</th><th>개선 방법</th></tr></thead>
+    <tbody>
+    <tr class="bigrow"><td><span class="sev h">상</span><span class="v">✔</span><span class="big">10MB+</span></td><td><code>media/renderers/obigo/gstreamer/gstreamer_renderer_impl.cc:1409,1413</code></td><td>버스 메시지를 모두 복사해 <code>copied_msg_list_</code>에 넣는데, 자식 element 메시지는 early return 으로 unref·erase 하지 않음. 재생 중 계속 쌓이고 매번 리스트 전체를 <code>std::find</code>로 탐색.</td><td>모든 return 경로에서 erase + <code>gst_message_unref</code>(scope guard). 복사 전에 playbin 메시지만 필터링.</td></tr>
+    <tr class="bigrow"><td><span class="sev h">상</span><span class="v">✔</span><span class="big">10MB+</span></td><td><code>content/browser/web_contents/web_contents_impl.cc:7840</code></td><td>모든 프레임·same-document 네비게이션 URL을 <code>url_list_</code>에 넣고 소멸자에서만 비움. 선형 탐색.<br>사용처는 <code>StartupBrowserCreatorImpl::ClearData</code>(:1910) 하나로, URL마다 origin 데이터·쿠키·비밀번호를 지우는데, URL 1개마다 <code>GetAllLoginsWithoutParam()</code>로 저장된 비밀번호 전체를 다시 읽습니다.</td><td>ClearData가 iframe origin(로그인 iframe 쿠키 등)도 지우므로 메인 프레임만 담으면 안 됩니다. <b>커밋된 네비게이션의 <code>url::Origin</code>을 서브프레임 포함해 <code>std::set</code>/<code>flat_set</code>에 담고</b> same-document는 건너뜁니다. ClearData는 비밀번호 목록을 루프 밖에서 한 번만 읽습니다.</td></tr>
+    <tr class="bigrow"><td><span class="sev h">상</span><span class="v">✔</span><span class="big">10MB+</span><br><span class="note">MOTREX</span></td><td><code>components/obigo/adblock/ad_block_manager.cc:189</code></td><td>deserialize용 <code>new char[]</code> 버퍼를 성공해도 해제하지 않음. 갱신 1회마다 <code>.dat</code> 3개 크기 누적. 같은 버퍼를 두 번 deserialize(라이브러리 예제의 반복 테스트를 옮긴 것, 불필요). <span class="note">같은 패턴이 <code>ad_block_service.cc</code> <code>CheckValid()</code>(:364)에도 있으나 AdBlock 서비스는 별도 utility 프로세스이고 5초 idle 후 종료되어 누적되지 않습니다.</span></td><td>클라이언트별 버퍼를 <code>std::unique_ptr&lt;char[]&gt;</code>로 보유하고, <b>새 버퍼 deserialize 후</b> 이전 버퍼 해제(filter가 이전 버퍼를 가리키므로 순서 주의, <code>matches()</code> 경합과 함께 락). deserialize 1회.</td></tr>
+    <tr><td><span class="sev m">중</span><span class="v">✔</span></td><td><code>components/obigo/adblock/ad_block_manager.cc:268-283</code></td><td>observer Remote를 지우지 않음(<code>OnRemoteDisconnection</code>이 빈 함수). WebContents 생성마다(<code>web_contents_impl.cc:4571</code>) 쌓이며 <code>OBIGO_AD_BLOCK</code> 활성이라 <b>ccnc에서도</b> 해당. 갱신 시 죽은 Remote에도 전체 CSS 문자열을 보냄.</td><td><code>mojo::RemoteSet</code> 사용.</td></tr>
+    <tr><td><span class="sev m">중</span><span class="v">✔</span></td><td><code>media/mojo/services/utility_mojo_media_client.cc:79-90</code></td><td>"테스트에서만 쓰는 클래스" 주석이 달린 코드(<code>AudioManager::CreateForTesting</code>)를 실서비스에서 사용. 렌더러 생성마다 <code>NullAudioSink</code>/<code>NullVideoSink</code> 쌍을 벡터에 넣고 지우지 않음. <code>gpu_mojo_media_client.cc</code>의 같은 코드는 ccnc에서 실행되지 않음(<code>ENABLE_MOJO_MEDIA_IN_GPU_PROCESS=0</code>).</td><td><code>RendererImpl</code>이 sink raw 포인터를 가지므로 단순 erase 불가. sink를 Renderer가 소유하도록 wrapper renderer로 감쌈.</td></tr>
+    <tr><td><span class="sev m">중</span><span class="v">✔</span></td><td><code>media/renderers/obigo/gstreamer/sink/audio/haudiosink.cc:64,130</code></td><td><code>gst_bin_get_by_name</code>이 반환한 새 참조를 해제하지 않음. :64는 bin에서 뺀 fakesink가 살아남아 누수, :130은 <code>ActiveAudioSink(PLAYING)</code> 호출마다 ref 누수.</td><td>사용 후 <code>gst_object_unref</code>.</td></tr>
+    <tr><td><span class="sev m">중</span><span class="v">✔</span><br><span class="note">MOTREX</span></td><td><code>components/obigo/adblock/ad_block_proxy.cc:25-36</code></td><td><code>pushData()</code>가 기존 selector 목록을 비우지 않음. <code>cssFilters_ != data</code>일 때만 파싱하므로 같은 목록 재로드에서는 늘지 않고, 국가 변경·서버 목록 갱신으로 내용이 바뀔 때마다 이전 selector 위에 누적되어 이전 국가 selector도 계속 적용됨. JSON 파싱 실패 시 <code>root-&gt;GetIfDict()</code> 무검사 역참조.</td><td>파싱 전 <code>adElements_list_</code>/<code>exception_list_</code> <code>clear()</code>, <code>root</code> null 검사.</td></tr>
+    <tr><td><span class="sev m">중</span><span class="v">✔</span><br><span class="note">MOTREX</span></td><td><code>components/obigo/adblock/ad_block_delegate.cc:19-28</code></td><td>WebContents마다 cosmetic 필터 JSON 전체를 <code>cssFilters_</code>로 보관(proxy 싱글턴에도 한 벌). 탭 수에 비례하는 상주. 갱신마다 delegate별 <code>OnListUpdated()</code>가 UI 스레드에서 <code>~/ad-block</code> 디렉터리를 나열.</td><td>proxy 싱글턴 한 벌만 두고 delegate는 보관하지 않음. 디렉터리 나열 제거.</td></tr>
+    <tr><td><span class="sev l">하</span><span class="v">✔</span></td><td><code>ui/ozone/platform/wayland/host/obigo/ivi_display_manager.cc:89,110</code></td><td><code>surface_map_[id]</code>가 모르는 id마다 nullptr 항목 삽입. <code>ivi_surface.cc:252</code> <code>ilm_registerNotification</code> 콜백이 시스템 전체 서피스마다 <code>ilm_surfaceAddNotification</code>을 걸고 해제하지 않음. id당 수십 B.</td><td><code>find()</code>로 조회, 서피스 소멸 시 <code>ilm_surfaceRemoveNotification</code>.</td></tr>
+    <tr><td><span class="sev l">하</span><span class="v">✔</span></td><td><code>ivi_cairo_splash.cc:64</code>, <code>ivi_background</code></td><td>같은 id로 <code>GenerateSplashWindow</code>를 <code>DestroySplashWindow</code> 전에 두 번 부르면 <code>cairo_image</code>를 destroy 없이 덮어써 누수. 화면 크기 <code>splash_bmp_</code>·cairo surface, <code>background_bmp_</code>를 업로드 후에도 보관(메모리 낭비). background 재생성은 "already exist"로 return(<code>ivi_display_manager.cc:158-163</code>)해 누수 없음.</td><td>덮어쓰기 전 <code>cairo_surface_destroy</code>, 업로드 후 비트맵 <code>reset()</code>.</td></tr>
+    <tr><td><span class="sev l">하</span><span class="v">✔</span></td><td><code>chrome/browser/chrome_content_browser_client.cc:1728</code></td><td>appId마다 <code>StoragePartition</code> 생성. upstream도 BrowserContext 수명 동안 파티션을 해제하지 않으므로 누수가 아니라 설치 CP 수로 상한이 있는 상주 비용.</td><td>실기기 PSS로 앱 수 대비 증가량 측정.</td></tr>
+    <tr><td><span class="sev l">하</span></td><td><code>audio_manager_impl.cc:324</code> ✔, <code>app_policy_ccnc.cc:468</code>, <code>browser.cc:4004</code>, <code>obigo/port/media/ccnc/Audio.cc:150-172</code></td><td><code>audio_manager_client_list_[media_id]</code>에 disconnect 핸들러가 없어 renderer가 죽으면 항목 잔류. <code>app_policy_ccnc.cc</code>는 현재 미디어가 아니면 kClosed에서 <code>removeMediaSessionInfo</code>를 건너뜀. <code>browser.cc</code> <code>tab_config_</code>는 Browser당 상한이 있어 무시 가능. Audio.cc <code>getBrand</code>/<code>getTheme</code>는 실패 시 버퍼 미해제(PAL이 실패 때도 할당하는지는 불명).</td><td>disconnect 핸들러에서 erase, 각 경로에 erase·해제 추가.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <h2>2. CPU 성능</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>심각도</th><th>위치</th><th>문제</th><th>개선 방법</th></tr></thead>
+    <tbody>
+    <tr><td><span class="sev h">상</span><span class="v">✔</span></td><td><code>third_party/blink/renderer/core/webaudiomanager/web_audio_manager.cpp</code>, <code>html_media_element.cc:1738</code></td><td>미디어 로드마다 renderer 메인 스레드 <code>[Sync]</code> IPC: <code>GenMediaId</code>·<code>GenStreamId</code>·<code>getDeviceName</code>·<code>getAppId</code> 4회, <code>&lt;video&gt;</code>는 <code>GetVideoWindow</code>까지 5회. 싱크 대기 중 <code>AvailableAudioSink</code>(500ms)·<code>HasActiveStream</code>(100ms) 동기 IPC 폴링이 각각 최대 25초, 이어지면 최악 약 50초.</td><td>값 캐시, 대기는 브라우저 push 알림으로.</td></tr>
+    <tr><td><span class="sev h">상</span><span class="v">✔</span></td><td><code>cc/layers/video_layer_impl.cc:113-116,240</code>, <code>cc/trees/layer_tree_impl.cc:1818-1830</code></td><td>video-hole 때문에 draw마다 <code>UpdateVideoRect</code>를 메인 스레드로 PostTask(<code>web_media_player_impl.cc:3881</code>, 변경 여부는 hop 뒤에 비교). active tree draw property 갱신마다 비디오 유무와 관계없이 레이어 전체 순회, 컬링된 비디오 레이어마다 PostTask 추가.</td><td>compositor에서 이전 rect와 비교해 바뀔 때만 post, 순회는 비디오 레이어 목록만.</td></tr>
+    <tr><td><span class="sev m">중</span><span class="v">✔</span></td><td><code>gstreamer_renderer_impl.cc:1262</code></td><td><code>#define GST_DELAY_TIME 1000*100 // 100 msec</code>는 <code>usleep</code>(µs, :1062/:1185)용 값인데 :1262에서 <code>base::Nanoseconds(GST_DELAY_TIME)</code>로 써서 100µs. 횟수 제한이 없어 duration query 성공까지 초당 약 10,000번 재post.</td><td><code>base::Milliseconds(100)</code> + 횟수 상한.</td></tr>
+    <tr><td><span class="sev m">중</span><span class="v">✔</span></td><td><code>content/renderer/render_frame_impl.cc:4052-4064</code>, <code>ad_block_proxy.cc:40-72</code></td><td>모든 문서 생성마다 <code>GetAdBlockCssFilters</code> <code>[Sync]</code> IPC. ccnc(off)에서도 renderer에 enabled 검사가 없어 매번 나감. MOTREX(on)에서는 도메인 + 전체 <code>"*"</code> selector로 스타일시트 삽입, 예외 제거 O(n·m), 서브프레임도 메인 프레임 도메인(<code>GetURL()</code>) 기준 필터링.</td><td>renderer에 enabled 플래그를 push해 off면 IPC 생략. on이면 공유 스타일시트 캐시, 비동기 IPC, <code>unordered_set</code>.</td></tr>
+    <tr><td><span class="sev m">중</span><span class="v">✔</span></td><td><code>local_frame.cc:445-456</code>, <code>render_frame_impl.cc:7095</code></td><td>프레임(광고 iframe 포함) 생성마다 <code>needToCheckDomainSafe</code>·<code>needToShowNativePopup</code>·<code>getMaximumVideoResolution</code> 동기 IPC 3회. 첫 <code>CheckDomainIsSafe</code>/<code>IsUrlUnsupported</code> 때 <code>GetDomainFilterLists</code> 동기 IPC로 도메인 필터 목록 전체를 받아 <code>std::map</code>으로 복사(LocalFrame당 1회).</td><td>renderer 프로세스 단위 캐시.</td></tr>
+    <tr><td><span class="sev m">중</span><span class="v">✔</span></td><td><code>web_contents_impl.cc:13998</code></td><td>메인 문서 생성마다 UI 스레드(<code>ScopedAllowBlocking</code>)에서 <code>$AGB_EXTERNAL_JS_PATH</code> 디렉터리 나열·파일 재읽기. renderer 파서의 동기 IPC에서 불려 renderer도 대기. 서브프레임은 캐시. 환경변수가 없으면 동작 안 함.</td><td>시작 시 1회 읽어 캐시(또는 mtime 비교).</td></tr>
+    <tr><td><span class="sev m">중</span><span class="v">✔</span></td><td><code>base/logging.cc:228,784-792,1097-1128</code>, <code>obigo/public/logging.h</code>, <code>navigation_request.cc:2402,3507,4476,8279</code></td><td>로그 한 줄마다 스위치 조회 2~4회 + <code>pthread_getname_np</code> syscall, INFO까지 전부 처리(<code>kAlwaysPrintErrorLevel = LOGGING_INFO</code>). <code>INFO_LOG</code>/<code>DEBUG_LOG</code>는 레벨 검사 없이 stringstream 생성·<code>WriteLog</code>. 네비게이션마다 전체 URL <code>LOG(INFO)</code>.</td><td>프로세스 정보 static 캐시, 매크로 레벨 선검사, hot path는 <code>DVLOG</code>.</td></tr>
+    <tr><td><span class="sev m">중</span><span class="v">✔</span></td><td><code>decoders/gstreamer_media_decoder.cc:718-756</code></td><td>버퍼 해제마다 락 잡고 파이프라인 position query, 1개씩만 pop. 비디오 키프레임이면 락을 잡은 채 큐 전체 스캔.</td><td>position 캐시값 사용, 오래된 버퍼 일괄 pop.</td></tr>
+    <tr><td><span class="sev m">중</span><span class="v">✔</span></td><td><code>gstreamer_renderer_impl.cc:124</code></td><td><code>sched_setattr(getpid(), SCHED_RR, 50)</code>으로 Media Service main thread를 올리고(Initialize·SetVisible(true)), Release·SetVisible(false)에서 SCHED_OTHER로 내림. Media Service는 프로세스 하나를 공유하므로 플레이어 하나가 해제·숨김되면 다른 플레이어도 내려감.</td><td>streaming thread로 한정, refcount로 짝 맞춤.</td></tr>
+    <tr><td><span class="sev m">중</span><span class="v">✔</span></td><td><code>web_media_player_impl.cc:375-378</code>, <code>:4091-4106</code></td><td><code>OBIGO_AUDIO_MANAGER</code>에서 drift 비교를 "마지막 갱신 후 250ms 경과"로 바꿔 재생 중 timeupdate(250ms)마다 MediaSession 위치 IPC. <code>GetVideoWindow</code> <code>[Sync]</code>를 100ms 타이머로 최대 50회(약 5초) 재시도.</td><td>upstream 위치 drift 비교로 복원, 비동기 알림.</td></tr>
+    <tr><td><span class="sev m">중</span><span class="v">✔</span></td><td><code>obigo/extension/app/ccnc/application_manager_ccnc.cc:2189</code></td><td>ccnc PAL <code>networkServiceDataUseUpdate</code>는 no-op(TODO HKMCCCNCMO-5201)인데 요청마다 데이터 사용량 집계(앱 조회·host 파싱·mutex·map), 앱 실행마다 1초 주기 스레드.</td><td>ccnc에서 기능 비활성.</td></tr>
+    <tr><td><span class="sev l">하</span><span class="v">✔</span></td><td><code>font_builder.cc:169</code> → <code>local_frame.cc:4446-4457</code></td><td>앱 설정 <code>UADefaultCSSWebFontSupported</code>(기본 false, appinfo로 앱별, 주석상 YouTube 전용)가 켜진 앱에서 <code>SetFamilyDescription</code>마다 URL 파싱. <code>AtomicString</code> 18개는 <code>!GetWebfontAppended()</code>일 때 생성.</td><td>frame 단위 캐시, static 배열.</td></tr>
+    <tr><td><span class="sev l">하</span><span class="v">✔</span></td><td><code>obigo/port/system/ccnc/System.cc:30</code>, <code>obigo/port/media/ccnc/Audio.cc:1002</code></td><td>Application 생성(앱 실행)마다 <code>AppPolicy::initEventListener</code>에서 System·Audio·Hmi 등 재초기화. <code>setMetadata</code>는 <code>getWebAppNameAsync</code>·<code>getNowPlayingInfo</code>(:437) IPC 후에야 같은 곡 비교(:220).</td><td>초기화 가드, 비교를 IPC 앞으로.</td></tr>
+    <tr><td><span class="sev l">하</span><span class="v">✔</span></td><td><code>content/public/app/command_line_obigo.c.h</code></td><td><code>--video-threads=8</code> 상시 강제(:53, :62). <code>--disable-background-timer-throttling</code> 켜짐(백그라운드 탭 타이머 무제한). <code>--disable-partial-raster</code>(:150)는 MOTREX 전용, <code>/tmp/web_cache</code>는 <code>OBIGO_STORAGE_ERROR</code> 전용이라 ccnc에는 없음.</td><td>실측 후 조정(특히 background throttling).</td></tr>
+    <tr><td><span class="sev l">하</span><span class="v">✔</span><br><span class="note">MOTREX</span></td><td><code>components/obigo/adblock/ad_block_service.cc:386-395</code></td><td>목록 다운로드마다 <code>kTestSiteList</code> 20,603개를 <code>matches()</code>로 매칭, 결과는 release에서 컴파일되지 않는 <code>DLOG</code>에만 사용. 별도 utility 프로세스, 다운로드 시에만.</td><td>제거.</td></tr>
+    <tr><td><span class="sev l">해당 없음</span></td><td><code>components/password_manager/core/browser/obigo/sync_login_service.cc:99</code></td><td>UI 시퀀스에서 동기 HTTP 최대 5회 재시도 + <code>sleep(1)</code>. <code>obigo_sync_login_info = false</code>(<code>obigo.gni:80</code>)라 ccnc 빌드에 컴파일되지 않음.</td><td>켜는 제품이 생기면 <code>SimpleURLLoader</code> 비동기화.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <h2>3. 안정성</h2>
+  <ul>
+    <li>✔ <b>볼륨 연속 조절</b> (<code>media_device_handler_ccnc.cc:324</code>): lambda가 <code>app_id = a_app_id</code>로 복사해 두고도 본문에서 <code>a_app_id</code>(호출자의 <code>const std::string&amp;</code>)를 써서, <code>startContinuousVolumeControl</code> 반환 후 dangling reference → long-press마다 use-after-free. 또 RELEASE 없이 LONG이 두 번 오면 joinable <code>std::thread</code>에 대입해 <code>std::terminate</code>. 본문을 <code>app_id</code>로 바꾸고, 시작 전 stop/join.</li>
+    <li>✔ <b>CDM 타이머</b> (<code>media/cdm/cdm_adapter.cc:817-838</code>, <code>OBIGO_DRM_WIDEVINE</code>): 만료 시각(ms)을 키로 <code>std::map</code>에 <code>insert</code>해 같은 ms면 두 번째가 무시되는데 PostDelayedTask는 두 번 나가므로, 두 번째 <code>WrappedTimerExpired</code>가 빈 map의 <code>begin()</code>을 역참조(UB·크래시). 맨 앞 항목을 꺼내는 방식이라 다른 타이머 context가 먼저 실행될 수도 있음. upstream처럼 <code>BindOnce(&amp;CdmAdapter::TimerExpired, weak, context)</code>로 복원.</li>
+    <li>✔ <b>adblock</b> (MOTREX): network 스레드 <code>OnBeforeURLRequest</code>(:249-261)가 <code>is_ready_</code> 확인 후 <code>client_-&gt;matches()</code>를 부르는데, ThreadPool <code>PushContents</code>가 락 없이 같은 static <code>client_</code>에 <code>clear()</code>/<code>deserialize()</code> → 해제된 메모리 접근 가능. <code>do_update_</code>/<code>update_retry_</code>도 atomic 아님.</li>
+    <li>✔ <b>gamepad</b> (<code>OBIGO_GAMEPAD</code>): 싱글턴이 <code>WebContents*</code>를 raw로 보관(<code>gamepad_manager.h:64</code>, <code>gamepad_event_manager.h:67</code>)하고 <code>stopGamepad()</code>에서도 지우지 않음. worker 스레드에서 읽고 UI task에 raw 바인딩. <code>GetWeakPtr()</code> 또는 <code>WebContentsObserver</code>로.</li>
+    <li>✔ <b><code>obigo/port/media/ccnc/Audio.cc:232-233</code></b>: <code>parse(..., nullptr, false)</code>가 실패하면 discarded 값을 반환하고, 다음 줄 <code>jvalue["appId"] = ...</code>가 discarded·비object JSON에서 <code>type_error.305</code>를 던짐. 잡는 곳이 없어 <code>std::terminate</code>. <code>if (!jvalue.is_object()) jvalue = json::object();</code>.</li>
+    <li>✔ <b><code>plugin_for_widevine.cc:510-516</code></b>: <code>const uint8_t*</code> 라이선스를 <code>&lt;&lt;</code>로 출력해 NUL까지 over-read. <code>&amp;response_vector[0]</code>는 크기 0일 때 UB.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>4. 먼저 고칠 것 (ccnc 기준, 효과 대비 수정량 순)</h2>
+  <ol>
+    <li>GStreamer 버스 메시지 누수, duration 재시도 <code>Milliseconds(100)</code> + 상한</li>
+    <li><code>url_list_</code>를 커밋된 origin <code>set</code>으로(서브프레임 포함, same-document 제외), ClearData 비밀번호 목록 1회 조회</li>
+    <li>볼륨 lambda <code>a_app_id</code> dangling·thread terminate, CDM 타이머 upstream 방식 복원</li>
+    <li><code>haudiosink</code> unref, adblock observer <code>RemoteSet</code>, Null sink wrapper renderer</li>
+    <li>로그 비용 감소 (<code>logging.cc</code> 캐시, OBIGO 로그 매크로 레벨 선검사)</li>
+    <li>프레임·문서마다 나가는 동기 IPC(AudioManager, 도메인 필터, adblock CSS) 캐시·비동기화, adblock off면 IPC 생략</li>
+    <li>video-hole PostTask를 값 변경 시에만</li>
+    <li>MOTREX: adblock <code>Parse</code> 버퍼 해제·중복 deserialize 제거, <code>pushData</code> clear, <code>matches()</code> 경합 락</li>
+  </ol>
+  <p class="note" style="margin-top:10px">1~4는 수정 범위가 작습니다. ccnc 효과 확인은 HLS·QOS가 많은 영상을 장시간 재생하며 guider PSS로 Media Service를, SPA 사이트를 오래 켜두며 browser 프로세스 추이를 봅니다. adblock 항목은 MOTREX에서 adblock을 켠 채 picknow 홈을 반복 진입하며 browser PSS를 봅니다.</p>
+</section>
+</main>

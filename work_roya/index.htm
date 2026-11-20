@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="UTF-8"><title>Roya Work</title><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>body{font-family:sans-serif;margin:24px;}li{margin:12px 0;font-size:15px;}code{background:#f2f3f5;padding:2px 6px;border-radius:4px;font-size:13px;}button{font-size:12px;margin-left:6px;}.note{font-size:12px;color:#888;margin-top:4px;}</style>
+<script>
+var SPEC_PATH="file:///home/obigo/Public/memo/ccNC_guide_PickNow_PickAudio_all_v0.3_261023/";
+function copyPath(b){(navigator.clipboard?navigator.clipboard.writeText(SPEC_PATH):Promise.reject()).catch(function(){var t=document.createElement("textarea");t.value=SPEC_PATH;document.body.appendChild(t);t.select();document.execCommand("copy");t.remove();}).finally(function(){b.textContent="복사됨";setTimeout(function(){b.textContent="경로 복사";},1200);});}
+</script></head>
+<body>
+<h3>Roya Work</h3>
+<ul>
+<li><a href="https://royasong.github.io/work_roya/timereport26/index.htm" target="_blank" rel="noopener">업무링크</a></li>
+<li><a href="file:///home/obigo/Public/memo/ccNC_guide_PickNow_PickAudio_all_v0.3_261023/" target="_blank">사양서 열기</a>
+  <button onclick="copyPath(this)">경로 복사</button>
+  <div class="note">회사자료라 업로드하지 않음. 로컬 폴더 <code>/home/obigo/Public/memo/ccNC_guide_PickNow_PickAudio_all_v0.3_261023</code> 를 엽니다.<br>github.io(https)에서 열면 브라우저가 file:// 링크를 막을 수 있으니, 그때는 "경로 복사"(file:/// 주소) 후 브라우저 주소창에 붙여넣으세요.</div></li>
+</ul>
+</body></html>
