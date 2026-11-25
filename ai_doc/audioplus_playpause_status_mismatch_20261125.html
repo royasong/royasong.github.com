@@ -1,0 +1,127 @@
+<title>Audio+ 재생 버튼 상태 어긋남 2026-11-25</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#f6f7f9; --surface:#ffffff; --fg:#1b2130; --muted:#5b6474; --line:#dde1e8;
+  --accent:#2b5fb8; --hi:#c2372f; --mid:#b8740f; --ok:#2f7a4f; --chip:#eef1f6;
+  --sans:"IBM Plex Sans KR",system-ui,-apple-system,"Noto Sans KR",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12151b; --surface:#1a1f28; --fg:#e4e8ef; --muted:#9aa3b2; --line:#2c3340;
+  --accent:#7ea6ec; --hi:#f07a70; --mid:#e2a94a; --ok:#6fcf97; --chip:#232a36; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12151b; --surface:#1a1f28; --fg:#e4e8ef; --muted:#9aa3b2; --line:#2c3340;
+  --accent:#7ea6ec; --hi:#f07a70; --mid:#e2a94a; --ok:#6fcf97; --chip:#232a36; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:32px 64px}
+main{max-width:1000px;margin:0 auto;display:flex;flex-direction:column;gap:24px}
+h1{font-size:1.6rem;margin:0;text-wrap:balance}
+h2{font-size:1.15rem;margin:0 0 10px;text-wrap:balance}
+p{margin:0}
+.meta{color:var(--muted);font-size:.9rem;display:flex;flex-wrap:wrap;gap:6px 16px}
+code{font-family:var(--mono);font-size:.84em;background:var(--chip);padding:1px 5px;border-radius:4px;word-break:break-all}
+pre{font-family:var(--mono);font-size:.82rem;background:var(--chip);padding:12px;border-radius:6px;overflow-x:auto;margin:8px 0 0}
+section{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:20px;min-width:0;display:flex;flex-direction:column;gap:10px}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:680px;font-size:.9rem}
+th,td{border-bottom:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+th{color:var(--muted);font-weight:600;font-size:.78rem;letter-spacing:.04em}
+td:first-child{white-space:nowrap;font-family:var(--mono);font-size:.84rem}
+tr.bad td{background:color-mix(in srgb,var(--hi) 9%,transparent)}
+ul,ol{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:4px}
+.note{color:var(--muted);font-size:.88rem}
+.callout{border:2px solid var(--hi)}
+.tag{display:inline-block;font-size:.72rem;font-weight:700;padding:1px 8px;border-radius:999px;border:1px solid currentColor}
+.todo{color:var(--mid)} .done{color:var(--ok)}
+</style>
+
+<main>
+<header style="display:flex;flex-direction:column;gap:8px">
+  <h1>Audio+ 홈 위젯 재생/일시정지 버튼 상태 어긋남 (2026-11-25)</h1>
+  <div class="meta">
+    <span>단말: ccNC 192.168.105.1</span>
+    <span>CP: SoundCloud (pickaudioweb, source 46)</span>
+    <span>관련: HKMCCCNCMO-5572 작업 중 발견 / 원인 코드는 HKMCCCNCMO-5958</span>
+  </div>
+  <p class="note">상태: 원인 파악까지 완료, 코드 수정 전. 판단 근거는 brs/WCH DLT 로그(<code>/home/obigo/aa__target/mixmatch_play_stop_button.txt</code>)입니다. 녹화 영상(<code>~/Downloads/rmctl_192.168.105.1_20261125-141455.mp4</code>, 4초)과 로그는 같은 재현에서 받은 것이 아닙니다. HOME(위젯) 로그는 들어 있지 않습니다.</p>
+</header>
+
+<section class="callout">
+  <h2>요약</h2>
+  <ul>
+    <li><b>증상:</b> 홈 위젯의 재생/일시정지 버튼을 빠르게 연속으로 누르면, 실제로는 재생 중인데 버튼이 ▶(재생 시작)로 남습니다. 그 상태에서 ▶를 누르면 PLAY 명령만 가고 이미 재생 중이라 상태 이벤트가 오지 않습니다. 그래서 계속 ▶에 머뭅니다.</li>
+    <li><b>원인:</b> brs가 재생 상태를 두 경로로 보냅니다. 하나는 바로 나가는 <code>setNowPlayingStatus</code>, 다른 하나는 앱 이름을 비동기로 받은 뒤 나가는 <code>setNowPlayingInfo</code>(상태 포함)입니다. 비동기 경로는 <b>요청할 때의 상태</b>를 들고 가기 때문에, 이미 지난 PAUSED가 최신 PLAYING보다 늦게 도착해 덮어씁니다.</li>
+    <li><b>위젯 QML 문제는 아님:</b> 위젯은 마지막으로 받은 상태를 그대로 표시했습니다.</li>
+    <li><b>도입 시점:</b> <code>Audio::setMetadata()</code>의 비동기 처리는 2026-11-10 <code>1e9c7762</code> [HKMCCCNCMO-5958] "fixed transit home delay issue with home key"와 11-12 <code>d00a4e49</code>(리뷰 반영)에서 들어왔습니다.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>로그 근거 (14:15:58, status 0 = PLAYING, 1 = PAUSED)</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>시각</th><th>brs 동작</th><th>HMI가 받은 상태</th></tr></thead>
+    <tbody>
+      <tr><td>58.515</td><td><code>NowPlayingListener::onPlay</code> (사용자 ▶ 클릭)</td><td></td></tr>
+      <tr><td>58.532</td><td><code>onMediaSessionPlaybackStatusChanged kPlaying</code>. 이때 위젯 상태가 아직 PAUSED여서 <b>PAUSED를 담은 <code>setMetadata</code> 요청 2건</b>이 비동기로 대기</td><td></td></tr>
+      <tr><td>58.593</td><td><code>DisplayControl::updateMediaWidgetStatus PAUSED</code></td><td>58.614 PAUSED</td></tr>
+      <tr><td>58.608</td><td><code>updateMediaState PLAYING</code> → PLAYING을 담은 <code>setMetadata</code> 요청</td><td></td></tr>
+      <tr><td>58.667</td><td><code>DisplayControl::updateMediaWidgetStatus PLAYING</code> (바로 전송)</td><td>58.676 <b>PLAYING</b></td></tr>
+      <tr class="bad"><td>58.677 / 58.705</td><td>대기하던 요청 실행: <code>AudioImpl::setMetadata ... a_status : PAUSED</code></td><td>58.708 <b>PAUSED</b></td></tr>
+      <tr><td>58.709</td><td>PLAYING 요청 실행</td><td>58.715 PLAYING</td></tr>
+      <tr class="bad"><td>58.717</td><td>(PAUSED 요청의 두 번째 상태 이벤트)</td><td><b>마지막 값 PAUSED</b> (실제로는 재생 중)</td></tr>
+      <tr><td>58.845 / 59.163 / 59.495</td><td>화면이 ▶라서 사용자가 누를 때마다 <code>onPlay</code>. 이미 재생 중이라 상태 변화 없음</td><td>이벤트 없음 → ▶ 고정</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">추출 명령: <code>grep -a "WCH- MGMI.*onNowPlayingStatusChanged() \|updateMediaWidgetStatus source\|NowPlayingListener::onP\|AudioImpl::setMetadata source" mixmatch_play_stop_button.txt</code></p>
+</section>
+
+<section>
+  <h2>원인 코드</h2>
+  <ul>
+    <li><code>linux-af/oaf/brs_143/src/obigo/port/media/ccnc/Audio.cc:1002</code> <code>Audio::setMetadata()</code>: 상태를 <code>MetadataRequest</code>에 담고, <code>WebCommonHmi::getWebAppNameAsync()</code> 콜백(<code>Audio::onWebAppName()</code>, :1021)에서 <code>pNowPlayingImpl-&gt;setMetadata(..., request-&gt;status, ...)</code> → <code>setNowPlayingInfo(..., status, ...)</code>로 보냅니다.</li>
+    <li><code>obigo/port/media/ccnc/MediaWidget.cc:100</code> <code>updateMediaWidgetStatus()</code> → <code>setNowPlayingStatus()</code>는 동기로 바로 나갑니다.</li>
+    <li>두 경로의 지연이 달라 순서가 뒤집힙니다. <code>onWebAppName()</code>에는 <code>g_reset_count</code>로 "reset 이후 요청은 버림"만 있고, "더 새로운 상태가 이미 나갔는지"는 확인하지 않습니다.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>수정 방안 (검토 중, 미적용)</h2>
+  <ol>
+    <li><b>추천: brs port에서 최신 상태 사용</b>
+      <ul>
+        <li><code>Audio::setMetadata()</code>가 요청될 때(메인 스레드, 순서 보장) 앱별 최신 상태를 전역 map에 기록합니다. <code>g_reset_count</code>와 같은 방식(map + mutex)입니다.</li>
+        <li><code>onWebAppName()</code>에서는 <code>request-&gt;status</code> 대신 이 최신 상태를 보냅니다.</li>
+        <li>근거: 상태가 바뀔 때는 항상 <code>updateMediaState</code> → <code>updateNowPlayingInfo</code> → <code>setMetadata</code> 요청이 뒤따르므로, 마지막 요청의 상태가 최신 상태입니다. 이번 로그도 이 순서입니다.</li>
+      </ul>
+<pre>// 개념 코드
+std::map&lt;std::string, MediaWidgetStatus&gt; g_latest_status;  // + mutex
+Audio::setMetadata(...)  { g_latest_status[app_id] = status; ... }
+Audio::onWebAppName(...) { status = g_latest_status[request-&gt;app_id]; ... }</pre>
+    </li>
+    <li><b>비추천: 위젯에서 연타 막기(디바운스)</b> — 늦게 오는 PAUSED 자체를 막지 못하고, NPB와 Media Gate도 같은 데이터를 받으므로 어긋남이 남습니다.</li>
+  </ol>
+</section>
+
+<section>
+  <h2>추가 분석 필요 <span class="tag todo">TODO</span></h2>
+  <ul>
+    <li><b>HOME 로그로 확인:</b> 이번 로그에는 HOME(위젯 QML) 로그가 없습니다. 재현할 때 <code>dlt-receive -a 192.168.105.1</code>로 전체를 받아서 <code>HWebAppWidget.qml:139</code>(<code>onNowPlayingStatusChanged nowPlayingStatus</code>)의 마지막 값이 1인지, 녹화 화면과 같은 시각에 맞춰 확인합니다.</li>
+    <li><b>NPB·Media Gate도 어긋나는지:</b> 같은 <code>setNowPlayingInfo</code> 상태를 받으므로 NPB 버튼과 Media Gate도 ▶로 남는지 확인합니다.</li>
+    <li><b>"상태 변경 뒤에는 항상 setMetadata가 따른다"는 전제 검증:</b> <code>DisplayControl::updateMediaWidgetStatus</code>만 부르고 <code>setMetadata</code>는 부르지 않는 경로(<code>setInactiveMediaWidgetInfo</code>, LOADING 처리, 오디오 포커스 변경 등)가 있는지 찾습니다. 있다면 최신 상태 기록을 <code>MediaWidget::updateMediaWidgetStatus</code>에도 넣어야 합니다.</li>
+    <li><b>5958 의도와 충돌 여부:</b> 비동기로 바꾼 이유(HOME 키 전환 지연)를 담당자(kenith.kim)와 확인합니다. 앱 이름을 캐시해 동기로 보내는 방안도 비교합니다.</li>
+    <li><b>같은 문제가 있는 값:</b> 상태 외에 title, artist, duration, extraInfo도 요청 시점 값입니다. 곡을 빠르게 넘길 때(next 연타) 이전 곡 정보가 늦게 덮어쓰는지 확인합니다. <code>setMetadata</code>의 중복 비교(<code>getMediaMetaData</code>)도 순서가 뒤집히면 잘못된 기준으로 비교할 수 있습니다.</li>
+    <li><b>재현 조건 정리:</b> 연타 간격(이번에는 약 0.2~0.3초)과 CP별 차이(SoundCloud 외). 기본 재현: Audio+ 재생 중 홈 위젯 ⏸/▶를 1초 안에 4~6회 연타.</li>
+    <li><b>이슈 처리:</b> 5572 PR에 넣지 않고 별도 이슈로 진행할지 정합니다(원인 코드가 5958).</li>
+  </ul>
+</section>
+
+<section>
+  <h2>같은 날 관련 수정 (참고)</h2>
+  <ul>
+    <li><span class="tag done">수정</span> <code>bookmark_policy_ccnc.cc</code> <code>sendMediaInfo()</code>가 Audio+ duration을 0으로 보내 일시정지 때 진행 원호가 사라지던 문제 → 실제 duration 전송(5572, 커밋 전).</li>
+    <li>이번 상태 어긋남은 그것과 다른 문제입니다. 상태값이 늦게 도착하는 문제이며, duration 수정과는 무관합니다.</li>
+  </ul>
+</section>
+</main>
