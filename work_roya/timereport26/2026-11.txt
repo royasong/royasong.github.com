@@ -17,3 +17,18 @@
   - MF1-24             6h  chrome://inspector 진입점 막기(by keyboard)  https://obigoinc.atlassian.net/browse/MF1-24?focusedWorklogId=119499
   - HKMCCCNCMO-5572    1h  [AVNSTDG6-422033] [MTCI][SQA2][IVI_V&V1][ccNC][CCS][VIDEO+_AUDIO+]Home media wiget content is not displaying as per HMI spec  https://obigoinc.atlassian.net/browse/HKMCCCNCMO-5572?focusedWorklogId=119500
   - HKMCCCNCMO-6009    1h  [AVNSTDG6-430445] [HMIM-7608] [QY2i] [Obigo] [Issue#33] [Issue Description] : In Skillshare (Video+), while playing any video, random image is overlapped and displaying continually  https://obigoinc.atlassian.net/browse/HKMCCCNCMO-6009?focusedWorklogId=119501
+
+2026-11-25 (수)  총 8h
+  - HKMCCCNCMO-5572    8h  [AVNSTDG6-422033] [MTCI][SQA2][IVI_V&V1][ccNC][CCS][VIDEO+_AUDIO+]Home media wiget content is not displaying as per HMI spec  https://obigoinc.atlassian.net/browse/HKMCCCNCMO-5572?focusedWorklogId=119668
+
+2026-11-26 (목)  총 8h
+  - HKMCCCNCMO-5572    3h  [AVNSTDG6-422033] [MTCI][SQA2][IVI_V&V1][ccNC][CCS][VIDEO+_AUDIO+]Home media wiget content is not displaying as per HMI spec  https://obigoinc.atlassian.net/browse/HKMCCCNCMO-5572?focusedWorklogId=119727
+  - HKMCCCNCMO-5623    1h  [AVNSTDG6-422289] [MTCI][SQA2][IVI_V&V1][ccNC][CCS][VIDEO+_AUDIO+]Flickering is observed on home media widget when home HK is pressed  https://obigoinc.atlassian.net/browse/HKMCCCNCMO-5623?focusedWorklogId=119728
+  - DEV1-31            1h  linux용 143 git repo 추가  https://obigoinc.atlassian.net/browse/DEV1-31?focusedWorklogId=119729
+  - HKMCCCNCMO-5743    1h  [AVNSTDG6-423420] [MTCI][SQA2][IVI_V&V1][ccNC][CCS][VIDEO+_AUDIO+]No media OSD is displayed on RVC screen after current playback is completed and playing next song  https://obigoinc.atlassian.net/browse/HKMCCCNCMO-5743?focusedWorklogId=119730
+  - HKMCCCNCMO-6005    1h  [AVNSTDG6-428224] [IND][CR][QY2I] Pick Audio+ 음원 재생 중 SS_미디어 위젯 확인 시, 재생 시간 표시 및 버튼 동작 오류  https://obigoinc.atlassian.net/browse/HKMCCCNCMO-6005?focusedWorklogId=119731
+  - HKMCCCNCMO-6029    1h  [AVNSTDG6-430766] [MTCI][SQA-AE][IVI_V&V1][ccNC][Video+,Audio+]Audio+ NPB screen not release after setting HK is pressed.  https://obigoinc.atlassian.net/browse/HKMCCCNCMO-6029?focusedWorklogId=119732
+
+2026-11-27 (금)  총 8h
+  - HKMCCCNCMO-5603    4h  [AVNSTDG6-422231] [MTCI][SQA2][IVI_V&V1][ccNC][CCS][VIDEO+_AUDIO+]"Please select content" is not displayed on home widget and NPB  https://obigoinc.atlassian.net/browse/HKMCCCNCMO-5603?focusedWorklogId=119747
+  - HKMCCCNCMO-5958    4h  [AVNSTDG6-428993] [MTCI][SQA-AE][IVI_V&V1][ccNC][CCS][VIDEO+_AUDIO+] Screen does not transit to HOME screen when HOME HK is selected in Video+/Audio+ Splash screen  https://obigoinc.atlassian.net/browse/HKMCCCNCMO-5958?focusedWorklogId=119748

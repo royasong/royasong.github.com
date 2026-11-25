@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NowPlaying duration 전달 경로 2026-11-25</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#f6f7f9; --surface:#ffffff; --fg:#1b2130; --muted:#5b6474; --line:#dde1e8;
+  --accent:#2b5fb8; --hi:#c2372f; --mid:#b8740f; --ok:#2f7a4f; --chip:#eef1f6;
+  --sans:"IBM Plex Sans KR",system-ui,-apple-system,"Noto Sans KR",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12151b; --surface:#1a1f28; --fg:#e4e8ef; --muted:#9aa3b2; --line:#2c3340;
+  --accent:#7ea6ec; --hi:#f07a70; --mid:#e2a94a; --ok:#6fcf97; --chip:#232a36; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12151b; --surface:#1a1f28; --fg:#e4e8ef; --muted:#9aa3b2; --line:#2c3340;
+  --accent:#7ea6ec; --hi:#f07a70; --mid:#e2a94a; --ok:#6fcf97; --chip:#232a36; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15px;line-height:1.6;margin:0;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:32px 64px}
+main{max-width:1000px;margin:0 auto;display:flex;flex-direction:column;gap:24px}
+h1{font-size:1.6rem;margin:0;text-wrap:balance}
+h2{font-size:1.15rem;margin:0 0 10px;text-wrap:balance}
+h3{font-size:1rem;margin:6px 0 0}
+p{margin:0}
+.meta{color:var(--muted);font-size:.9rem;display:flex;flex-wrap:wrap;gap:6px 16px}
+code{font-family:var(--mono);font-size:.84em;background:var(--chip);padding:1px 5px;border-radius:4px;word-break:break-all}
+pre{font-family:var(--mono);font-size:.82rem;background:var(--chip);padding:12px;border-radius:6px;overflow-x:auto;margin:4px 0 0;line-height:1.5}
+pre code{background:none;padding:0;word-break:normal}
+section{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:20px;min-width:0;display:flex;flex-direction:column;gap:10px}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:680px;font-size:.9rem}
+th,td{border-bottom:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+th{color:var(--muted);font-weight:600;font-size:.78rem;letter-spacing:.04em}
+tr.key td{background:color-mix(in srgb,var(--accent) 9%,transparent)}
+ul,ol{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:4px}
+.note{color:var(--muted);font-size:.88rem}
+.callout{border:2px solid var(--accent)}
+.warn{border:2px solid var(--mid)}
+.flow{display:flex;flex-direction:column;gap:0}
+.step{display:grid;grid-template-columns:150px 1fr;gap:4px 14px;padding:10px 0;border-bottom:1px dashed var(--line)}
+.step:last-child{border-bottom:0}
+.layer{font-weight:700;font-size:.82rem;color:var(--accent)}
+.layer small{display:block;color:var(--muted);font-weight:400}
+@media (max-width:640px){.step{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main>
+<header style="display:flex;flex-direction:column;gap:8px">
+  <h1>NowPlaying duration 전달 경로: brs → PAL → 모비스 SDK (2026-11-25)</h1>
+  <div class="meta">
+    <span>대상: ccNC 143 brs (Audio+ / pickaudioweb)</span>
+    <span>저장소: brs_143, webappmanager-plugin-pal, webcommonhmi</span>
+    <span>SDK: mobis-ccnc sysroot <code>mediagatemanager-interface</code></span>
+  </div>
+  <p class="note">Now Playing Bar(NPB)·홈 위젯·NPP의 재생 시간(duration)이 brs의 어디에서 시작해서 어떤 모비스 SDK API로 넘어가는지 코드 기준으로 정리했습니다. 코드 수정은 없습니다.</p>
+</header>
+
+<section class="callout">
+  <h2>요약</h2>
+  <ul>
+    <li>모비스로 duration을 보내는 SDK API는 <code>mediagatemanager::NowPlayingProvider::setNowPlayingInfo()</code>입니다. duration은 세 번째 인자 <b><code>NowPlayingInfo</code>의 <code>setDuration(HUInt64)</code></b>에 담깁니다.</li>
+    <li><b><code>guideJson</code>에는 duration이 없습니다.</b> guideJson에는 actions, artist, category, serviceName, appId, imageUrl이 들어갑니다.</li>
+    <li>값의 출처는 Chromium <code>MediaSessionImpl::RebuildAndNotifyMediaPositionChanged()</code>의 <code>position_-&gt;duration().InMilliseconds()</code>입니다. 단위는 <b>ms</b>입니다.</li>
+    <li>재생 위치(position)는 별도 API <code>NowPlayingProvider::setPlayPosition()</code>으로 갑니다.</li>
+    <li>webcommonhmi의 <code>QVariantMap data["duration"]</code>은 모비스로 <b>보내는</b> 값이 아닙니다. webcommonhmi가 MediaGate에서 <b>받은</b> <code>NowPlayingInfo::getDuration()</code>을 자기 NPP 화면 QML로 넘기는 값입니다.</li>
+    <li>Video+(picknowweb)는 진행률을 표시하지 않으므로 brs가 duration을 0으로 보내고 position은 보내지 않습니다.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>전체 흐름</h2>
+  <pre><code>[Chromium content]  MediaSessionImpl::RebuildAndNotifyMediaPositionChanged()
+        │  duration(ms), position(ms)
+        ▼
+[brs obigo]  AudioClient::NotifyMediaPositionChanged()
+        ▼
+             AppPolicy::notifyMediaPositionChanged() → MediaSessionManager::notifyMediaPositionChanged()
+        ├─ updateDuration() ─(값이 바뀌면)→ onMediaSessionDurationChanged()
+        │                                   → NowPlayingController::onMediaSessionDurationChanged()
+        │                                   → NowPlayingController::sendMetaData()
+        │                                   → port::Audio::setMetadata()   (앱 이름을 비동기로 받은 뒤)
+        │                                   → AudioImpl::setMetadata()     WebAppNowPlayingInfo::setDuration()
+        │                                   → WebAppNowPlayingProvider::setNowPlayingInfo()
+        └─ updatePosition() → … → NowPlayingController::sendPosition()
+                                    → AudioImpl::setPosition() → WebAppNowPlayingProvider::setPlayPosition()
+        ▼
+[PAL]  WebAppNowPlayingProvider.cpp   mediagatemanager::NowPlayingInfo::setDuration()
+        ▼
+[모비스 SDK]  mediagatemanager::NowPlayingProvider::setNowPlayingInfo(screen, source,
+                     NowPlayingInfo, status, guideJson, ClusterInfo)
+        ▼
+  MediaGate 서비스
+   ├─ 모비스 NPB / 홈 위젯 (모비스·HOME이 그림)
+   └─ webcommonhmi NowPlayingManager::onNowPlayingInfoChanged()   info.getDuration()
+        → data["duration"] → NPP SonHPlayingProgressBar</code></pre>
+</section>
+
+<section>
+  <h2>단계별 코드 위치</h2>
+  <div class="flow">
+    <div class="step">
+      <div class="layer">1. Chromium<small>brs_143 content</small></div>
+      <div>
+        <p><code>content/browser/media/session/media_session_impl.cc:853</code> <code>RebuildAndNotifyMediaPositionChanged()</code></p>
+        <pre><code>#if defined(OBIGO_AUDIO_MANAGER)
+  wsClient-&gt;NotifyMediaPositionChanged(web_contents()-&gt;GetScreenType(), web_contents()-&gt;GetAppID(),
+      media_id_, position_-&gt;duration().InMilliseconds(), position_-&gt;GetPosition().InMilliseconds());
+#endif</code></pre>
+        <p class="note">플레이어가 하나뿐이면 그 플레이어의 position을 씁니다. 위치가 바뀌지 않으면 호출하지 않습니다.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="layer">2. AudioClient<small>brs obigo/extension</small></div>
+      <div><p><code>obigo/extension/interface/audio/ccnc/AudioClient_ccnc.cc:319</code> <code>AudioClient::NotifyMediaPositionChanged()</code> → <code>app-&gt;notifyMediaPositionChanged(app_id, media_id, duration, position)</code></p></div>
+    </div>
+    <div class="step">
+      <div class="layer">3. MediaSessionManager<small>brs obigo/extension/media</small></div>
+      <div>
+        <p><code>obigo/extension/media/media_session_manager.cc:44</code> <code>notifyMediaPositionChanged()</code> → <code>updateDuration()</code>, <code>updatePosition()</code></p>
+        <p><code>obigo/extension/media/ccnc/media_session_manager_ccnc.cc:140</code> <code>updateDuration()</code>: 값이 같으면 무시하고, 바뀌면 저장한 뒤 <code>onMediaSessionDurationChanged()</code>를 호출합니다.</p>
+        <p class="note"><code>media_session_info.cc</code> <code>set_duration()</code>은 0을 저장하지 않습니다(이전 값 유지).</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="layer">4. NowPlayingController<small>brs obigo/extension/app/ccnc/policy</small></div>
+      <div>
+        <p><code>app_policy_ccnc.cc:1590</code> <code>AppPolicy::onMediaSessionDurationChanged()</code> → <code>nowplaying_controller_ccnc.cc:313</code> <code>NowPlayingController::onMediaSessionDurationChanged()</code></p>
+        <ul>
+          <li><code>media_session_.getDuration()</code>으로 값을 다시 읽습니다. 제목이 비어 있으면 duration을 0으로 보냅니다.</li>
+          <li>메타데이터 변경(<code>:273</code>), 강제 갱신 <code>updateNowPlayingInfo()</code>(<code>:91</code>)에서도 같은 방식으로 duration을 넣어 <code>sendMetaData()</code>를 호출합니다.</li>
+        </ul>
+        <p><code>nowplaying_controller_ccnc.cc:175</code> <code>sendMetaData()</code></p>
+        <ul>
+          <li><code>picknowweb</code>(Video+): title = CP 이름, artist = "", <b>duration = 0</b></li>
+          <li>picknowweb/pickaudioweb: guideJson에 <code>serviceName</code> 추가</li>
+          <li>→ <code>port::Audio::getInst()-&gt;setMetadata(as, app_id, title, artist, extra_info, status, duration, force)</code></li>
+        </ul>
+        <p><code>nowplaying_controller_ccnc.cc:217</code> <code>sendPosition()</code>: picknowweb이면 보내지 않습니다. 그 외에는 <code>port::Audio::setPosition()</code>을 호출합니다.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="layer">5. port Audio<small>brs obigo/port/media/ccnc</small></div>
+      <div>
+        <p><code>obigo/port/media/ccnc/Audio.cc:1002</code> <code>Audio::setMetadata()</code>: <code>getWebAppNameAsync()</code>로 앱 이름을 비동기로 받은 뒤 <code>onWebAppName()</code>에서 <code>AudioImpl::setMetadata()</code>를 호출합니다. reset 이후 도착한 요청은 버립니다.</p>
+        <p><code>Audio.cc:205</code> <code>AudioImpl::setMetadata()</code></p>
+        <pre><code>if (force || title/artist/duration 중 하나라도 바뀜) {
+  WebAppNowPlayingInfo info;
+  info.setMainText(title.c_str());
+  info.setSubText1(artist.c_str());
+  info.setDuration(duration);                          // :227
+  jvalue = parse(extraInfo); jvalue["appId"], jvalue["imageUrl"]   // guideJson
+  clusterInfo.setModeName(app_name.c_str());
+  m_pNowPlayingProvider-&gt;setNowPlayingInfo(SCREEN_TYPE(), a_app_id.c_str(),
+      info, status, jvalue.dump().c_str(), clusterInfo);  // :242
+}</code></pre>
+        <p><code>Audio.cc:324</code> <code>AudioImpl::setPosition()</code> → <code>m_pNowPlayingProvider-&gt;setPlayPosition(SCREEN_TYPE(), appId, position)</code></p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="layer">6. PAL<small>webappmanager-plugin-pal</small></div>
+      <div>
+        <p><code>webappmanager-plugin-pal/interface/src/media/WebAppNowPlayingProvider.cpp</code></p>
+        <pre><code>class WebAppNowPlayingProviderImpl : public mediagatemanager::NowPlayingProvider   // :41
+
+HResult WebAppNowPlayingProvider::setNowPlayingInfo(screen, appId, nowPlayingInfo,
+                                                    status, guideJson, clusterInfo) {  // :114
+  mediagatemanager::NowPlayingInfo nInfo;
+  nInfo.setMainText(nowPlayingInfo.getMainText());
+  nInfo.setSubText1(nowPlayingInfo.getSubText1());
+  nInfo.setSubText2(nowPlayingInfo.getSubText2());
+  nInfo.setDuration(nowPlayingInfo.getDuration());     // :124
+  mediagatemanager::ClusterInfo cInfo; ...
+  return pImpl-&gt;setNowPlayingInfo(screen, ConvertWebAppMediaGateSource(appId),
+      nInfo, ConvertMediaGateNowPlayingStatus(status), guideJson, cInfo);   // :130
+}
+
+HResult WebAppNowPlayingProvider::setPlayPosition(screen, appId, position) {     // :142
+  return pImpl-&gt;setPlayPosition(screen, ConvertWebAppMediaGateSource(appId), position);
+}</code></pre>
+        <p class="note">appId 문자열을 <code>MediaGateSource</code> enum으로 바꾸는 곳은 <code>ConvertWebAppMediaGateSource()</code>입니다. picknowweb이 이 변환에서 빠지면 아무것도 표시되지 않습니다(이전 버그 패턴).</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="layer">7. 모비스 SDK<small>mediagatemanager-interface</small></div>
+      <div>
+        <p><code>/home/obigo/obigo-sdk/target/hyundai/mobis-ccnc/aarch64-gnu-linux-nvidia/sysroots/aarch64-gnu-linux/ccos/include/mediagatemanager-interface/</code></p>
+        <p><code>NowPlayingProvider.h</code></p>
+        <pre><code>HResult setNowPlayingInfo(const HScreenType&amp; screen, const MediaGateSource&amp; source,
+                          const NowPlayingInfo&amp; nowPlayingInfo, const ClusterInfo&amp; clusterInfo);   // :110
+HResult setNowPlayingInfo(const HScreenType&amp; screen, const MediaGateSource&amp; source,
+                          const NowPlayingInfo&amp; nowPlayingInfo, const NowPlayingStatus&amp; status,
+                          const std::string&amp; guideJson, const ClusterInfo&amp; clusterInfo);  // :124 ← 사용
+// setNowPlayingStatus / setPlayPosition / setNowPlayingImage / setStatusBarImageUrl ...</code></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>NowPlayingInfo 구조 (모비스 SDK)</h2>
+  <p><code>mediagatemanager-interface/NowPlayingInfo.h</code>, namespace <code>ccos::app::manager::mediagatemanager</code>. 내부 구현은 pImpl로 감춰져 있고 setter/getter만 공개됩니다.</p>
+  <pre><code>class NowPlayingInfo {
+public:
+    NowPlayingInfo();
+    NowPlayingInfo(mainText, subText1, subText2, const HUInt64&amp; duration);
+    NowPlayingInfo(mainText, subText1, subText2, const HUInt64&amp; duration, extraInfoJson);
+    // 복사/이동 생성자, operator=, operator==
+    void setMainText(const std::string&amp;);       const std::string&amp; getMainText() const;
+    void setSubText1(const std::string&amp;);       const std::string&amp; getSubText1() const;
+    void setSubText2(const std::string&amp;);       const std::string&amp; getSubText2() const;
+    void setDuration(const HUInt64);            HUInt64 getDuration() const;   // 0 : No duration info
+    void setExtraInfoJson(const std::string&amp;);  const std::string&amp; getExtraInfoJson() const;
+private:
+    class NowPlayingInfoImpl;
+    std::unique_ptr&lt;NowPlayingInfoImpl&gt; m_pImpl;
+};</code></pre>
+  <div class="tbl"><table>
+    <thead><tr><th>필드</th><th>타입</th><th>brs/PAL에서 넣는 값</th></tr></thead>
+    <tbody>
+      <tr><td><code>mainText</code></td><td><code>std::string</code></td><td>title (Video+는 CP 이름)</td></tr>
+      <tr><td><code>subText1</code></td><td><code>std::string</code></td><td>artist</td></tr>
+      <tr><td><code>subText2</code></td><td><code>std::string</code></td><td>album (brs는 설정 안 함, 빈 값)</td></tr>
+      <tr class="key"><td><code>duration</code></td><td><code>HUInt64</code></td><td>media session duration(ms). Video+ 또는 제목 없음이면 0</td></tr>
+      <tr><td><code>extraInfoJson</code></td><td><code>std::string</code></td><td>PAL에서 설정 안 함 (guideJson과 별개)</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">SDK 헤더 주석에는 duration 단위가 적혀 있지 않습니다. 보내는 쪽(Chromium <code>InMilliseconds()</code>)과 받는 쪽(webcommonhmi <code>SonHPlayingProgressBar.qml</code>) 모두 ms로 다룹니다.</p>
+</section>
+
+<section>
+  <h2>setNowPlayingInfo 인자별로 들어가는 값</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>인자</th><th>내용</th><th>duration 포함</th></tr></thead>
+    <tbody>
+      <tr><td><code>screen</code></td><td><code>SCREEN_TYPE()</code> (FRONT_CENTER)</td><td>-</td></tr>
+      <tr><td><code>source</code></td><td>appId → <code>MediaGateSource</code> (pickaudioweb = 46)</td><td>-</td></tr>
+      <tr class="key"><td><code>NowPlayingInfo</code></td><td>mainText, subText1, subText2, <b>duration</b></td><td><b>O</b></td></tr>
+      <tr><td><code>status</code></td><td><code>MediaWidgetStatus</code> → <code>NowPlayingStatus</code> (PLAYING/PAUSED …)</td><td>X</td></tr>
+      <tr><td><code>guideJson</code></td><td><code>actions</code>, <code>artist</code>, <code>category</code> (<code>getExtraInfo()</code>) + <code>serviceName</code> (<code>sendMetaData()</code>) + <code>appId</code>, <code>imageUrl</code> (<code>AudioImpl::setMetadata()</code>)</td><td>X</td></tr>
+      <tr><td><code>ClusterInfo</code></td><td><code>modeName</code> = 앱 이름, <code>userShowFlag</code> = false</td><td>X</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">Bookmark 경로(<code>bookmark_policy_ccnc.cc:252</code>)의 guideJson은 <code>serviceName</code>, <code>isPlaying</code>, <code>thumbnailPath</code>, <code>faviconPath</code>입니다. 여기에도 duration은 없습니다.</p>
+</section>
+
+<section>
+  <h2>받는 쪽: webcommonhmi NPP</h2>
+  <p>webcommonhmi는 같은 MediaGate를 listener로 구독합니다. 모비스 NPB와 같은 값을 받아 자기 NPP 화면의 progress bar를 그립니다.</p>
+  <ol>
+    <li><code>webcommonhmi/src/nowplaying/NowPlayingManager.cc:104</code> <code>onNowPlayingInfoChanged()</code>: Audio+ 소스만 처리. <code>info.getDuration()</code>이 0보다 크거나 제목이 바뀌었을 때만 <code>m_playerMediaDuration</code>을 갱신합니다(일시정지 즈음 들어오는 duration 0이 값을 지우지 않도록).</li>
+    <li><code>NowPlayingManager.cc:240</code> <code>emitNowPlayingPlayerMediaData()</code>: <code>QVariantMap data; data["duration"] = m_playerMediaDuration;</code> → <code>nowPlayingPlayerMediaDataChanged(data)</code></li>
+    <li><code>WebCommonHmi.cc:418</code> <code>setNowPlayingPlayerMediaData()</code> → Q_PROPERTY <code>nowPlayingPlayerMediaData</code></li>
+    <li><code>resources/qml/NowPlayingPlayer/WEBCOMMON_NowPlayingPlayerScene.qml:57</code> <code>mediaDuration = data.duration || 0</code>, <code>:104</code> <code>sonHPlayingProgressBar.duration</code></li>
+    <li><code>SonHPlayingProgressBar.qml:14</code> <code>playedRatio = position / duration</code>. duration이 0이면 진행률 0, seek 막힘(<code>:116</code>)</li>
+  </ol>
+  <p class="note">position은 <code>onNowPlayingPositionChanged</code> → <code>nowPlayingPlayerPositionChanged</code>(<code>NowPlayingManager.cc:186</code>)로 따로 들어옵니다.</p>
+  <p class="note">MediaGate JSON(<code>nowplayingJson["info"]["duration"]</code>)으로 duration을 쓰는 곳도 따로 있습니다: <code>hwebappwidget/src/model/MediaGateJsonParser.cpp:68</code>, <code>:180</code>, <code>theaterhmi/src/model/MediaGateJsonParser.cc:74</code>.</p>
+</section>
+
+<section class="warn">
+  <h2>확인할 때 볼 로그와 주의점</h2>
+  <ul>
+    <li>brs 송신: <code>AudioImpl::setMetadata source : … duration : &lt;ms&gt;</code>, 성공 시 <code>AudioImpl::setMetadata success</code></li>
+    <li>webcommonhmi 수신: <code>NowPlayingManager::onNowPlayingInfoChanged source: … duration: &lt;ms&gt;</code></li>
+    <li><code>AudioImpl::setMetadata()</code>는 title/artist/duration이 모두 이전과 같으면 보내지 않습니다(<code>force</code> 제외).</li>
+    <li><code>Audio::setMetadata()</code>는 앱 이름을 비동기로 받은 뒤 전송합니다. 그래서 요청 시점의 status를 들고 늦게 도착할 수 있습니다(<a href="audioplus_playpause_status_mismatch_20261125.html">Audio+ 재생 버튼 상태 어긋남</a> 참고).</li>
+    <li>라이브 스트림은 Chromium에서 duration이 <code>is_max()</code>입니다. 이 값이 <code>InMilliseconds()</code>로 변환되어 그대로 전달될 수 있으니, 라이브 CP에서 progress bar가 이상하면 이 값을 먼저 확인합니다(코드상 추정, 실기기 미확인).</li>
+  </ul>
+</section>
+</main>
+</body>
+</html>

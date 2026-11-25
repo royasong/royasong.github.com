@@ -15,27 +15,43 @@
   .sub a { color:var(--link); }
   input { width:100%; padding:8px 10px; border:1px solid var(--border); border-radius:6px; background:var(--card); color:var(--text); margin-bottom:12px; font-size:.95rem; }
   ul { list-style:none; margin:0; padding:0; background:var(--card); border:1px solid var(--border); border-radius:8px; overflow:hidden; }
-  li a { display:flex; align-items:center; gap:10px; padding:10px 14px; color:var(--link); text-decoration:none; border-top:1px solid var(--border); word-break:break-all; }
+  li a { display:flex; align-items:flex-start; gap:10px; padding:10px 14px; color:var(--link); text-decoration:none; border-top:1px solid var(--border); word-break:break-all; }
   li:first-child a { border-top:none; }
   li a:hover { background:var(--hover); }
   .ext { font-size:.7rem; color:var(--muted); background:var(--chip); border:1px solid var(--border); border-radius:4px; padding:1px 6px; min-width:44px; text-align:center; flex-shrink:0; }
   .empty { padding:14px; color:var(--muted); }
+  .body { display:flex; flex-direction:column; gap:2px; min-width:0; }
+  .desc { color:var(--muted); font-size:.85rem; line-height:1.45; word-break:keep-all; overflow-wrap:anywhere; }
 </style>
 </head>
 <body>
 <main>
   <h1>AI 문서 목록</h1>
   <div class="sub"><a href="../index.htm">← 메인으로</a> · <span id="count"></span></div>
-  <input id="q" type="search" placeholder="파일 이름 검색">
+  <input id="q" type="search" placeholder="파일 이름·내용 검색">
   <ul id="list"><li class="empty">불러오는 중…</li></ul>
 </main>
 <script>
-const FALLBACK = ["CVE-2026-13855_OSSW-7411.pptx", "CVE-2026-95334.pptx", "apple_podcasts_select_disabled_option.html", "blockfile_cache_period_size.html", "claude_crash_stack_trace_review.htm", "claude_popup_player_bug.htm", "codex_crash-stack-trace-review.htm", "cp_pc_memleak_spotify_skillshare_20261123.html", "disk_cache_blockfile_vs_simple.html", "picknow_app_partition_storage.html", "release_devtools_cdp_block_20261124.html"];
+const FALLBACK = ["apple_podcasts_select_disabled_option.html", "audioplus_playpause_status_mismatch_20261125.html", "blockfile_cache_period_size.html", "brs143_porting_leak_cpu_audit_20261124.html", "brs_mobis_nowplaying_duration_api_20261125.html", "claude_crash_stack_trace_review.htm", "claude_popup_player_bug.htm", "codex_crash-stack-trace-review.htm", "cp_pc_memleak_spotify_skillshare_20261123.html", "disk_cache_blockfile_vs_simple.html", "picknow_app_partition_storage.html", "release_devtools_cdp_block_20261124.html"];
+const DESC = {
+  "apple_podcasts_select_disabled_option.html": "Apple Podcasts 드롭박스에서 선택 불가(disabled) 항목이 터치로 선택되는 문제. Blink가 터치(GestureTap) 경로에서 disabled 검사를 안 하는 엔진 결함.",
+  "audioplus_playpause_status_mismatch_20261125.html": "Audio+ 홈 위젯 재생 버튼을 빠르게 누르면 재생 중인데 ▶로 남는 문제. 비동기 setNowPlayingInfo가 지난 PAUSED를 늦게 보내 덮어씀.",
+  "blockfile_cache_period_size.html": "인터넷 사용 기록 삭제 화면의 캐시 용량이 기간과 상관없이 전체 크기로 나오던 문제. blockfile 백엔드에 기간별 크기 계산을 추가하고 단말에서 확인.",
+  "brs143_porting_leak_cpu_audit_20261124.html": "brs_143의 OBIGO 수정 코드를 원본 Chromium 143과 비교해 메모리 누수·CPU 부하 위험을 정적 점검한 결과.",
+  "brs_mobis_nowplaying_duration_api_20261125.html": "NPB 재생 시간(duration)이 brs → PAL → 모비스 SDK로 가는 경로. NowPlayingProvider::setNowPlayingInfo()의 NowPlayingInfo에 담기며 guideJson에는 없음.",
+  "claude_crash_stack_trace_review.htm": "MF1-15 크래시 스택 DLT 출력 최종 구현 리뷰(Claude). MOBIS/MOTREX 시그널 핸들러 주인 차이와 핸들러 체이닝 방식 정리.",
+  "claude_popup_player_bug.htm": "TikTok 라이브를 백그라운드 재생 중 홈에서 팝업 플레이어가 안 뜨는 문제. 원인은 사이트 설정의 데스크톱 User-Agent.",
+  "codex_crash-stack-trace-review.htm": "MF1-15 크래시 스택 시그널 체이닝 구현 코드 리뷰(Codex). 플랫폼별 SIG/DLT 경로와 블로커·심각 이슈 목록.",
+  "cp_pc_memleak_spotify_skillshare_20261123.html": "Spotify·Skillshare PC 메모리 재측정. 둘 다 누수 아님. 1차 증가는 CDP Network.enable(측정 도구) 때문.",
+  "disk_cache_blockfile_vs_simple.html": "HTTP 디스크 캐시 blockfile(mobis) vs simple(motrex) 백엔드의 구조·삭제 동작·용량 비교.",
+  "picknow_app_partition_storage.html": "Video+/Audio+ 앱별 StoragePartition 구조, 최대 용량, 로그아웃 시 삭제 범위와 단말 테스트 결과.",
+  "release_devtools_cdp_block_20261124.html": "release 빌드에서 DevTools(inspector)·CDP 접근을 막는 수정 검토. 원격 디버깅, 단축키, 확장 경로 차단."
+};
 const list = document.getElementById('list'), q = document.getElementById('q');
 let files = [];
 function render() {
   const k = q.value.trim().toLowerCase();
-  const shown = files.filter(f => f.toLowerCase().includes(k));
+  const shown = files.filter(f => (f + ' ' + (DESC[f] || '')).toLowerCase().includes(k));
   document.getElementById('count').textContent = shown.length + '개 파일';
   list.innerHTML = '';
   if (!shown.length) { list.innerHTML = '<li class="empty">파일이 없습니다</li>'; return; }
@@ -45,7 +61,17 @@ function render() {
     a.target = '_blank'; a.rel = 'noopener';
     const ext = document.createElement('span');
     ext.className = 'ext'; ext.textContent = (f.split('.').pop() || '').toUpperCase();
-    a.append(ext, document.createTextNode(f));
+    const body = document.createElement('span');
+    body.className = 'body';
+    const name = document.createElement('span');
+    name.className = 'name'; name.textContent = f;
+    body.append(name);
+    if (DESC[f]) {
+      const d = document.createElement('span');
+      d.className = 'desc'; d.textContent = DESC[f];
+      body.append(d);
+    }
+    a.append(ext, body);
     li.append(a); list.append(li);
   }
 }

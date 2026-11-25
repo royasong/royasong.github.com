@@ -22,16 +22,14 @@
     margin: 0 0 6px;
   }
   h1 img { width: 24px; height: 24px; vertical-align: -5px; margin-right: 6px; }
-  .site {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  .sites {
     margin-bottom: 20px;
     padding-bottom: 10px;
     border-bottom: 2px solid #b8bec7;
-    font-size: 13px;
   }
-  .site a { color: #315f9f; font-size: 20px; }
+  .site { font-size: 16px; padding: 2px 0; }
+  .site-name { display: inline-block; min-width: 90px; font-weight: 600; }
+  .site a { color: #315f9f; }
   table {
     width: 100%;
     max-width: 640px;
@@ -82,16 +80,6 @@
   .copy-btn::before { content: "📋"; font-size: 12px; }
   .copy-btn.copied::before { content: "✅"; }
   .copy-btn:hover { background: #4778b4; }
-  .site a.open-btn {
-    font-size: 12px;
-    font-weight: 600;
-    color: #fff;
-    background: #5f8fc9;
-    padding: 4px 10px;
-    border-radius: 4px;
-    text-decoration: none;
-  }
-  .site a.open-btn:hover { background: #4778b4; }
   .section { margin-top: 32px; }
   .section h2 {
     font-size: 16px;
@@ -171,25 +159,14 @@
 <body>
 
 <h1><img src="../damgomface.png" alt="담곰">Mobis Partners 계정</h1>
-<div class="site">
-  <a href="https://im.mobis.com/" target="_blank" rel="noopener">https://im.mobis.com/</a>
-  <button class="copy-btn" title="복사" data-copy="https://im.mobis.com/"></button>
-  <a class="open-btn" href="https://im.mobis.com/" target="_blank" rel="noopener" title="새 탭에서 열기">open link</a>
-</div>
-<div class="site">
-  <a href="https://partnervpn.mobis.com" target="_blank" rel="noopener">https://partnervpn.mobis.com</a>
-  <button class="copy-btn" title="복사" data-copy="https://partnervpn.mobis.com"></button>
-  <a class="open-btn" href="https://partnervpn.mobis.com" target="_blank" rel="noopener" title="새 탭에서 열기">open link</a>
-</div>
-<div class="site">
-  <a href="https://jira.mobis.co.kr/" target="_blank" rel="noopener">https://jira.mobis.co.kr/</a>
-  <button class="copy-btn" title="복사" data-copy="https://jira.mobis.co.kr/"></button>
-  <a class="open-btn" href="https://jira.mobis.co.kr/" target="_blank" rel="noopener" title="새 탭에서 열기">open link</a>
-</div>
-<div class="site">
-  <a href="https://one.mobis.com/" target="_blank" rel="noopener">https://one.mobis.com/</a>
-  <button class="copy-btn" title="복사" data-copy="https://one.mobis.com/"></button>
-  <a class="open-btn" href="https://one.mobis.com/" target="_blank" rel="noopener" title="새 탭에서 열기">open link</a>
+<div class="sites">
+	<div class="site"><span class="site-name">vpn</span> : <a href="https://partnervpn.mobis.com/" target="_blank" rel="noopener">https://partnervpn.mobis.com/</a></div>
+  <div class="site"><span class="site-name">Jira</span> : <a href="https://jira.mobis.co.kr" target="_blank" rel="noopener">https://jira.mobis.co.kr</a></div>
+  <div class="site"><span class="site-name">One</span> : <a href="https://one.mobis.com/" target="_blank" rel="noopener">https://one.mobis.com/</a></div>
+  <div class="site"><span class="site-name">Bitbucket</span> : <a href="https://bitbucket.mobis.co.kr" target="_blank" rel="noopener">https://bitbucket.mobis.co.kr</a></div>
+  <div class="site"><span class="site-name">Confluence</span> : <a href="https://confluence.mobis.co.kr" target="_blank" rel="noopener">https://confluence.mobis.co.kr</a></div>
+  <div class="site"><span class="site-name">Integrity</span> : <a href="http://integrity.mobis.co.kr:7001" target="_blank" rel="noopener">http://integrity.mobis.co.kr:7001</a></div>
+  <div class="site"><span class="site-name">Polarion</span> : <a href="https://polarion.mobis.co.kr" target="_blank" rel="noopener">https://polarion.mobis.co.kr</a></div>
 </div>
 
 <table>
@@ -204,7 +181,7 @@
     </tr>
     <tr>
       <td>송*희</td>
-      <td><div class="cell"><code>DT110521(새우깡)</code><button class="copy-btn" title="복사" data-copy="DT110521"></button></div></td>
+      <td><div class="cell"><code>DT110521(감자깡)</code><button class="copy-btn" title="복사" data-copy="DT110521"></button></div></td>
       <td><div class="cell"><code>DT110521<span class="domain">@mobis-partners.com</span></code><button class="copy-btn" title="복사" data-copy="DT110521@mobis-partners.com"></button></div></td>
     </tr>
     <tr>
